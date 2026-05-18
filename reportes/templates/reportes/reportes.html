@@ -1,0 +1,448 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Ventas y Compras</title>
+    <!-- Usamos Bootstrap para estructura rápida y FontAwesome para iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .main-container { max-width: 1200px; margin: 30px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        
+        /* Tabs superiores */
+        .nav-tabs .nav-link { border: none; font-weight: 600; padding: 12px 24px; }
+        .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; background: transparent; }
+        
+        /* Tarjetas de Resumen */
+        .summary-card { border-radius: 8px; color: white; padding: 20px; text-align: center; }
+        .bg-blue-primary { background-color: #2563eb; }
+        .bg-blue-light { background-color: #60a5fa; }
+        .summary-card h2 { font-size: 2.5rem; font-weight: bold; margin: 0; }
+        .summary-card p { margin: 5px 0 0; opacity: 0.9; text-transform: uppercase; font-size: 0.9rem; }
+        
+        /* Filtros */
+        .filters-section { padding: 20px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 20px; }
+        .filter-btn-group .btn { border: 1px solid #0d6efd; color: #0d6efd; margin-right: 5px; font-size: 0.9rem; }
+        .filter-btn-group .btn.active, .filter-btn-group .btn:active { background-color: #0d6efd; color: white; }
+        
+        /* Tabla */
+        .table th { background-color: #0d6efd; color: white; border: none; }
+        .table-hover tbody tr:hover { background-color: #f8f9fa; }
+        .action-btn { cursor: pointer; margin: 0 5px; color: #6c757d; }
+        .action-btn:hover { color: #0d6efd; }
+        
+        /* Detalle Inferior (Invoice Preview) */
+        .invoice-preview { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; margin-top: 20px; overflow: hidden; display: none; } /* Oculto por defecto */
+        .invoice-header { background: #0d6efd; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .invoice-body { padding: 20px; }
+        .invoice-table th { background: #f8f9fa; color: #333; border-bottom: 2px solid #dee2e6; }
+        
+        /* Sticky Note */
+        .sticky-note { position: fixed; top: 20px; right: 20px; background: #facc15; padding: 10px 15px; width: 120px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transform: rotate(3deg); font-family: 'Courier New', Courier, monospace; font-weight: bold; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- Sticky Note Mockup -->
+    <div class="sticky-note" id="stickyNote">Reporte Ventas</div>
+
+    <!-- Tabs de Navegación -->
+    <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ventas-tab" data-bs-toggle="tab" data-bs-target="#ventas-content" type="button" role="tab" onclick="changeSticky('Reporte Ventas')">Reporte de Ventas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="compras-tab" data-bs-toggle="tab" data-bs-target="#compras-content" type="button" role="tab" onclick="changeSticky('Reporte Compras')">Reporte de Compras</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        
+        <!-- ================= CONTENIDO VENTAS ================= -->
+        <div class="tab-pane fade show active" id="ventas-content" role="tabpanel">
+            <!-- Resumen Superior -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="summary-card bg-blue-primary">
+                        <h2 id="v_total_vendido">Bo 0.00</h2>
+                        <p>Total Vendido</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card bg-blue-light">
+                        <h2 id="v_cant_ventas">0</h2>
+                        <p>Cant. Ventas</p>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center bg-light rounded">
+                    <span class="text-muted">FECHA: <span id="v_fecha_rango"></span></span>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-section">
+                <h5 class="mb-3">Filtros</h5>
+                
+                <!-- Filtro Rápido -->
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Fecha</label>
+                    <div class="btn-group filter-btn-group" role="group" id="v_filtro_rapido_group">
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('ventas', 'ultimo_dia', this)">Último Día</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('ventas', 'ultima_semana', this)">Última Semana</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('ventas', 'este_mes', this)">Este Mes</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('ventas', 'este_año', this)">Este Año</button>
+                    </div>
+                </div>
+
+                <!-- Filtro Personalizado -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Fecha Personalizada (Desde)</label>
+                        <input type="date" class="form-control" id="v_desde_personalizado">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Fecha Personalizada (Hasta)</label>
+                        <input type="date" class="form-control" id="v_hasta_personalizado">
+                    </div>
+                </div>
+
+                <!-- Filtros Extra -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Cliente</label>
+                        <select class="form-select" id="v_cliente_filter">
+                            <option value="">Todos los Clientes</option>
+                            <!-- Se llenaría dinámicamente si hay muchos -->
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Producto (Nombre)</label>
+                        <input type="text" class="form-control" id="v_producto_filter" placeholder="Nombre producto...">
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button class="btn btn-primary px-4" onclick="fetchVentas()"><i class="fas fa-search"></i> Filtrar</button>
+                </div>
+            </div>
+
+            <!-- Tabla de Ventas -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">Detalles de Ventas</h5>
+                <button class="btn btn-sm btn-success"><i class="fas fa-print"></i> Exportar Todo</button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nro Venta</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="ventas_table_body">
+                    <!-- JS llenará esto -->
+                </tbody>
+            </table>
+
+            <!-- Detalle Venta (Invoice Preview) -->
+            <div class="invoice-preview" id="venta_detail_view">
+                <div class="invoice-header">
+                    <span id="vd_title">Venta #</span>
+                    <span id="vd_date"></span>
+                </div>
+                <div class="invoice-body">
+                    <div class="mb-3"><strong>Cliente:</strong> <span id="vd_client"></span></div>
+                    <table class="table table-sm invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vd_items">
+                            <!-- Items -->
+                        </tbody>
+                    </table>
+                    <div class="text-end mt-3">
+                        <h5 class="text-primary">Total: <span id="vd_total"></span></h5>
+                        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="window.open(`/pdf/venta/${currentVentaId}/`, '_blank')">
+                            <i class="fas fa-file-pdf"></i> Guardar PDF
+                        </button>
+                        <button class="btn btn-sm btn-outline-dark mt-2" onclick="window.print()">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CONTENIDO COMPRAS ================= -->
+        <div class="tab-pane fade" id="compras-content" role="tabpanel">
+            <!-- Resumen Superior -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="summary-card bg-blue-primary">
+                        <h2 id="c_total_comprado">Bo 0.00</h2>
+                        <p>Total Comprado</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card bg-blue-light">
+                        <h2 id="c_cant_compras">0</h2>
+                        <p>Ordenes Realizadas</p>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center bg-light rounded">
+                    <span class="text-muted">FECHA: <span id="c_fecha_rango"></span></span>
+                </div>
+            </div>
+
+            <!-- Filtros Compras -->
+            <div class="filters-section">
+                <h5 class="mb-3">Filtros</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Fecha</label>
+                    <div class="btn-group filter-btn-group" role="group" id="c_filtro_rapido_group">
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('compras', 'ultimo_dia', this)">Último Día</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('compras', 'ultima_semana', this)">Última Semana</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('compras', 'este_mes', this)">Este Mes</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="setQuickFilter('compras', 'este_año', this)">Este Año</button>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Desde</label>
+                        <input type="date" class="form-control" id="c_desde_personalizado">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Hasta</label>
+                        <input type="date" class="form-control" id="c_hasta_personalizado">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Proveedor</label>
+                        <input type="text" class="form-control" id="c_proveedor_filter" placeholder="Nombre Proveedor">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">Estado Inventario</label>
+                        <select class="form-select" id="c_estado_filter">
+                            <option value="">Todos</option>
+                            <option value="agotado">Agotado</option>
+                            <option value="disponible">Disponible</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button class="btn btn-primary px-4" onclick="fetchCompras()"><i class="fas fa-search"></i> Filtrar</button>
+                </div>
+            </div>
+
+            <!-- Tabla Compras -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">Listado de Compras</h5>
+                <button class="btn btn-sm btn-success"><i class="fas fa-print"></i> Exportar Todo</button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>N Compra</th>
+                        <th>Proveedor</th>
+                        <th>Total</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="compras_table_body">
+                    <!-- JS llenará esto -->
+                </tbody>
+            </table>
+            
+             <!-- Detalle Compra (Preview) -->
+             <div class="invoice-preview" id="compra_detail_view">
+                <div class="invoice-header">
+                    <span id="cd_title">Compra #</span>
+                    <span id="cd_date"></span>
+                    <span id="cd_supplier"></span>
+                </div>
+                <div class="invoice-body">
+                    <div class="alert alert-info py-2">Vista previa simple para compras (Lógica similar a ventas)</div>
+                     <!-- Aquí podrías replicar la tabla de items de compra si lo deseas -->
+                     <p>Detalle no implementado en este ejemplo visual.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Variables globales para estado
+    let currentVentaId = null;
+
+    // --- UI LOGIC ---
+    function changeSticky(text) {
+        document.getElementById('stickyNote').innerText = text;
+    }
+
+    function setQuickFilter(type, value, btnElement) {
+        // Limpiar inputs personalizados si selecciona filtro rápido
+        document.getElementById(`${type === 'ventas' ? 'v' : 'c'}_desde_personalizado`).value = '';
+        document.getElementById(`${type === 'ventas' ? 'v' : 'c'}_hasta_personalizado`).value = '';
+        
+        // Actualizar UI de botones
+        const group = document.getElementById(`${type === 'ventas' ? 'v' : 'c'}_filtro_rapido_group`);
+        const buttons = group.querySelectorAll('.btn');
+        buttons.forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        
+        // Guardar selección temporalmente (opcional, usaremos onclick del filtro)
+        btnElement.dataset.value = value;
+    }
+
+    // --- DATA FETCHING ---
+    
+    // Ventas
+    function fetchVentas() {
+        const desde = document.getElementById('v_desde_personalizado').value;
+        const hasta = document.getElementById('v_hasta_personalizado').value;
+        
+        // Buscar si hay un botón de filtro rápido activo
+        const activeBtn = document.querySelector('#v_filtro_rapido_group .btn.active');
+        let filtro_rapido = '';
+        if (activeBtn) {
+            filtro_rapido = activeBtn.innerText.toLowerCase().replace(' ', '_').replace('último', 'ultimo'); // mapeo simple
+            // Ajustar texto de botones al formato del backend
+            if(filtro_rapido.includes('semana')) filtro_rapido = 'ultima_semana';
+            else if(filtro_rapido.includes('día') || filtro_rapido.includes('dia')) filtro_rapido = 'ultimo_dia';
+            else if(filtro_rapido.includes('mes')) filtro_rapido = 'este_mes';
+            else if(filtro_rapido.includes('año') || filtro_rapido.includes('ano')) filtro_rapido = 'este_año';
+        }
+
+        // Construir URL
+        let url = `/api/ventas/?filtro_rapido=${filtro_rapido}&desde_personalizado=${desde}&hasta_personalizado=${hasta}`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('v_total_vendido').innerText = data.total_vendido;
+                document.getElementById('v_cant_ventas').innerText = data.cant_ventas;
+                
+                // Formatear fecha para mostrar
+                if(desde && hasta) document.getElementById('v_fecha_rango').innerText = `${desde} - ${hasta}`;
+                else document.getElementById('v_fecha_rango').innerText = "Rango Predefinido";
+
+                const tbody = document.getElementById('ventas_table_body');
+                tbody.innerHTML = '';
+                
+                data.ventas.forEach(v => {
+                    let row = `
+                        <tr>
+                            <td>${v.fecha}</td>
+                            <td>${v.nro_venta}</td>
+                            <td>${v.cliente}</td>
+                            <td>${v.total}</td>
+                            <td class="text-center">
+                                <i class="fas fa-eye action-btn" title="Ver Detalle" onclick="verDetalleVenta(${v.id})"></i>
+                                <i class="fas fa-file-pdf action-btn" title="Descargar PDF" onclick="descargarPDFVenta(${v.id})"></i>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                // Ocultar detalle si se filtra
+                document.getElementById('venta_detail_view').style.display = 'none';
+            });
+    }
+
+    function verDetalleVenta(id) {
+        // Lógica para obtener detalle específico (simplificado aquí)
+        // En una app real, harías otro fetch a /api/venta_detalle/{id}
+        
+        // Simulación visual para demostrar el mockup
+        document.getElementById('venta_detail_view').style.display = 'block';
+        document.getElementById('vd_title').innerText = `Venta #${id}`;
+        document.getElementById('vd_date').innerText = new Date().toLocaleDateString();
+        document.getElementById('vd_client').innerText = "Cliente General"; // Mock
+        document.getElementById('vd_total').innerText = "Bo 90,00"; // Mock
+        document.getElementById('vd_items').innerHTML = `
+            <tr><td>Galletas</td><td>10</td><td>Bs 9</td><td>Bs90</td></tr>
+        `;
+        currentVentaId = id;
+    }
+
+    function descargarPDFVenta(id) {
+        window.open(`/pdf/venta/${id}/`, '_blank');
+    }
+
+    // Compras
+    function fetchCompras() {
+        const desde = document.getElementById('c_desde_personalizado').value;
+        const hasta = document.getElementById('c_hasta_personalizado').value;
+        
+        const activeBtn = document.querySelector('#c_filtro_rapido_group .btn.active');
+        let filtro_rapido = '';
+        if (activeBtn) {
+             filtro_rapido = activeBtn.innerText.toLowerCase().replace(' ', '_').replace('último', 'ultimo');
+             if(filtro_rapido.includes('semana')) filtro_rapido = 'ultima_semana';
+             else if(filtro_rapido.includes('día') || filtro_rapido.includes('dia')) filtro_rapido = 'ultimo_dia';
+             else if(filtro_rapido.includes('mes')) filtro_rapido = 'este_mes';
+             else if(filtro_rapido.includes('año') || filtro_rapido.includes('ano')) filtro_rapido = 'este_año';
+        }
+
+        let url = `/api/compras/?filtro_rapido=${filtro_rapido}&desde_personalizado=${desde}&hasta_personalizado=${hasta}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('c_total_comprado').innerText = data.total_comprado;
+                document.getElementById('c_cant_compras').innerText = data.cant_compras;
+
+                if(desde && hasta) document.getElementById('c_fecha_rango').innerText = `${desde} - ${hasta}`;
+                else document.getElementById('c_fecha_rango').innerText = "Rango Predefinido";
+
+                const tbody = document.getElementById('compras_table_body');
+                tbody.innerHTML = '';
+                
+                data.compras.forEach(c => {
+                    let row = `
+                        <tr>
+                            <td>${c.fecha}</td>
+                            <td>${c.nro_compra}</td>
+                            <td>${c.proveedor}</td>
+                            <td>${c.total}</td>
+                            <td class="text-center">
+                                <i class="fas fa-eye action-btn"></i>
+                                <i class="fas fa-file-pdf action-btn"></i>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            });
+    }
+
+    // Cargar datos iniciales al entrar
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchVentas();
+        fetchCompras();
+    });
+
+</script>
+</body>
+</html>
