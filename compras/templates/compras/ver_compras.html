@@ -112,50 +112,81 @@
             margin-bottom: 20px; 
         }
 
-        /* Debug panel styles */
-        .alert-warning.border-dashed {
-            background-color: #fff3cd;
-            border-color: #ffc107 !important;
+        /* Botones de acción mejorados */
+        .btn-ver {
+            background-color: #17a2b8;
+            color: white;
         }
         
-        details summary {
-            cursor: pointer;
-            user-select: none;
+        .btn-ver:hover {
+            background-color: #138496;
+            color: white;
         }
         
-        details summary:hover {
-            color: #0d6efd;
+        .btn-imprimir {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .btn-imprimir:hover {
+            background-color: #e0a800;
+            color: #000;
+        }
+        
+        .btn-pdf {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #c82333;
+            color: white;
+        }
+        
+        .btn-editar {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-editar:hover {
+            background-color: #218838;
+            color: white;
+        }
+        
+        .btn-eliminar {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-eliminar:hover {
+            background-color: #5a6268;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-        <!-- SIDEBAR -->
+    <!-- ========== SIDEBAR ========== -->
     <div class="sidebar">
-        <h5>Dashboard</h5>
-        <a href="#">Inicio</a>
-        <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
-    
+        <h5><i class="fas fa-tachometer-alt me-2"></i> Dashboard</h5>
+        <a href="{% url 'dashboard_admin' %}"><i class="fas fa-home me-2"></i> Inicio</a>
+        <a href="{% url 'dashboard_admin' %}"><i class="fas fa-users me-2"></i> Gestión de Usuarios</a>
+        <a href="{% url 'productos:inventario' %}"><i class="fas fa-box me-2"></i> Productos</a>
+        <a href="{% url 'categorias:lista' %}"><i class="fas fa-tags me-2"></i> Categorías</a>
+        <a href="{% url 'proveedores:lista' %}"><i class="fas fa-truck me-2"></i> Proveedores</a>
+        <a href="{% url 'compras:ver_compras' %}"><i class="fas fa-shopping-cart me-2"></i> Compras</a>
+        <a href="{% url 'reportes:compras_report' %}"><i class="fas fa-chart-bar me-2"></i> Reportes</a>
+
         <hr>
-        <a href="{% url 'productos:inventario' %}">Productos</a>
-    
-        <hr>
-        <a href="{% url 'categorias:lista' %}">Categorías</a>
-        <hr>
-        <a href="{% url 'compras:ver_compras' %}">Compras</a>
-            
-        <hr>
-            
-        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
         
-        <hr> <!-- Separador para el nuevo módulo -->
-        <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
-        <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
+        <a href="{% url 'compras:compras_desactivadas' %}">
+            <i class="fas fa-archive me-2"></i> Ver inactivos
+        </a>
         
         <hr>
-        <a href="{% url 'logout' %}">Cerrar sesión</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a>
     </div>
-    
+
     <!-- ========== CONTENIDO PRINCIPAL ========== -->
     <div class="content-wrapper">
         <div class="container main-card">
@@ -171,28 +202,28 @@
                 </a>
             </div>
 
-            
-
-           
-
             <!-- 📋 Listado de Compras -->
             {% for compra_data in compras %}
             <div class="card">
                 <!-- Cabecera de la compra -->
                 <div class="card-header bg-primary-custom">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <i class="fas fa-shopping-cart"></i> 
                             Compra #{{ compra_data.compra.id_compra }}
                         </div>
-                        <div class="col-md-4 text-center">
+                        <div class="col-md-3 text-center">
                             <i class="fas fa-calendar"></i> 
                             {{ compra_data.compra.fecha|date:"d/m/Y H:i" }}
                         </div>
-                        
-                        <div class="col-md-4 text-end">
+                        <div class="col-md-3 text-center">
                             <i class="fas fa-truck"></i> 
                             {{ compra_data.compra.proveedor.nomProv }}
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i> Activa
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -226,12 +257,33 @@
                             Total: Bs {{ compra_data.compra.total|floatformat:2 }}
                         </h4>
                         <div class="d-flex gap-2">
+                            <!-- ✅ BOTÓN VER (Detalle Normal) -->
+                            <a href="{% url 'compras:detalle_compra' compra_data.compra.id_compra %}" 
+                               class="btn btn-ver btn-sm" title="Ver detalles">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            
+                            <!-- ✅ BOTÓN IMPRIMIR (Versión para impresión) -->
+                            <a href="{% url 'compras:detalle_compra' compra_data.compra.id_compra %}?accion=imprimir" 
+                               class="btn btn-imprimir btn-sm" target="_blank" title="Imprimir compra">
+                                <i class="fas fa-print"></i> Imprimir
+                            </a>
+                            
+                            <!-- ✅ BOTÓN PDF (Descargar PDF) -->
+                            <a href="{% url 'compras:detalle_compra' compra_data.compra.id_compra %}?accion=pdf" 
+                               class="btn btn-pdf btn-sm" title="Descargar PDF">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            
+                            <!-- ✅ BOTÓN EDITAR -->
                             <a href="{% url 'compras:editar_compra' compra_data.compra.id_compra %}" 
-                               class="btn btn-warning btn-sm">
+                               class="btn btn-editar btn-sm" title="Editar compra">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
+                            
+                            <!-- ✅ BOTÓN ELIMINAR -->
                             <a href="{% url 'compras:eliminar_compra' compra_data.compra.id_compra %}" 
-                               class="btn btn-danger btn-sm">
+                               class="btn btn-eliminar btn-sm" title="Eliminar compra">
                                 <i class="fas fa-trash"></i> Eliminar
                             </a>
                         </div>
@@ -243,15 +295,25 @@
             <div class="alert alert-info text-center">
                 <i class="fas fa-info-circle"></i> 
                 No hay compras activas registradas
+                <br>
+                <a href="{% url 'compras:crear_compra' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus"></i> Crear primera compra
+                </a>
             </div>
             {% endfor %}
-
-            
-
         </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para tooltips (opcional) -->
+    <script>
+        // Inicializar tooltips de Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
 </body>
 </html>

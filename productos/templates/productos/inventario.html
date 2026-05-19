@@ -128,6 +128,7 @@
                     <th>Precio Compra</th>
                     <th>Precio Venta</th>
                     <th>Stock</th>
+                    <th>Unidad</th>
                     <th>Estado</th>
 
                     {% if request.session.rol != 'Cajero' %}
@@ -144,7 +145,8 @@
                     <td class="text-muted">{{ p.categoria }}</td>
                     <td>${{ p.precioCompra }}</td>
                     <td class="fw-bold">Bs {{ p.precioVenta }}</td>
-                    <td>{{ p.stockActual }} {{ p.tipoUnidad }}</td>
+                    <td>{{ p.inventario.stock_actual }}</td>
+                    <td>{{ p.inventario.tipo_unidad.nombre }}</td>
 
                     <td>
                         <span class="{% if p.estado == 'activo' %}badge-activo{% else %}badge-inactivo{% endif %}">

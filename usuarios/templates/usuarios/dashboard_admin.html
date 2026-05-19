@@ -6,36 +6,167 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
 body {
   margin: 0;
   background: #f1f1f1;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .sidebar {
-  width: 220px;
+  width: 260px;
   height: 100vh;
   background: #2f2f2f;
   color: white;
   position: fixed;
   padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar h5 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #555;
 }
 
 .sidebar a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: white;
   text-decoration: none;
-  margin: 10px 0;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.sidebar a i {
+  width: 22px;
+  font-size: 1.1rem;
 }
 
 .sidebar a:hover {
-  color: #0d6efd;
+  background-color: #0d6efd;
+  color: white;
+}
+
+.sidebar a.active {
+  background-color: #0d6efd;
+}
+
+.sidebar hr {
+  border-color: #555;
+  margin: 15px 0;
 }
 
 .content {
-  margin-left: 240px;
+  margin-left: 260px;
   padding: 20px;
+}
+
+/* Header superior con flex para alinear título y perfil */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.top-header h4 {
+  margin: 0;
+}
+
+/* Perfil de usuario */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 40px;
+  transition: 0.3s;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.user-info:hover {
+  background: #e9ecef;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: #0671B8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.dropdown-menu-custom {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  padding: 10px 0;
+  min-width: 200px;
+  z-index: 1000;
+  display: none;
+}
+
+.dropdown-menu-custom.show {
+  display: block;
+}
+
+.dropdown-menu-custom a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.dropdown-menu-custom a:hover {
+  background: #f8f9fa;
+  color: #0671B8;
+}
+
+.dropdown-menu-custom hr {
+  margin: 5px 0;
+  border-color: #eee;
+}
+
+.table th {
+  background-color: #f8f9fa;
+}
+
+.btn-sm {
+  margin: 0 2px;
+}
+
+.table-dark th {
+  background-color: #343a40;
+  color: white;
 }
 </style>
 </head>
@@ -44,88 +175,193 @@ body {
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-    <h5>Dashboard</h5>
-    <a href="#">Inicio</a>
-    <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
+  <h5><i class="fas fa-tachometer-alt me-2"></i> Dashboard</h5>
 
-    <hr>
-    <a href="{% url 'productos:inventario' %}">Productos</a>
+  <a href="{% url 'dashboard_admin' %}">
+    <i class="fas fa-home"></i> Inicio
+  </a>
+  
+  <a href="{% url 'dashboard_admin' %}">
+    <i class="fas fa-users"></i> Gestión de Usuarios
+  </a>
+  
+  <a href="{% url 'productos:inventario' %}">
+    <i class="fas fa-box"></i> Productos
+  </a>
+  
+  <a href="{% url 'categorias:lista' %}">
+    <i class="fas fa-tags"></i> Categorías
+  </a>
+  
+  <a href="{% url 'proveedores:lista' %}">
+    <i class="fas fa-truck"></i> Proveedores
+  </a>
+  
+  <a href="{% url 'compras:ver_compras' %}">
+    <i class="fas fa-shopping-cart"></i> Compras
+  </a>
+  
+  <a href="{% url 'ventas:ver_ventas' %}">
+    <i class="fas fa-cash-register"></i> Ventas
+  </a>
+  
+  <a href="{% url 'reportes:compras_report' %}">
+    <i class="fas fa-chart-bar"></i> Reportes
+  </a>
 
-    <hr>
-    <a href="{% url 'categorias:lista' %}">Categorías</a>
-    <hr>
-    <a href="{% url 'compras:ver_compras' %}">Compras</a>
-        
-    <hr>
-        
-    <a href="{% url 'reportes:compras_report' %}">Reportes</a>
-    
-    <hr> <!-- Separador para el nuevo módulo -->
-    <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
-    <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
-    
-    <hr>
-    <a href="{% url 'logout' %}">Cerrar sesión</a>
+  <hr>
+
+  <a href="{% url 'inventario:lista' %}">
+    <i class="fas fa-warehouse"></i> Inventarios
+  </a>
+  
+  <a href="{% url 'unidadmedida:lista' %}">
+    <i class="fas fa-ruler"></i> Unidades de Medida
+  </a>
+  <hr>
+
+    <a href="{% url 'estadisticas:top_productos' %}">
+      <i class="fas fa-chart-bar"></i> Top Productos
+    </a>
+
+    <a href="{% url 'estadisticas:prediccion' %}">
+      <i class="fas fa-chart-line"></i> Predicción de Stock
+    </a>
+
+  <hr>
+  <hr>
+
+  <a href="{% url 'ver_inactivos' %}">
+    <i class="fas fa-archive"></i> Ver inactivos
+  </a>
+
+  <hr>
+
+  <a href="{% url 'logout' %}">
+    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </a>
 </div>
 
 <!-- CONTENT -->
 <div class="content">
 
-  <h4>Gestión de Usuarios</h4>
+  <!-- HEADER: Título y Perfil en la misma línea -->
+  <div class="top-header">
+    <h4><i class="fas fa-users me-2"></i> Gestión de Usuarios</h4>
+    
+    <div class="user-info" id="userMenuBtn">
+      <div class="user-avatar">
+        {{ usuario.nom_usuario|first|upper }}
+      </div>
+      <div>
+        <div class="user-name">{{ usuario.nom_usuario }}</div>
+        <div class="user-role">{{ usuario.rol.nom_rol }}</div>
+      </div>
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </div>
 
+  <!-- Dropdown menu -->
+  <div class="dropdown-menu-custom" id="userDropdown">
+    <a href="{% url 'perfil_admin' %}">
+      <i class="fas fa-user-circle"></i> Mi Perfil
+    </a>
+    <a href="{% url 'perfil_admin' %}?cambiar_pass=true">
+      <i class="fas fa-key"></i> Cambiar Contraseña
+    </a>
+    <hr>
+    <a href="{% url 'logout' %}">
+      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </a>
+  </div>
+
+  <!-- Alerta de primera vez -->
+  {% if primera_vez %}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>¡Bienvenido!</strong> Por seguridad, te recomendamos cambiar tu contraseña.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endif %}
+
+  <!-- Botón Nuevo Usuario -->
   <a href="{% url 'register' %}" class="btn btn-primary mb-3">
-    + Nuevo Usuario
+    <i class="fas fa-plus"></i> Nuevo Usuario
   </a>
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th hidden>ID</th>
-        <th>Usuario</th>
-        <th>Email</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th>Fecha creación</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {% for u in usuarios %}
-      <tr>
-
-        <!-- ID oculto -->
-        <td hidden>{{ u.id }}</td>
-
-        <td>{{ u.nom_usuario }}</td>
-        <td>{{ u.email }}</td>
-        <td>{{ u.rol.nom_rol }}</td>
-
-        <td>
-          {% if u.estado %}
-            Activo
-          {% else %}
-            Inactivo
-          {% endif %}
-        </td>
-
-        <td>
-          {{ u.fecha_creacion|date:"Y-m-d H:i" }}
-        </td>
-
-        <td>
-          <a href="{% url 'modify' u.id %}" class="btn btn-sm btn-warning">✏</a>
-          <a href="{% url 'eliminar_usuario' u.id %}" class="btn btn-sm btn-danger"
-             onclick="return confirm('¿Eliminar usuario?')">🗑</a>
-        </td>
-        
-
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- Tabla de usuarios -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Fecha creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.nom_usuario }} {{ u.ap1 }} {{ u.ap2 }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.rol.nom_rol == 'administrador' %}
+              <span class="badge bg-danger">Administrador</span>
+            {% elif u.rol.nom_rol == 'cajero' %}
+              <span class="badge bg-info">Cajero</span>
+            {% else %}
+              {{ u.rol.nom_rol }}
+            {% endif %}
+          </td>
+          <td>
+            {% if u.estado %}
+              <span class="badge bg-success">Activo</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactivo</span>
+            {% endif %}
+          </td>
+          <td>{{ u.fecha_creacion|date:"Y-m-d H:i" }}</td>
+          <td>
+            <a href="{% url 'modify' u.id %}" class="btn btn-sm btn-warning" title="Editar">
+              <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'eliminar_usuario' u.id %}" class="btn btn-sm btn-danger" title="Eliminar"
+               onclick="return confirm('¿Eliminar usuario?')">
+              <i class="fas fa-trash"></i>
+            </a>
+           </td>
+         </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Dropdown del perfil
+  const userMenuBtn = document.getElementById('userMenuBtn');
+  const userDropdown = document.getElementById('userDropdown');
+
+  if (userMenuBtn && userDropdown) {
+    userMenuBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', function() {
+      userDropdown.classList.remove('show');
+    });
+  }
+</script>
 
 </body>
 </html>

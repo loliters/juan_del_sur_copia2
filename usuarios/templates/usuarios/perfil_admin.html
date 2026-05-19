@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mi Perfil - Juan Del Sur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  body {
+    background: #2B2D33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 20px;
+  }
+  .card-perfil {
+    max-width: 500px;
+    width: 100%;
+    background: #EAEAEA;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .card-header {
+    background: #E0E0E0;
+    padding: 20px 24px;
+    border-bottom: 3px solid #0671B8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-header h4 {
+    margin: 0;
+    font-weight: 700;
+    color: #1F1F1F;
+  }
+  .btn-back {
+    background: #6C757D;
+    border: none;
+    border-radius: 40px;
+    padding: 6px 14px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .card-body {
+    padding: 24px;
+  }
+  .form-label {
+    font-weight: 600;
+    color: #1F1F1F;
+    margin-bottom: 6px;
+  }
+  .form-control {
+    border-radius: 16px;
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+  }
+  .form-control:focus {
+    border-color: #0671B8;
+    box-shadow: 0 0 0 3px rgba(6,113,184,0.2);
+    outline: none;
+  }
+  .btn-actualizar {
+    background: #0671B8;
+    border: none;
+    border-radius: 40px;
+    padding: 12px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    transition: 0.2s;
+  }
+  .btn-actualizar:hover {
+    background: #055A9A;
+  }
+  .btn-volver {
+    background: #6C757D;
+    border: none;
+    border-radius: 40px;
+    padding: 12px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: 0.2s;
+  }
+  .btn-volver:hover {
+    background: #5a6268;
+    color: white;
+  }
+  .info-text {
+    background: #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .alert-warning-custom {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .password-wrapper {
+    position: relative;
+  }
+  .password-wrapper input {
+    padding-right: 40px;
+  }
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 1.1rem;
+  }
+  .toggle-password:hover {
+    color: #0671B8;
+  }
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-webkit-password-toggle-button {
+    display: none;
+  }
+  .alert {
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card-perfil">
+  <div class="card-header">
+    <h4><i class="fas fa-user-circle me-2" style="color:#0671B8;"></i> Mi Perfil</h4>
+    <a href="{% url 'dashboard_admin' %}" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Volver
+    </a>
+  </div>
+  <div class="card-body">
+    
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    <!-- ✅ ALERTA PARA PRIMERA VEZ -->
+    {% if es_primera_vez %}
+      <div class="alert-warning-custom">
+        <i class="fas fa-exclamation-triangle fa-2x" style="color: #856404;"></i>
+        <div>
+          <strong>¡Bienvenido!</strong><br>
+          Es la primera vez que inicias sesión. Por favor, cambia tu contraseña.
+        </div>
+      </div>
+    {% endif %}
+    
+    <div class="info-text">
+      <p class="mb-1"><strong><i class="fas fa-user me-2"></i>Usuario:</strong> {{ usuario.nom_usuario }}</p>
+      <p class="mb-1"><strong><i class="fas fa-envelope me-2"></i>Email:</strong> {{ usuario.email }}</p>
+      <p class="mb-0"><strong><i class="fas fa-tag me-2"></i>Rol:</strong> {{ usuario.rol.nom_rol }}</p>
+    </div>
+    
+    <form method="POST" id="cambiarPassForm">
+      {% csrf_token %}
+      
+      {% if request.GET.cambiar_pass == 'true' or es_primera_vez %}
+        <!-- Contraseña Actual -->
+        <div class="mb-3">
+          <label class="form-label">Contraseña Actual</label>
+          <div class="password-wrapper">
+            <input type="password" name="current_password" id="current_password" class="form-control" required>
+            <i class="fas fa-eye-slash toggle-password" id="toggleCurrent"></i>
+          </div>
+        </div>
+        
+        <!-- Nueva Contraseña -->
+        <div class="mb-3">
+          <label class="form-label">Nueva Contraseña</label>
+          <div class="password-wrapper">
+            <input type="password" name="new_password" id="new_password" class="form-control" required>
+            <i class="fas fa-eye-slash toggle-password" id="toggleNew"></i>
+          </div>
+        </div>
+        
+        <!-- Confirmar Contraseña -->
+        <div class="mb-3">
+          <label class="form-label">Confirmar Nueva Contraseña</label>
+          <div class="password-wrapper">
+            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+            <i class="fas fa-eye-slash toggle-password" id="toggleConfirm"></i>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-actualizar">
+          <i class="fas fa-save me-2"></i> Cambiar Contraseña
+        </button>
+      {% else %}
+        <a href="?cambiar_pass=true" class="btn-actualizar">
+          <i class="fas fa-key me-2"></i> Cambiar Contraseña
+        </a>
+      {% endif %}
+      
+      <a href="{% url 'dashboard_admin' %}" class="btn-volver">
+        <i class="fas fa-arrow-left me-2"></i> Volver al Dashboard
+      </a>
+    </form>
+    
+  </div>
+</div>
+
+<script>
+  function setupToggle(inputId, toggleId) {
+    const input = document.getElementById(inputId);
+    const toggle = document.getElementById(toggleId);
+    if (input && toggle) {
+      toggle.addEventListener('click', function() {
+        if (input.type === 'password') {
+          input.type = 'text';
+          toggle.classList.remove('fa-eye-slash');
+          toggle.classList.add('fa-eye');
+        } else {
+          input.type = 'password';
+          toggle.classList.remove('fa-eye');
+          toggle.classList.add('fa-eye-slash');
+        }
+      });
+    }
+  }
+
+  setupToggle('current_password', 'toggleCurrent');
+  setupToggle('new_password', 'toggleNew');
+  setupToggle('confirm_password', 'toggleConfirm');
+</script>
+
+</body>
+</html>

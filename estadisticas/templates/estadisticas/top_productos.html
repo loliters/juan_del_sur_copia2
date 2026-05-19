@@ -1,162 +1,255 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Productos</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: system-ui, -apple-system, sans-serif; display: flex; margin: 0; background: #f8f9fa; }
-        .sidebar { width: 240px; background: #212529; color: #fff; min-height: 100vh; padding: 20px 0; }
-        .sidebar a { display: block; color: #adb5bd; padding: 12px 20px; text-decoration: none; }
-        .sidebar a:hover, .sidebar a.active { background: #343a40; color: #fff; }
-        .main { flex: 1; padding: 30px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .filters { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 15px; flex-wrap: wrap; align-items: end; margin-bottom: 25px; }
-        .field { display: flex; flex-direction: column; gap: 5px; }
-        .field label { font-size: 12px; font-weight: 600; color: #495057; }
-        select { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; min-width: 120px; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
-        .btn-primary { background: #0d6efd; color: #fff; }
-        .chart-box { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: 450px; position: relative; }
-        .note { position: fixed; top: 20px; right: 20px; background: #ffc107; padding: 10px 15px; border-radius: 4px; font-weight: bold; box-shadow: 2px 2px 8px rgba(0,0,0,0.2); transform: rotate(2deg); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Productos</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f1f1f1;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: #2f2f2f;
+  color: white;
+  position: fixed;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar h5 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #555;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: #0d6efd;
+}
+
+.sidebar i { width: 20px; }
+
+/* MAIN */
+.main {
+  margin-left: 260px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* FILTROS */
+.filters {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: end;
+  margin-bottom: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 120px;
+}
+
+/* BOTONES */
+.btn-group-custom {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+/* CHART */
+.chart-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  height: 450px;
+}
+
+/* PRINT */
+@media print {
+  .sidebar,
+  .filters,
+  .btn-group-custom {
+    display: none !important;
+  }
+
+  .main {
+    margin: 0;
+  }
+
+  body {
+    background: white;
+  }
+}
+</style>
 </head>
+
 <body>
-        <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h5>Dashboard</h5>
-        <a href="#">Inicio</a>
-        <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
-    
-        <hr>
-        <a href="{% url 'productos:inventario' %}">Productos</a>
-    
-        <hr>
-        <a href="{% url 'categorias:lista' %}">Categorías</a>
-        <hr>
-        <a href="{% url 'compras:ver_compras' %}">Compras</a>
-            
-        <a href="{% url 'productos:lista_recuperar' %}">Recuperar</a>
-        <hr>
-            
-        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
-        
-        <hr> <!-- Separador para el nuevo módulo -->
-        <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
-        <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
-        
-        <hr>
-        <a href="{% url 'logout' %}">Cerrar sesión</a>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h5><i class="fas fa-tachometer-alt"></i> Dashboard</h5>
+
+  <a href="{% url 'dashboard_admin' %}"><i class="fas fa-home"></i> Inicio</a>
+  <a href="{% url 'productos:inventario' %}"><i class="fas fa-box"></i> Productos</a>
+  <a href="{% url 'categorias:lista' %}"><i class="fas fa-tags"></i> Categorías</a>
+  <a href="{% url 'compras:ver_compras' %}"><i class="fas fa-shopping-cart"></i> Compras</a>
+  <a href="{% url 'ventas:ver_ventas' %}"><i class="fas fa-cash-register"></i> Ventas</a>
+
+  <hr>
+
+  <a class="active" href="{% url 'estadisticas:top_productos' %}">
+    <i class="fas fa-chart-bar"></i> Top Productos
+  </a>
+
+  <a href="{% url 'estadisticas:prediccion' %}">
+    <i class="fas fa-chart-line"></i> Predicción
+  </a>
+
+  <hr>
+
+  <a href="{% url 'logout' %}">
+    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h3><i class="fas fa-chart-bar"></i> Top Productos</h3>
+
+    <div class="btn-group-custom">
+      <button class="btn btn-danger" onclick="window.print()">
+        <i class="fas fa-file-pdf"></i> PDF
+      </button>
     </div>
+  </div>
 
-    <div class="main">
-        <div class="header">
-            <h2>🏆 Top Productos - Mayor Demanda</h2>
-            <div>
-                <button class="btn btn-primary" onclick="window.print()">📄 Reporte</button>
-                <button class="btn btn-primary" onclick="location.href='{% url 'estadisticas:prediccion' %}'">📉 Ir a Predicción</button>
-            </div>
-        </div>
+  <!-- FILTROS -->
+  <form method="GET">
+    <div class="filters">
 
-        <form method="GET">
-            <div class="filters">
-                <div class="field">
-                    <label>Top</label>
-                    <select name="top">
-                        <option value="5" {% if top_n == 5 %}selected{% endif %}>Top 5</option>
-                        <option value="10" {% if top_n == 10 %}selected{% endif %}>Top 10</option>
-                        <option value="15" {% if top_n == 15 %}selected{% endif %}>Top 15</option>
-                        <option value="20" {% if top_n == 20 %}selected{% endif %}>Top 20</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Categoría</label>
-                    <select name="categoria">
-                        <option value="">Todas</option>
-                        {% for c in categorias %}
-                        <option value="{{ c.id }}" {% if c.id|stringformat:"s" == request.GET.categoria %}selected{% endif %}>
-                            {{ c.nomCategoria }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Mes</label>
-                    <select name="mes">
-                        <option value="">Todos</option>
-                        <option value="1" {% if mes == "1" %}selected{% endif %}>Enero</option>
-                        <option value="2" {% if mes == "2" %}selected{% endif %}>Febrero</option>
-                        <option value="3" {% if mes == "3" %}selected{% endif %}>Marzo</option>
-                        <option value="4" {% if mes == "4" %}selected{% endif %}>Abril</option>
-                        <option value="5" {% if mes == "5" %}selected{% endif %}>Mayo</option>
-                        <option value="6" {% if mes == "6" %}selected{% endif %}>Junio</option>
-                        <option value="7" {% if mes == "7" %}selected{% endif %}>Julio</option>
-                        <option value="8" {% if mes == "8" %}selected{% endif %}>Agosto</option>
-                        <option value="9" {% if mes == "9" %}selected{% endif %}>Septiembre</option>
-                        <option value="10" {% if mes == "10" %}selected{% endif %}>Octubre</option>
-                        <option value="11" {% if mes == "11" %}selected{% endif %}>Noviembre</option>
-                        <option value="12" {% if mes == "12" %}selected{% endif %}>Diciembre</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Año</label>
-                    <select name="anio">
-                        <option value="">Todos</option>
-                        {% for ano in anos_disponibles %}
-                        <option value="{{ ano }}" {% if anio == ano|stringformat:"s" %}selected{% endif %}>
-                            {{ ano }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
-            </div>
-        </form>
+      <div class="field">
+        <label>Top</label>
+        <select name="top">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
 
-        <div class="chart-box">
-            <canvas id="topChart"></canvas>
-        </div>
+      <div class="field">
+        <label>Categoría</label>
+        <select name="categoria">
+          <option value="">Todas</option>
+          {% for c in categorias %}
+          <option value="{{ c.id }}">{{ c.nomCategoria }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Mes</label>
+        <select name="mes">
+          <option value="">Todos</option>
+          <option value="1">Enero</option>
+          <option value="2">Febrero</option>
+          <option value="3">Marzo</option>
+          <option value="4">Abril</option>
+          <option value="5">Mayo</option>
+          <option value="6">Junio</option>
+          <option value="7">Julio</option>
+          <option value="8">Agosto</option>
+          <option value="9">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary">
+        <i class="fas fa-search"></i> Filtrar
+      </button>
+
     </div>
+  </form>
 
-    <script>
-        const ctx = document.getElementById('topChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ productos_labels|safe }},
-                datasets: [{
-                    label: 'Unidades Vendidas',
-                    data: {{ ventas_data|safe }},
-                    backgroundColor: 'rgba(255, 193, 7, 0.8)',
-                    borderColor: '#ffc107',
-                    borderWidth: 2,
-                    hoverBackgroundColor: 'rgba(255, 193, 7, 1)',
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { 
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Productos con Mayor Demanda',
-                        font: { size: 16, weight: 'bold' }
-                    }
-                },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        title: { display: true, text: 'Cantidad Vendida', font: { weight: 'bold' } },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: { 
-                        title: { display: true, text: 'Productos', font: { weight: 'bold' } },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-    </script>
+  <!-- GRAFICO -->
+  <div class="chart-box">
+    <canvas id="topChart"></canvas>
+  </div>
+
+</div>
+
+<script>
+const ctx = document.getElementById('topChart');
+
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ productos_labels|safe }},
+    datasets: [{
+      label: 'Unidades Vendidas',
+      data: {{ ventas_data|safe }},
+      backgroundColor: '#0d6efd'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+</script>
+
 </body>
 </html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Crear Presentación</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  body {
+    background: #2B2D33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 20px;
+  }
+  
+  .card {
+    max-width: 500px;
+    width: 100%;
+    background: #EAEAEA;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  
+  .card-header {
+    background: #E0E0E0;
+    padding: 20px 24px;
+    border-bottom: 3px solid #0671B8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-header h4 {
+    margin: 0;
+    font-weight: 700;
+    color: #1F1F1F;
+  }
+  
+  .btn-back {
+    background: #6C757D;
+    border: none;
+    border-radius: 40px;
+    padding: 6px 14px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: 0.2s;
+  }
+  
+  .btn-back:hover {
+    background: #545b62;
+    color: white;
+  }
+  
+  .card-body {
+    padding: 24px;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #1F1F1F;
+    margin-bottom: 6px;
+  }
+  
+  .form-control, .form-select {
+    border-radius: 16px;
+    padding: 10px 14px;
+    border: 1px solid #ced4da;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: #0671B8;
+    box-shadow: 0 0 0 3px rgba(6,113,184,0.2);
+    outline: none;
+  }
+  
+  .input-group-custom {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .input-group-custom select {
+    flex: 1;
+  }
+  
+  .btn-add {
+    background: #28a745;
+    border: none;
+    border-radius: 40px;
+    padding: 10px 16px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: 0.2s;
+  }
+  
+  .btn-add:hover {
+    background: #218838;
+    color: white;
+  }
+  
+  .btn-crear {
+    background: #0671B8;
+    border: none;
+    border-radius: 40px;
+    padding: 12px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    transition: 0.2s;
+  }
+  
+  .btn-crear:hover {
+    background: #055A9A;
+  }
+  
+  .btn-cancelar {
+    background: #6C757D;
+    border: none;
+    border-radius: 40px;
+    padding: 12px;
+    font-weight: 600;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: 0.2s;
+  }
+  
+  .btn-cancelar:hover {
+    background: #5a6268;
+    color: white;
+  }
+  
+  .preview-text {
+    background: #e9ecef;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h4><i class="fas fa-box-open me-2" style="color:#0671B8;"></i> Nueva Presentación</h4>
+    <a href="{% url 'productos:registrar' %}" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Volver
+    </a>
+  </div>
+  <div class="card-body">
+    
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius:12px;">
+          <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    <form method="POST" id="presentacionForm">
+      {% csrf_token %}
+      
+      <!-- Cantidad -->
+      <div class="mb-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej: 1, 2.5, 300" step="any" required>
+        <small class="text-muted">Ejemplos: 1, 2.5, 300, 1000</small>
+      </div>
+      
+      <!-- Unidad de Medida con botón + -->
+      <div class="mb-3">
+        <label class="form-label">Unidad de Medida</label>
+        <div class="input-group-custom">
+            <select name="medida" id="medida" class="form-select" required>
+                <option value="">Seleccione...</option>
+                {% for unidad in unidades %}
+                    <option value="{{ unidad.id }}">
+                        {{ unidad.nombre }} ({{ unidad.abreviatura }})
+                    </option>
+                {% endfor %}
+            </select>
+          
+          <a href="{% url 'unidadmedida:crear' %}?next={{ request.get_full_path|urlencode }}" 
+             class="btn-add" 
+             target="_blank">
+            <i class="fas fa-plus"></i> Nueva
+          </a>
+        </div>
+        <small class="text-muted">¿No encuentras la unidad? Haz clic en "Nueva"</small>
+      </div>
+      
+      <!-- Vista previa -->
+      <div class="preview-text" id="preview">
+        <i class="fas fa-eye me-2"></i>
+        <span>Vista previa: <strong id="previewValue">---</strong></span>
+      </div>
+      
+      <button type="submit" class="btn-crear">
+        <i class="fas fa-save me-2"></i> Guardar
+      </button>
+      
+      <a href="{% url 'productos:registrar' %}" class="btn-cancelar">
+        <i class="fas fa-times me-2"></i> Cancelar
+      </a>
+    </form>
+    
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const cantidadInput = document.getElementById('cantidad');
+  const medidaSelect = document.getElementById('medida');
+  const previewValue = document.getElementById('previewValue');
+  
+  // Función para formatear cantidad (sin decimales si es entero)
+  function formatearCantidad(valor) {
+    if (!valor) return '';
+    const numero = parseFloat(valor);
+    if (isNaN(numero)) return valor;
+    
+    // Si es número entero, mostrar sin decimales
+    if (numero === Math.floor(numero)) {
+      return numero.toString();
+    }
+    // Si tiene decimales, mostrar con 2 decimales máximo
+    return numero.toFixed(2).replace(/\.?0+$/, '');
+  }
+  
+  // Actualizar vista previa
+  function actualizarPreview() {
+    const cantidad = cantidadInput.value;
+    const unidadSelect = medidaSelect;
+    const selectedOption = unidadSelect.options[unidadSelect.selectedIndex];
+    const unidadText = selectedOption ? selectedOption.text : '';
+    
+    if (cantidad && cantidad > 0 && unidadSelect.value) {
+      const cantidadFormateada = formatearCantidad(cantidad);
+      previewValue.textContent = `${cantidadFormateada} ${unidadText}`;
+    } else if (cantidad && cantidad > 0) {
+      const cantidadFormateada = formatearCantidad(cantidad);
+      previewValue.textContent = `${cantidadFormateada} [Seleccione unidad]`;
+    } else if (unidadSelect.value) {
+      previewValue.textContent = `[Cantidad] ${unidadText}`;
+    } else {
+      previewValue.textContent = '---';
+    }
+  }
+  
+  cantidadInput.addEventListener('input', actualizarPreview);
+  medidaSelect.addEventListener('change', actualizarPreview);
+  
+  // Inicializar preview
+  actualizarPreview();
+  
+  // Detectar cuando se vuelve de crear unidad medida
+  window.addEventListener('focus', function() {
+    location.reload();
+  });
+</script>
+
+</body>
+</html>

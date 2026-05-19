@@ -41,11 +41,6 @@ class Producto(models.Model):
         default=0
     )
 
-    tipoUnidad = models.CharField(
-        max_length=100,
-        default='unidad'
-    )
-
     estado = models.CharField(
         max_length=10,
         choices=ESTADO_CHOICES,
@@ -76,7 +71,6 @@ class Producto(models.Model):
 
     @property
     def stockActual(self):
-
         try:
             return self.inventario.stock_actual
         except:
@@ -95,10 +89,8 @@ class Producto(models.Model):
         inv.stock_actual = value
         inv.save()
 
-
     def __str__(self):
         return self.nomProducto
-
 
     class Meta:
         db_table = 'productos'

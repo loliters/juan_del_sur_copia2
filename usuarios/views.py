@@ -17,6 +17,9 @@ from clientes.models import Cliente
 # =========================
 # LOGIN
 # =========================
+# =========================
+# LOGIN (VERSIÓN CORRECTA)
+# =========================
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get('email', '').strip().lower()
@@ -54,6 +57,11 @@ def login_view(request):
         request.session['rol'] = rol
         request.session['nombre'] = user.nom_usuario
         request.session['email'] = user.email
+
+        # ✅ VERIFICAR SI ES PRIMERA VEZ
+        if user.cambiar_password:
+            messages.warning(request, '⚠️ Por seguridad, debes cambiar tu contraseña.')
+            return redirect('perfil_admin')
 
         messages.success(request, f'¡Bienvenido {user.nom_usuario}!')
 
@@ -175,6 +183,7 @@ def register(request):
             return redirect('register')
 
         try:
+            # ✅ CORREGIDO: Agregar cambiar_password=True
             Usuario.objects.create(
                 nom_usuario=nom_usuario,
                 ap1=ap1,
@@ -182,7 +191,9 @@ def register(request):
                 email=email_final,
                 password=make_password(password),
                 rol=rol_obj,
-                estado=estado
+                estado=estado,
+                cambiar_password=True,  # ← ESTO ES LO QUE FALTABA
+                fecha_creacion=timezone.now(),  # ← También falta la fecha
             )
         except IntegrityError as e:
             messages.error(request, f'Error al registrar usuario: {str(e)}')
@@ -413,12 +424,21 @@ def registro_venta(request):
 # DASHBOARD ADMIN
 # =========================
 def dashboard_admin(request):
-    if request.session.get('rol') != "administrador":
+    if request.session.get('usuario_id') is None:
         return redirect('login')
-
-    usuarios = Usuario.objects.select_related('rol').all().filter(estado=True)
-
-    return render(request, 'usuarios/dashboard_admin.html', {'usuarios': usuarios})
+    
+    usuario_id = request.session.get('usuario_id')
+    usuario = Usuario.objects.get(id=usuario_id)
+    usuarios = Usuario.objects.all().select_related('rol')
+    
+    # Verificar si es primera vez (campo `cambiar_password` en tu modelo)
+    primera_vez = getattr(usuario, 'cambiar_password', False)
+    
+    return render(request, 'usuarios/dashboard_admin.html', {
+        'usuarios': usuarios,
+        'usuario': usuario,
+        'primera_vez': primera_vez,
+    })
 
 
 # =========================
@@ -597,3 +617,129 @@ def ver_inactivos(request):
 
     usuarios_inactivos = Usuario.objects.filter(estado=False)
     return render(request, "usuarios/ver_inactivos.html", {"usuarios_inactivos": usuarios_inactivos})
+
+def recuperar_contraseña(request):
+    from django.contrib.auth.hashers import make_password
+    from .models import Usuario
+    
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Validar que las contraseñas coincidan
+        if new_password != confirm_password:
+            messages.error(request, 'Las contraseñas no coinciden')
+            return redirect('recuperar_contraseña')
+        
+        # Validar longitud mínima
+        if len(new_password) < 4:
+            messages.error(request, 'La contraseña debe tener al menos 4 caracteres')
+            return redirect('recuperar_contraseña')
+        
+        # Buscar usuario por email
+        try:
+            usuario = Usuario.objects.get(email=email)
+            
+            # Actualizar contraseña
+            usuario.password = make_password(new_password)
+            usuario.save()
+            
+            messages.success(request, f'Contraseña actualizada correctamente para {usuario.nom_usuario}')
+            return redirect('login')
+            
+        except Usuario.DoesNotExist:
+            messages.error(request, 'No existe un usuario con ese correo electrónico')
+            return redirect('recuperar_contraseña')
+    
+    return render(request, 'usuarios/recuperar_contraseña.html')
+
+#PERFIL ADMIN
+def perfil_admin(request):
+    if request.session.get('usuario_id') is None:
+        return redirect('login')
+    
+    usuario_id = request.session.get('usuario_id')
+    usuario = Usuario.objects.get(id=usuario_id)
+    
+    if request.method == 'POST':
+        nueva_password = request.POST.get('new_password')
+        confirmar_password = request.POST.get('confirm_password')
+        password_actual = request.POST.get('current_password')
+        
+        # Verificar contraseña actual
+        if not check_password(password_actual, usuario.password):
+            messages.error(request, '❌ Contraseña actual incorrecta')
+            return redirect('perfil_admin')
+        
+        if nueva_password != confirmar_password:
+            messages.error(request, '❌ Las nuevas contraseñas no coinciden')
+            return redirect('perfil_admin')
+        
+        if len(nueva_password) < 4:
+            messages.error(request, '❌ La contraseña debe tener al menos 4 caracteres')
+            return redirect('perfil_admin')
+        
+        # Cambiar contraseña
+        usuario.password = make_password(nueva_password)
+        
+        # ✅ IMPORTANTE: Marcar que YA NO es primera vez
+        usuario.cambiar_password = False
+        
+        usuario.save()
+        
+        # Limpiar sesión
+        messages.success(request, '✅ Contraseña cambiada exitosamente. Por favor, inicia sesión nuevamente.')
+        request.session.flush()
+        return redirect('login')
+    
+    # Verificar si es primera vez (para mostrar mensaje específico)
+    es_primera_vez = usuario.cambiar_password
+    
+    return render(request, 'usuarios/perfil_admin.html', {
+        'usuario': usuario,
+        'es_primera_vez': es_primera_vez,
+    })
+
+
+#perfil cajeros
+def perfil_cajero(request):
+    if request.session.get('usuario_id') is None:
+        return redirect('login')
+    
+    usuario_id = request.session.get('usuario_id')
+    usuario = Usuario.objects.get(id=usuario_id)
+    
+    if request.method == 'POST':
+        nueva_password = request.POST.get('new_password')
+        confirmar_password = request.POST.get('confirm_password')
+        password_actual = request.POST.get('current_password')
+        
+        # Verificar contraseña actual
+        if not check_password(password_actual, usuario.password):
+            messages.error(request, '❌ Contraseña actual incorrecta')
+            return redirect('perfil_cajero')
+        
+        if nueva_password != confirmar_password:
+            messages.error(request, '❌ Las nuevas contraseñas no coinciden')
+            return redirect('perfil_cajero')
+        
+        if len(nueva_password) < 4:
+            messages.error(request, '❌ La contraseña debe tener al menos 4 caracteres')
+            return redirect('perfil_cajero')
+        
+        # Cambiar contraseña
+        usuario.password = make_password(nueva_password)
+        usuario.cambiar_password = False
+        usuario.save()
+        
+        messages.success(request, '✅ Contraseña cambiada exitosamente. Por favor, inicia sesión nuevamente.')
+        request.session.flush()
+        return redirect('login')
+    
+    es_primera_vez = getattr(usuario, 'cambiar_password', False)
+    
+    return render(request, 'usuarios/perfil_cajero.html', {
+        'usuario': usuario,
+        'es_primera_vez': es_primera_vez,
+    })

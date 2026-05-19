@@ -16,6 +16,8 @@ class Usuario(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     estado = models.BooleanField(default=True)
 
+    cambiar_password = models.BooleanField(default=True)
+
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
 
     def __str__(self):

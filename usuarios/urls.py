@@ -11,6 +11,8 @@ urlpatterns = [
     # REGISTER
     path('register/', views.register, name='register'),
 
+    path('recuperar-contraseña/', views.recuperar_contraseña, name='recuperar_contraseña'),
+
     # DASHBOARDS
     path('dashboard/admin/', views.dashboard_admin, name='dashboard_admin'),
     path('dashboard/cajero/', views.dashboard_cajero, name='dashboard_cajero'),
@@ -26,8 +28,11 @@ urlpatterns = [
     
     # GENERAR EMAIL
     path('generar-email-preview/', views.generar_email_preview, name='generar_email_preview'),
+
     
+    #perfil admin
+    path('perfil-admin/', views.perfil_admin, name='perfil_admin'),
   
-    
+    path('perfil-cajero/', views.perfil_cajero, name='perfil_cajero'),
     
 ]

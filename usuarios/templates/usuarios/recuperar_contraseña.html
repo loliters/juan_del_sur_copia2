@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuperar Contraseña - Juan Del Sur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% load static %}
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #2B2D33;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .recovery-card {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      background: white;
+      transition: transform 0.3s ease;
+    }
+
+    .recovery-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .btn-custom {
+      background-color: #0671B8;
+      color: white;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+      background-color: #055a9a;
+      transform: scale(0.98);
+    }
+
+    .btn-secondary-custom {
+      background-color: #6c757d;
+      color: white;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary-custom:hover {
+      background-color: #5a6268;
+      transform: scale(0.98);
+    }
+
+    .logo {
+      max-height: 70px;
+      margin-bottom: 15px;
+    }
+
+    h6 {
+      color: #2B2D33;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 5px;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #ced4da;
+      padding: 10px 12px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #0671B8;
+      box-shadow: 0 0 0 0.2rem rgba(6, 113, 184, 0.25);
+    }
+
+    /* 🔥 OCULTAR EL ÍCONO NATIVO DEL NAVEGADOR EN INPUT PASSWORD */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear,
+    input[type="password"]::-webkit-credentials-auto-fill-button,
+    input[type="password"]::-webkit-password-toggle-button {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    /* Contenedor para el campo de contraseña con ojito */
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 40px;
+    }
+
+    .password-wrapper .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      font-size: 1.2rem;
+      z-index: 10;
+      background: transparent;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .password-wrapper .toggle-password:hover {
+      color: #0671B8;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      padding: 12px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+
+    .alert i {
+      font-size: 1.2rem;
+    }
+
+    a {
+      color: #0671B8;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      color: #055a9a;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card recovery-card text-center bg-white">
+
+  <!-- LOGO -->
+  <img src="{% static 'usuarios/IMAGES/logoJuanDelSur.jpg' %}" class="logo" alt="Logo Juan Del Sur">
+
+  <h6>Recuperar Contraseña</h6>
+  <small class="text-muted mb-3">Ingresa tu correo y nueva contraseña</small>
+
+  <!-- MENSAJES DE DJANGO -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+        <i class="bi 
+          {% if message.tags == 'error' %}bi-x-circle-fill
+          {% elif message.tags == 'success' %}bi-check-circle-fill
+          {% elif message.tags == 'warning' %}bi-exclamation-triangle-fill
+          {% else %}bi-info-circle-fill{% endif %}"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- FORMULARIO DE RECUPERACIÓN -->
+  <form method="POST" id="recoveryForm">
+    {% csrf_token %}
+
+    <div class="mb-3 text-start">
+      <label>
+        <i class="bi bi-envelope-fill me-1"></i> Correo Electrónico
+      </label>
+      <input type="email" 
+             name="email" 
+             class="form-control" 
+             required 
+             placeholder="correo@juandelsur.com"
+             value="{{ request.POST.email|default:'' }}">
+    </div>
+
+    <div class="mb-3 text-start">
+      <label>
+        <i class="bi bi-lock-fill me-1"></i> Nueva Contraseña
+      </label>
+      <div class="password-wrapper">
+        <input type="password" 
+               name="new_password" 
+               id="new_password"
+               class="form-control" 
+               required 
+               placeholder="Ingrese nueva contraseña">
+        <i class="bi bi-eye-slash toggle-password" id="toggleNewPassword"></i>
+      </div>
+    </div>
+
+    <div class="mb-3 text-start">
+      <label>
+        <i class="bi bi-lock-fill me-1"></i> Confirmar Contraseña
+      </label>
+      <div class="password-wrapper">
+        <input type="password" 
+               name="confirm_password" 
+               id="confirm_password"
+               class="form-control" 
+               required 
+               placeholder="Confirme nueva contraseña">
+        <i class="bi bi-eye-slash toggle-password" id="toggleConfirmPassword"></i>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-custom w-100 mb-2">
+      <i class="bi bi-save-fill me-2"></i>Cambiar Contraseña
+    </button>
+
+    <a href="{% url 'login' %}" class="btn btn-secondary-custom w-100">
+      <i class="bi bi-arrow-left me-2"></i>Volver al login
+    </a>
+  </form>
+
+  <div class="mt-3 pt-2 border-top">
+    <small class="text-muted">
+      <i class="bi bi-shield-check"></i> Tu seguridad es importante
+    </small>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Función para toggle de visibilidad de contraseña
+  function togglePassword(inputId, toggleIconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(toggleIconId);
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('bi-eye-slash');
+      icon.classList.add('bi-eye');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('bi-eye');
+      icon.classList.add('bi-eye-slash');
+    }
+  }
+
+  // Event listeners para los ojitos
+  document.getElementById('toggleNewPassword').addEventListener('click', function() {
+    togglePassword('new_password', 'toggleNewPassword');
+  });
+
+  document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+    togglePassword('confirm_password', 'toggleConfirmPassword');
+  });
+
+  // Validar que las contraseñas coincidan antes de enviar
+  document.getElementById('recoveryForm').addEventListener('submit', function(e) {
+    const newPass = document.getElementById('new_password').value;
+    const confirmPass = document.getElementById('confirm_password').value;
+    
+    if (newPass !== confirmPass) {
+      e.preventDefault();
+      alert('⚠️ Las contraseñas no coinciden');
+      return false;
+    }
+    
+    if (newPass.length < 4) {
+      e.preventDefault();
+      alert('⚠️ La contraseña debe tener al menos 4 caracteres');
+      return false;
+    }
+  });
+
+  // Ocultar mensajes automáticamente después de 5 segundos
+  setTimeout(function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 5000);
+</script>
+
+</body>
+</html>
