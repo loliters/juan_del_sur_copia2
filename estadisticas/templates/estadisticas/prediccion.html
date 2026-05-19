@@ -249,7 +249,7 @@ select,input{
 
       <div class="field">
         <label>Producto</label>
-        <select name="producto" required>
+        <select name="producto">
           <option value="">Seleccionar</option>
           {% for p in productos %}
           <option value="{{ p.id }}">{{ p.nomProducto }}</option>
@@ -285,38 +285,69 @@ select,input{
 </div>
 
 <script>
-const labels = {{ labels|safe }};
-const medicion = {{ medicion_data|safe }};
-const estimacion = {{ estimacion_data|safe }};
+const labels = JSON.parse('{{ labels|escapejs }}');
+const medicion = JSON.parse('{{ medicion_data|escapejs }}');
+const estimacion = JSON.parse('{{ estimacion_data|escapejs }}');
 
-const scatter = labels.map((l,i)=>({x:l,y:medicion[i]}));
-const line = labels.map((l,i)=>({x:l,y:estimacion[i]}));
+const canvas = document.getElementById("prediccionChart");
 
-new Chart(document.getElementById("prediccionChart"),{
-  data:{
-    datasets:[
-      {
-        type:'scatter',
-        label:'Ventas reales',
-        data:scatter,
-        backgroundColor:'#000'
-      },
-      {
-        type:'line',
-        label:'Tendencia',
-        data:line,
-        borderColor:'#dc3545',
-        borderWidth:2,
-        tension:0.2,
-        pointRadius:0
-      }
-    ]
-  },
-  options:{
-    responsive:true,
-    maintainAspectRatio:false
-  }
-});
+if (!labels.length) {
+    new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: ["Sin datos"],
+            datasets: [{
+                label: "Sin datos",
+                data: [0],
+                borderColor: "#0d6efd"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+} else {
+
+    new Chart(canvas, {
+        type: 'line',
+
+        data: {
+            labels: labels,
+
+            datasets: [
+                {
+                    label: 'Ventas reales',
+                    data: medicion,
+                    borderColor: '#000',
+                    backgroundColor: '#000',
+                    pointRadius: 4,
+                    tension: 0.2
+                },
+                {
+                    label: 'Tendencia',
+                    data: estimacion,
+                    borderColor: '#dc3545',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.3
+                }
+            ]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
 </script>
 
 </body>
