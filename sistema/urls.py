@@ -32,5 +32,7 @@ urlpatterns = [
     
     path('compras/', include('compras.urls')),
     path('reportes/', include('reportes.urls')),
+    #para lo de estadistica 5ta iteracion
+    path('estadisticas/', include('estadisticas.urls')),
     
 ]

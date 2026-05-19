@@ -80,9 +80,15 @@
     <a href="{% url 'compras:ver_compras' %}">Compras</a>
         
     <a href="{% url 'productos:lista_recuperar' %}">Recuperar</a>
-        <hr>
+    <hr>
         
-        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
+    <a href="{% url 'reportes:compras_report' %}">Reportes</a>
+    
+    <hr> <!-- Separador para el nuevo módulo -->
+    <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
+    <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
+    
+    <hr>
     <a href="{% url 'logout' %}">Cerrar sesión</a>
 </div>
 

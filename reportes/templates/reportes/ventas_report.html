@@ -401,20 +401,36 @@
 </head>
 <body>
 
-    <!-- ========== SIDEBAR ========== -->
+<!-- SIDEBAR -->
+
     <div class="sidebar">
+    
         <h5>Dashboard</h5>
-        <a href="{% url 'dashboard_admin' %}">Inicio</a>
-        <a href="{% url 'dashboard_admin' %}"> Gestión de Usuarios</a>
-        <a href="{% url 'productos:inventario' %}">Productos</a>
-        <a href="{% url 'categorias:lista' %}">Categorías</a>
-        <a href="{% url 'proveedores:lista' %}">Proveedores</a>
-        <a href="{% url 'compras:ver_compras' %}">Compras</a>
-        
+    
+        <a href="#">Inicio</a>
+    
+        <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
+    
+    
         <hr>
+        <a href="{% url 'productos:inventario' %}">Productos</a>
+    
+        <hr>
+    
+        <a href="{% url 'categorias:lista' %}">Categorías</a>
+    
+        <hr>
+    
+        <a href="{% url 'compras:ver_compras' %}">Compras</a>
+    
+        <hr>
+            
+        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
         
-        <a href="{% url 'reportes:compras_report' %}" class="active">Reportes</a>
-        
+        <hr> <!-- Separador para el nuevo módulo -->
+        <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
+        <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
+    
         <hr>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
     </div>

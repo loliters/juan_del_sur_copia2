@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Stock</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; display: flex; margin: 0; background: #f8f9fa; }
+        .sidebar { width: 240px; background: #212529; color: #fff; min-height: 100vh; padding: 20px 0; }
+        .sidebar a { display: block; color: #adb5bd; padding: 12px 20px; text-decoration: none; }
+        .sidebar a:hover, .sidebar a.active { background: #343a40; color: #fff; }
+        .main { flex: 1; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .filters { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 15px; flex-wrap: wrap; align-items: end; margin-bottom: 25px; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 12px; font-weight: 600; color: #495057; }
+        select, input { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-primary { background: #0d6efd; color: #fff; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .chart-box { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: 450px; position: relative; }
+        .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .note { position: fixed; top: 20px; right: 20px; background: #ffc107; padding: 10px 15px; border-radius: 4px; font-weight: bold; box-shadow: 2px 2px 8px rgba(0,0,0,0.2); transform: rotate(2deg); }
+        .formula-info { background: #e7f3ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #0d6efd; }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h5>Dashboard</h5>
+        <a href="#">Inicio</a>
+        <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
+    
+        <hr>
+        <a href="{% url 'productos:inventario' %}">Productos</a>
+    
+        <hr>
+        <a href="{% url 'categorias:lista' %}">Categorías</a>
+        <hr>
+        <a href="{% url 'compras:ver_compras' %}">Compras</a>
+            
+        <a href="{% url 'productos:lista_recuperar' %}">Recuperar</a>
+        <hr>
+            
+        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
+        
+        <hr> <!-- Separador para el nuevo módulo -->
+        <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
+        <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
+        
+        <hr>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+    </div>
+    <div class="main">
+        <div class="header">
+            <h2>📉 Predicción de Agotamiento - Regresión Lineal</h2>
+            <div>
+                <button class="btn btn-primary" onclick="window.print()">📄 Reporte</button>
+                <button class="btn btn-secondary" onclick="history.back()">VOLVER</button>
+            </div>
+        </div>
+
+        {% if fecha_agotamiento %}
+        <div class="alert">
+            <strong>📊 Predicción para: {{ nombre_producto }}</strong><br>
+            Stock actual: <strong>{{ stock_actual }}</strong> unidades<br>
+            Pendiente (b): <strong>{{ pendiente }}</strong> | Intercepto (a): <strong>{{ intercepto }}</strong><br>
+            <strong>⚠️ Se estima agotamiento para el: {{ fecha_agotamiento|date:"d/m/Y" }}</strong>
+        </div>
+        {% endif %}
+
+        <!--<div class="formula-info">
+            <strong>📐 Fórmula de Regresión Lineal Simple:</strong> y = a + bx<br>
+            <small>Donde: x = tiempo (días), y = cantidad vendida, b = pendiente, a = intercepto</small>
+        </div>-->
+
+        <form method="GET">
+            <div class="filters">
+                <div class="field">
+                    <label>Producto</label>
+                    <select name="producto" required>
+                        <option value="">-- Seleccionar --</option>
+                        {% for p in productos %}
+                        <option value="{{ p.id }}" {% if p.id|stringformat:"s" == request.GET.producto %}selected{% endif %}>
+                            {{ p.nomProducto }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Desde</label>
+                    <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}">
+                </div>
+                <div class="field">
+                    <label>Hasta</label>
+                    <input type="date" name="fecha_fin" value="{{ fecha_fin }}">
+                </div>
+                <button type="submit" class="btn btn-primary">🔍 Analizar</button>
+            </div>
+        </form>
+
+        <div class="chart-box">
+            <canvas id="prediccionChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const labels = {{ labels|safe }};
+        const medicionData = {{ medicion_data|safe }};
+        const estimacionData = {{ estimacion_data|safe }};
+        
+        console.log('Labels:', labels);
+        console.log('Medición:', medicionData);
+        console.log('Estimación:', estimacionData);
+
+        // Crear datos combinados: puntos negros + línea roja
+        const scatterData = labels.map((label, index) => ({
+            x: label,
+            y: medicionData[index]
+        }));
+
+        const lineData = labels.map((label, index) => ({
+            x: label,
+            y: estimacionData[index]
+        }));
+
+        const ctx = document.getElementById('prediccionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Medición (Ventas Reales)',
+                        data: scatterData,
+                        backgroundColor: '#000000',
+                        borderColor: '#000000',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#000000',
+                        pointBorderColor: '#000000',
+                        showLine: false
+                    },
+                    {
+                        type: 'line',
+                        label: 'Estimación (Tendencia)',
+                        data: lineData,
+                        borderColor: '#dc3545',
+                        backgroundColor: '#dc3545',
+                        borderWidth: 3,
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Análisis de Tendencia de Ventas',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'category',
+                        labels: labels,
+                        title: {
+                            display: true,
+                            text: 'Fecha (Días)',
+                            font: { weight: 'bold' }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cantidad Vendida',
+                            font: { weight: 'bold' }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+    </script>
+</body>
+</html>
