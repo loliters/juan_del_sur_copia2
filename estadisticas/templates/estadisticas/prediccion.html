@@ -230,8 +230,8 @@
     <div class="alert-box">
         <strong>Producto:</strong> {{ nombre_producto }} <br>
         Stock actual: {{ stock_actual }} <br>
-        Pendiente (m): {{ pendiente }} | Intercepto (b): {{ intercepto }} <br>
-        <strong>Fecha estimada de agotamiento:</strong> {{ fecha_agotamiento|date:"d/m/Y" }}
+        <!--Pendiente (m): {{ pendiente }} | Intercepto (b): {{ intercepto }} <br>
+        <strong>Fecha estimada de agotamiento:</strong> {{ fecha_agotamiento|date:"d/m/Y" }}-->
     </div>
     {% endif %}
 
@@ -312,6 +312,9 @@
 
     <!-- GRAFICO -->
     <div class="chart-box">
+	<h4>
+            <i class="fas text-danger me-2"></i> Tendencia de Demanda del Producto
+        </h4>
         <canvas id="prediccionChart"></canvas>
     </div>
 
