@@ -2,97 +2,134 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Editar Categoría</title>
+<title>Editar Categoría - Juan del Sur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-body {
-  background:#2B2D33;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  font-family:'Segoe UI', system-ui, sans-serif;
-}
+    body {
+        background: #f1f1f1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
 
-/* CARD */
-.card-crear {
-  width:420px;
-  background:#EAEAEA;
-  border-radius:28px;
-  box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
-  overflow:hidden;
-}
+    /* CARD PREMIUM UNIFICADO */
+    .card-crear {
+        width: 100%;
+        max-width: 460px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f5;
+    }
 
-/* HEADER */
-.card-header {
-  background:#E0E0E0;
-  padding:20px 24px;
-  border-bottom:3px solid #0671B8;
-}
+    /* HEADER OSCURO COMERCIAL */
+    .card-header-custom {
+        padding: 18px 24px;
+        background: #343a40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: none;
+    }
 
-.card-header h4 {
-  margin:0;
-  font-weight:700;
-  color:#1F1F1F;
-}
+    .card-header-custom h5 {
+        margin: 0;
+        font-weight: bold;
+        color: #ffffff;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+    }
 
-/* BODY */
-.card-body {
-  padding:24px;
-}
+    /* BODY */
+    .card-body {
+        padding: 30px;
+    }
 
-/* INPUT */
-.form-label {
-  font-weight:600;
-  color:#1F1F1F;
-}
+    /* FORMULARIO */
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.88rem;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
 
-.form-control {
-  border-radius:16px;
-  padding:10px 14px;
-}
+    .form-control {
+        border-radius: 8px;
+        padding: 11px 14px;
+        border: 1px solid #ced4da;
+        color: #212529;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: all 0.2s ease;
+    }
 
-.form-control:focus {
-  border-color:#0671B8;
-  box-shadow:0 0 0 3px rgba(6,113,184,0.2);
-}
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+    }
 
-/* BOTONES */
-.btn-actualizar {
-  background:#FFC107;
-  border:none;
-  border-radius:40px;
-  padding:12px;
-  font-weight:600;
-  color:#1F1F1F;
-  width:100%;
-}
+    /* BOTÓN ACTUALIZAR (AMARILLO IGUAL A LA TABLA) */
+    .btn-actualizar {
+        width: 100%;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        background: #ffc107;
+        color: #212529;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+    }
 
-.btn-actualizar:hover {
-  background:#e0a800;
-  transform:translateY(-1px);
-}
+    .btn-actualizar:hover {
+        background: #e0a800;
+    }
 
-.btn-cancelar {
-  background:#6C757D;
-  border:none;
-  border-radius:40px;
-  padding:12px;
-  font-weight:600;
-  color:white;
-  width:100%;
-  margin-top:10px;
-  text-decoration:none;
-  display:inline-block;
-  text-align:center;
-}
+    /* BOTÓN CANCELAR PLANO */
+    .btn-cancelar {
+        display: block;
+        margin-top: 12px;
+        text-decoration: none;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        background: #6c757d;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
 
-.btn-cancelar:hover {
-  background:#5a6268;
-}
+    .btn-cancelar:hover {
+        background: #5c636a;
+        color: white;
+    }
+
+    .btn-volver-top {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-volver-top:hover {
+        background-color: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+    }
 </style>
 </head>
 
@@ -100,51 +137,48 @@ body {
 
 <div class="card-crear">
 
-  <!-- HEADER -->
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h4>
-      <i class="fas fa-edit me-2" style="color:#0671B8;"></i>
+  <div class="card-header-custom">
+    <h5>
+      <i class="fas fa-edit me-2 text-warning"></i>
       Editar Categoría
-    </h4>
+    </h5>
 
-    <!-- VOLVER -->
-    <a href="{% url 'categorias:lista' %}" class="btn-cancelar" style="width:auto; padding:6px 14px;">
+    <a href="{% url 'categorias:lista' %}" class="btn-volver-top">
       <i class="fas fa-arrow-left"></i>
     </a>
   </div>
 
-  <!-- BODY -->
   <div class="card-body">
-
-        <!-- MENSAJES -->
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius:12px;">
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius:8px;">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            {% endfor %}
-        {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <form method="POST">
       {% csrf_token %}
 
-      <div class="mb-3">
+      <div class="mb-4">
         <label class="form-label">Nombre de la categoría</label>
-        <input type="text"
-               name="nomCategoria"
-               class="form-control"
-               value="{{ categoria.nomCategoria }}"
+        <input type="text" 
+               name="nomCategoria" 
+               class="form-control" 
+               value="{{ categoria.nomCategoria }}" 
+               placeholder="Ej. Bebidas, Limpieza..." 
                required>
       </div>
 
-      <button class="btn-actualizar">
-        <i class="fas fa-save me-2"></i> Actualizar
+      <button type="submit" class="btn-actualizar">
+        <i class="fas fa-save me-2"></i> Actualizar Categoría
       </button>
 
       <a href="{% url 'categorias:lista' %}" class="btn-cancelar">
-        Cancelar
+        <i class="fas fa-times me-2"></i> Cancelar
       </a>
 
     </form>
@@ -153,5 +187,6 @@ body {
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
