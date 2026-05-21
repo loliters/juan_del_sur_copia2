@@ -128,7 +128,7 @@ def crear_unidad(request):
 # =========================
 # EDITAR
 # =========================
-def editar_unidadmedida(request, id):
+def editar_unidadmedida(request, id_unidad):
 
     if request.session.get('usuario_id') is None:
         return redirect('login')
@@ -137,7 +137,7 @@ def editar_unidadmedida(request, id):
         messages.error(request, 'Solo el administrador puede editar')
         return redirect('unidadmedida:lista')
 
-    unidad = get_object_or_404(UnidadMedida, id=id)
+    unidad = get_object_or_404(UnidadMedida, id=id_unidad)
 
     if request.method == 'POST':
 
@@ -173,7 +173,7 @@ def editar_unidadmedida(request, id):
 # =========================
 # ELIMINAR
 # =========================
-def eliminar_unidadmedida(request, id):
+def eliminar_unidadmedida(request, id_unidad):
 
     if request.session.get('usuario_id') is None:
         return redirect('login')
@@ -182,7 +182,7 @@ def eliminar_unidadmedida(request, id):
         messages.error(request, 'Solo el administrador puede eliminar')
         return redirect('unidadmedida:lista')
 
-    unidad = get_object_or_404(UnidadMedida, id=id)
+    unidad = get_object_or_404(UnidadMedida, id=id_unidad)
 
     if request.method == 'POST':
 
@@ -215,12 +215,12 @@ def inactivas_unidadmedida(request):
 # =========================
 # RECUPERAR
 # =========================
-def recuperar_unidadmedida(request, id):
+def recuperar_unidadmedida(request, id_unidad):
 
     if request.session.get('usuario_id') is None:
         return redirect('login')
 
-    unidad = get_object_or_404(UnidadMedida, id=id)
+    unidad = get_object_or_404(UnidadMedida, id=id_unidad)
 
     unidad.estado = True
     unidad.save()

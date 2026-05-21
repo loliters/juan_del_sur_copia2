@@ -222,7 +222,7 @@
     <div class="sidebar-menu">
         <div class="menu-category">General</div>
         <a href="{% url 'dashboard_admin' %}"><i class="bi bi-house-door"></i> Inicio</a>
-        <a href="/admin/auth/user/"><i class="bi bi-people"></i> Gestión de Usuarios</a>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-people"></i> Gestión de Usuarios</a>
 
         <div class="menu-category">Almacén</div>
         <a href="{% url 'productos:inventario' %}"><i class="bi bi-box-seam"></i> Productos</a>

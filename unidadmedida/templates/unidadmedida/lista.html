@@ -1,204 +1,400 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Unidades de Medida</title>
+    <meta charset="UTF-8">
+    <title>Unidades de Medida - Juan del Sur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ========== BASE CLARA / SIDEBAR OSCURO ========== */
+        body { 
+            background: #f4f6f9; /* Fondo claro para la aplicación */
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            color: #1f1f1f; /* Letras principales en negro/oscuro */
+        }
+        
+        /* ========== SIDEBAR MANTENIDO INTEGRALMENTE (OSCURO) ========== */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #232323;
+            color: #a3a3a3;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        .sidebar h5 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
 
-<style>
-body {
-  background:#2B2D33;
-  font-family:'Segoe UI', system-ui, sans-serif;
-}
+        .sidebar .menu-category {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666666;
+            margin: 16px 0 6px 12px;
+            display: block;
+            font-weight: 700;
+        }
 
-.card-custom {
-  background:#EAEAEA;
-  border-radius:28px;
-  box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
-  overflow:hidden;
-}
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cdcdcd;
+            text-decoration: none;
+            margin: 2px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
 
-.card-header {
-  background:#E0E0E0;
-  padding:20px 24px;
-  border-bottom:3px solid #0671B8;
-}
+        .sidebar a i {
+            width: 20px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0.8;
+        }
 
-.card-header h4 {
-  margin:0;
-  font-weight:700;
-  color:#1F1F1F;
-}
+        .sidebar a:hover {
+            background-color: #0671B8;
+            color: #ffffff;
+        }
 
-.card-body {
-  padding:24px;
-}
+        .sidebar a.active {
+            background-color: #0671B8;
+            color: #ffffff;
+            font-weight: 600;
+        }
 
-.btn-crear {
-  background:#0671B8;
-  border:none;
-  border-radius:40px;
-  padding:10px 18px;
-  color:white;
-  font-weight:600;
-}
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
 
-.btn-crear:hover {
-  background:#055A9A;
-}
+        /* Área de contenido general */
+        .content-wrapper {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        
+        /* ========== NUEVA INTERFAZ CLARA (WHITE / LIGHT) ========== */
+        .card-custom {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff; /* Fondo blanco */
+            border: 1px solid #e0e4ec;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .card-header-custom {
+            background: #f8f9fa; /* Encabezado gris muy suave */
+            border-bottom: 1px solid #e0e4ec;
+            padding: 20px 28px;
+        }
 
-.table {
-  background:white;
-  border-radius:12px;
-  overflow:hidden;
-}
+        .card-header-custom h4 {
+            color: #1f1f1f; /* Título en negro */
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .card-body-custom {
+            padding: 28px;
+        }
 
-.icon-editar {
-  color:#FFC107;
-}
+        /* Botones versión clara */
+        .btn-crear {
+            background: #0671B8;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-crear:hover {
+            background: #055A9A;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .btn-volver {
+            background: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: #495057;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-volver:hover {
+            background: #f8f9fa;
+            color: #212529;
+            border-color: #b5bbc1;
+        }
 
-.icon-eliminar {
-  color:#DC3545;
-}
+        .btn-archivo {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #495057;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
 
-.content-wrapper {
-  padding:20px;
-}
+        .btn-archivo:hover {
+            background: #e9ecef;
+            color: #212529;
+        }
+        
+        /* ========== TABLA LIMPIA Y CLARA ========== */
+        .table-responsive {
+            border-radius: 8px;
+            border: 1px solid #e0e4ec;
+            overflow: hidden;
+        }
 
-.btn-volver {
-  background:#6C757D;
-  border:none;
-  border-radius:40px;
-  padding:8px 16px;
-  color:white;
-  font-weight:600;
-  text-decoration:none;
-}
+        .table-custom {
+            margin-bottom: 0;
+            background-color: #ffffff;
+            color: #1f1f1f;
+        }
 
-.badge-solo-lectura {
-  background:#6c757d;
-  color:white;
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:0.7rem;
-}
-</style>
+        .table-custom thead {
+            background-color: #f8f9fa;
+        }
 
+        .table-custom th {
+            color: #6c757d; /* Cabeceras gris sutil */
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e0e4ec;
+        }
+
+        .table-custom td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #e0e4ec;
+            color: #2d3238; /* Letras de filas oscuras */
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f8f9fa; /* Efecto hover limpio */
+        }
+
+        /* Acciones de la tabla */
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .action-edit {
+            color: #a17800;
+            background: rgba(255, 193, 7, 0.15);
+        }
+
+        .action-edit:hover {
+            background: #ffc107;
+            color: #111111;
+        }
+
+        .action-delete {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .action-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .badge-solo-lectura {
+            background: #e9ecef;
+            color: #495057;
+            border: 1px solid #ced4da;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-abreviatura {
+            background-color: #e8f4fd;
+            color: #0671B8;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+            .content-wrapper {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="content-wrapper">
+<!-- SIDEBAR MODERNO (MANTENIDO TOTALMENTE OSCURO) -->
+<div class="sidebar">
+    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
+    <div class="sidebar-menu">
+        <div class="menu-category">General</div>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-house-door"></i> Inicio</a>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-people"></i> Gestión de Usuarios</a>
 
-  <div class="card-custom">
+        <div class="menu-category">Almacén</div>
+        <a href="{% url 'productos:inventario' %}"><i class="bi bi-box-seam"></i> Productos</a>
+        <a href="{% url 'categorias:lista' %}"><i class="bi bi-tags"></i> Categorías</a>
+        <a href="{% url 'proveedores:lista' %}"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="#" class="active"><i class="bi bi-balance-scale"></i> Unidades de Medida</a>
 
-    <div class="card-header d-flex justify-content-between align-items-center">
-
-      <h4>
-        <i class="fas fa-balance-scale me-2" style="color:#0671B8;"></i>
-        Unidades de Medida
-      </h4>
-
-      <div class="d-flex gap-2">
-
-        {% if request.session.rol == 'cajero' %}
-          <a href="{% url 'dashboard_cajero' %}" class="btn-volver">
-            <i class="fas fa-arrow-left me-2"></i> Volver
-          </a>
-        {% else %}
-          <a href="{% url 'dashboard_admin' %}" class="btn-volver">
-            <i class="fas fa-arrow-left me-2"></i> Menú
-          </a>
-        {% endif %}
-
-        {% if request.session.rol == 'administrador' %}
-          <a href="{% url 'unidadmedida:crear' %}" class="btn-crear">
-            <i class="fas fa-plus me-2"></i> Nueva
-          </a>
-        {% endif %}
-
-      </div>
-
+        <div class="menu-category">Operaciones</div>
+        <a href="{% url 'compras:ver_compras' %}"><i class="bi bi-cart-check"></i> Compras</a>
+        <a href="{% url 'ventas:ver_ventas' %}"><i class="bi bi-receipt"></i> Ventas</a>
+        <a href="{% url 'reportes:ventas_report' %}"><i class="bi bi-file-earmark-bar-graph"></i> Reportes</a>
     </div>
-
-    <div class="card-body">
-
-      <div class="table-responsive">
-
-        <table class="table align-middle">
-
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Abreviatura</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            {% for unidad in unidades %}
-
-            <tr>
-              <td>{{ unidad.id}}</td>
-              <td>{{ unidad.nombre }}</td>
-              <td>{{ unidad.abreviatura }}</td>
-
-              <td class="text-center">
-
-                {% if request.session.rol == 'administrador' %}
-
-                <a href="{% url 'unidadmedida:editar' unidad.id %}" class="me-2">
-                  <i class="fas fa-edit icon-editar"></i>
-                </a>
-
-                <a href="{% url 'unidadmedida:eliminar' unidad.id %}">
-                  <i class="fas fa-trash icon-eliminar"></i>
-                </a>
-
-                {% else %}
-
-                <span class="badge-solo-lectura">
-                  <i class="fas fa-eye me-1"></i> Solo lectura
-                </span>
-
-                {% endif %}
-
-              </td>
-            </tr>
-
-            {% empty %}
-
-            <tr>
-              <td colspan="4" class="text-center">
-                No hay unidades registradas
-              </td>
-            </tr>
-
-            {% endfor %}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      {% if request.session.rol == 'administrador' %}
-      <div class="mt-3">
-        <a href="{% url 'unidadmedida:inactivas' %}" class="btn btn-secondary">
-          <i class="fas fa-archive me-2"></i> Ver eliminadas
-        </a>
-      </div>
-      {% endif %}
-
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
     </div>
-
-  </div>
-
 </div>
 
+<!-- CONTENIDO PRINCIPAL EN FORMATO CLARO / LETRAS NEGRAS -->
+<div class="content-wrapper">
+    <div class="card-custom">
+        <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h4>
+                <i class="fas fa-balance-scale me-2" style="color:#0671B8;"></i>
+                Unidades de Medida
+            </h4>
+
+            <div class="d-flex gap-2">
+                {% if request.session.rol == 'cajero' %}
+                    <a href="{% url 'dashboard_cajero' %}" class="btn-volver">
+                        <i class="fas fa-arrow-left me-2"></i> Volver
+                    </a>
+                {% else %}
+                    <a href="{% url 'dashboard_admin' %}" class="btn-volver">
+                        <i class="fas fa-arrow-left me-2"></i> Menú
+                    </a>
+                {% endif %}
+
+                {% if request.session.rol == 'administrador' %}
+                    <a href="{% url 'unidadmedida:crear' %}" class="btn-crear">
+                        <i class="fas fa-plus me-2"></i> Nueva Unidad
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-body-custom">
+            <div class="table-responsive">
+                <table class="table table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">ID</th>
+                            <th style="width: 45%;">Nombre</th>
+                            <th style="width: 20%;">Abreviatura</th>
+                            <th style="width: 20%;" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unidad in unidades %}
+                        <tr>
+                            <td class="text-secondary">#{{ unidad.id }}</td>
+                            <td class="fw-bold text-dark">{{ unidad.nombre }}</td>
+                            <td><span class="badge-abreviatura">{{ unidad.abreviatura }}</span></td>
+                            <td class="text-center">
+                                {% if request.session.rol == 'administrador' %}
+                                    <a href="{% url 'unidadmedida:editar' unidad.id %}" class="action-link action-edit me-1" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'unidadmedida:eliminar' unidad.id %}" class="action-link action-delete" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="badge-solo-lectura">
+                                        <i class="fas fa-eye me-1"></i> Solo lectura
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle me-2"></i> No hay unidades registradas en el sistema.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if request.session.rol == 'administrador' %}
+            <div class="mt-4">
+                <a href="{% url 'unidadmedida:inactivas' %}" class="btn-archivo">
+                    <i class="fas fa-archive me-2"></i> Ver Unidades Eliminadas
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,139 +1,333 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Unidades Eliminadas</title>
+    <meta charset="UTF-8">
+    <title>Unidades Eliminadas - Juan del Sur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* ========== BASE CLARA / SIDEBAR OSCURO ========== */
+        body { 
+            background: #f4f6f9; /* Fondo claro general */
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            color: #1f1f1f; /* Letras oscuras */
+        }
+        
+        /* ========== SIDEBAR INTEGRAL (OSCURO) ========== */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #232323;
+            color: #a3a3a3;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        .sidebar h5 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
 
-<style>
-body{
-background:#2B2D33;
-font-family:'Segoe UI';
-}
+        .sidebar .menu-category {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666666;
+            margin: 16px 0 6px 12px;
+            display: block;
+            font-weight: 700;
+        }
 
-.content-wrapper{
-padding:20px;
-}
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cdcdcd;
+            text-decoration: none;
+            margin: 2px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
 
-.card-custom{
-background:#EAEAEA;
-border-radius:28px;
-overflow:hidden;
-}
+        .sidebar a i {
+            width: 20px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0.8;
+        }
 
-.card-header{
-background:#E0E0E0;
-padding:20px 24px;
-border-bottom:3px solid #6C757D;
-}
+        .sidebar a:hover {
+            background-color: #0671B8;
+            color: #ffffff;
+        }
 
-.card-body{
-padding:24px;
-}
+        .sidebar a.active {
+            background-color: #0671B8;
+            color: #ffffff;
+            font-weight: 600;
+        }
 
-.table{
-background:white;
-border-radius:12px;
-overflow:hidden;
-}
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
 
-.btn-recuperar{
-background:#198754;
-border:none;
-border-radius:40px;
-padding:6px 14px;
-color:white;
-font-weight:600;
-text-decoration:none;
-}
+        /* ========== ÁREA DE CONTENIDO PRINCIPAL ========== */
+        .content-wrapper {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        
+        /* ========== TARJETA CONTENEDORA BLANCA ========== */
+        .card-custom {
+            background: #ffffff;
+            border: 1px solid #e0e4ec;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .card-header-custom {
+            background: #f8f9fa; /* Encabezado gris suave */
+            border-bottom: 1px solid #e0e4ec;
+            padding: 20px 24px;
+        }
 
-.btn-volver{
-background:#6C757D;
-border:none;
-border-radius:40px;
-padding:10px 18px;
-color:white;
-font-weight:600;
-text-decoration:none;
-}
-</style>
+        .card-header-custom h4 {
+            color: #1f1f1f; /* Título en negro */
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Botón Volver */
+        .btn-volver {
+            background: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: #495057;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-volver:hover {
+            background: #f8f9fa;
+            color: #212529;
+            border-color: #b5bbc1;
+        }
+        
+        .card-body-custom {
+            padding: 24px;
+        }
+
+        /* ========== TABLA MODERNA ESTILIZADA ========== */
+        .table-responsive {
+            border-radius: 8px;
+            border: 1px solid #eed4da;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+            background: #ffffff;
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            color: #1f1f1f;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e0e4ec;
+        }
+
+        .table tbody td {
+            padding: 14px 16px;
+            color: #495057;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        /* Badge o Abreviatura destacada sutilmente */
+        .badge-abrev {
+            background: #f1f3f5;
+            color: #1f1f1f;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Botón Recuperar */
+        .btn-recuperar {
+            background: #198754;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-recuperar:hover {
+            background: #146c43;
+            color: white;
+        }
+
+        .text-empty {
+            color: #777777;
+            font-style: italic;
+            padding: 30px !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+            .content-wrapper {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
+<!-- SIDEBAR MODERNO (MANTENIDO TOTALMENTE OSCURO) -->
+<div class="sidebar">
+    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
+    <div class="sidebar-menu">
+        <div class="menu-category">General</div>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-house-door"></i> Inicio</a>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-people"></i> Gestión de Usuarios</a>
+
+        <div class="menu-category">Almacén</div>
+        <a href="{% url 'productos:inventario' %}"><i class="bi bi-box-seam"></i> Productos</a>
+        <a href="{% url 'categorias:lista' %}"><i class="bi bi-tags"></i> Categorías</a>
+        <a href="{% url 'proveedores:lista' %}"><i class="bi bi-truck"></i> Proveedores</a>
+        <a href="#" class="active"><i class="bi bi-balance-scale"></i> Unidades de Medida</a>
+
+        <div class="menu-category">Operaciones</div>
+        <a href="{% url 'compras:ver_compras' %}"><i class="bi bi-cart-check"></i> Compras</a>
+        <a href="{% url 'ventas:ver_ventas' %}"><i class="bi bi-receipt"></i> Ventas</a>
+        <a href="{% url 'reportes:ventas_report' %}"><i class="bi bi-file-earmark-bar-graph"></i> Reportes</a>
+    </div>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL EN FORMATO CLARO / BLANCO -->
 <div class="content-wrapper">
+    <div class="card-custom">
+        
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h4>
+                <i class="fas fa-trash-restore me-2" style="color: #6C757D;"></i> Unidades de Medida Eliminadas
+            </h4>
+            <a href="{% url 'unidadmedida:lista' %}" class="btn-volver">
+                <i class="fas fa-arrow-left"></i> Volver a la Lista
+            </a>
+        </div>
 
-<div class="card-custom">
+        <div class="card-body-custom">
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius:8px;">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-<div class="card-header d-flex justify-content-between align-items-center">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">ID</th>
+                            <th style="width: 50%;">Nombre de la Unidad</th>
+                            <th style="width: 20%;">Abreviatura</th>
+                            <th style="width: 20%; text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unidad in unidades %}
+                            <tr>
+                                <td><strong>#{{ unidad.idUnidad }}</strong></td>
+                                <td>{{ unidad.nombre }}</td>
+                                <td>
+                                    <span class="badge-abrev">{{ unidad.abreviatura }}</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'unidadmedida:recuperar' unidad.id %}" class="btn-recuperar">
+                                        <i class="fas fa-undo-alt"></i> Recuperar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-empty">
+                                    <i class="fas fa-info-circle me-2"></i> No se encontraron unidades de medida eliminadas.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-<h4>
-Unidades de Medida Eliminadas
-</h4>
-
-<a href="{% url 'unidadmedida:lista' %}" class="btn-volver">
-Volver
-</a>
-
+        </div>
+    </div>
 </div>
 
-<div class="card-body">
-
-<div class="table-responsive">
-
-<table class="table align-middle">
-
-<thead>
-<tr>
-<th>ID</th>
-<th>Nombre</th>
-<th>Abreviatura</th>
-<th>Acción</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for unidad in unidades %}
-
-<tr>
-
-<td>{{ unidad.idUnidad }}</td>
-<td>{{ unidad.nombre }}</td>
-<td>{{ unidad.abreviatura }}</td>
-
-<td>
-
-<a href="{% url 'unidadmedida:recuperar' unidad.id %}" class="btn-recuperar">
-Recuperar
-</a>
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-<td colspan="4" class="text-center">
-No hay unidades eliminadas
-</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

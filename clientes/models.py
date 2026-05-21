@@ -1,9 +1,6 @@
 # clientes/models.py
 from django.db import models
 
-
-
-
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
