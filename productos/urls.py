@@ -56,5 +56,7 @@ urlpatterns = [
         views.proximo_id_api,
         name='proximo_id'
     ),
-
+    path('verificar-duplicado/', 
+         views.verificar_duplicado_api, 
+         name='verificar_duplicado'),
 ]

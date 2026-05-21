@@ -6,6 +6,30 @@ from presentacion.models import Presentacion
 from inventario.models import Inventario
 from decimal import Decimal
 import re
+from django.http import JsonResponse
+
+def verificar_duplicado_api(request):
+    nombre = request.GET.get('nombre', '').strip()
+    presentacion_id = request.GET.get('presentacion')
+    
+    if not nombre:
+        return JsonResponse({'existe': False})
+    
+    presentacion_obj = None
+    if presentacion_id:
+        try:
+            from presentacion.models import Presentacion
+            presentacion_obj = Presentacion.objects.get(id=presentacion_id)
+        except:
+            pass
+    
+    existe = Producto.objects.filter(
+        nomProducto__iexact=nombre,
+        presentacion=presentacion_obj,
+        estado='activo'
+    ).exists()
+    
+    return JsonResponse({'existe': existe})
 
 
 # =========================
@@ -154,6 +178,28 @@ def registrar(request):
             return redirect(
                 'productos:registrar'
             )
+
+        # ==============================================
+        # VALIDACIÓN: No permitir mismo nombre + misma presentación
+        # ==============================================
+        presentacion_obj = None
+        if presentacion_id:
+            presentacion_obj = get_object_or_404(Presentacion, id=presentacion_id)
+
+        duplicado = Producto.objects.filter(
+            nomProducto__iexact=nomProducto,
+            presentacion=presentacion_obj,
+            estado='activo'
+        ).exists()
+
+        if duplicado:
+            messages.error(
+                request,
+                f'Ya existe un producto activo con el nombre "{nomProducto}" y la misma presentación. '
+                'No se puede crear otro igual.'
+            )
+            return redirect('productos:registrar')
+        # ==============================================
 
         if Producto.objects.filter(
             codProducto=codProducto

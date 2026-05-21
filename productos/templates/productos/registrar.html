@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-
 body{
 background:#f1f1f1;
 display:flex;
@@ -144,6 +143,15 @@ background-color: rgba(255, 255, 255, 0.22);
 color: #ffffff;
 }
 
+/* Adicional para mensajes de error en vivo */
+.duplicate-warning {
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none;
+}
+.duplicate-warning i {
+    margin-right: 4px;
+}
 </style>
 
 </head>
@@ -166,6 +174,19 @@ Crear Producto
 </div>
 
 <div class="card-body">
+
+<!-- =============================================== -->
+<!-- BLOQUE PARA MOSTRAR MENSAJES DE DJANGO (ALERTAS) -->
+<!-- =============================================== -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            <i class="fas {% if message.tags == 'error' %}fa-exclamation-triangle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
 
 <form method="POST" id="productoForm">
 
@@ -204,6 +225,11 @@ id="prodNombre"
 class="form-control"
 placeholder="Ej. Coca Cola 2L"
 required>
+
+<!-- advertencia en vivo -->
+<div id="nombreWarning" class="duplicate-warning text-danger">
+    <i class="fas fa-exclamation-circle"></i> Ya existe un producto activo con este nombre y esta presentación.
+</div>
 
 </div>
 
@@ -321,7 +347,7 @@ class="btn-cancelar">
 </div>
 
 <script>
-
+// abreviar nombre para código
 function abreviarNombre(nombre) {
     nombre = nombre.toUpperCase();
     return nombre.replace(/[^A-Z0-9]/g, '').substring(0, 4);
@@ -337,14 +363,12 @@ function generarCodigo() {
     }
     
     let nombreAbrev = abreviarNombre(nombre);
-    let abrev = 'GEN'; // Por defecto
+    let abrev = 'GEN';
     
     if (presentacionSelect.value) {
-        // Obtiene el texto de la opción seleccionada, ej: "1.0000 cj"
         let textoOpcion = presentacionSelect.options[presentacionSelect.selectedIndex].text;
-        // Extrae la abreviatura (última palabra)
         let partes = textoOpcion.trim().split(' ');
-        abrev = partes[partes.length - 1]; // Toma "cj", "lt", etc.
+        abrev = partes[partes.length - 1];
     }
     
     let codigo = `${nombreAbrev}_${abrev}_000`;
@@ -352,39 +376,66 @@ function generarCodigo() {
     document.getElementById('preview').innerHTML = nombre;
 }
 
-// Eventos
-document.getElementById('prodNombre').addEventListener('input', generarCodigo);
-document.getElementById('presentacion').addEventListener('change', generarCodigo);
-
-document.getElementById('productoForm').addEventListener('submit',function(e)
-{
-    let compra=
-    parseFloat(
-    document.getElementById(
-    'precioCompra'
-    ).value
-)
-
-let venta=
-parseFloat(
-document.getElementById(
-'precioVenta'
-).value
-)
-
-if(venta<=compra){
-
-e.preventDefault()
-
-alert(
-'El precio de venta debe ser mayor al precio compra'
-)
-
+// ====================================================
+// VERIFICACIÓN EN VIVO: ¿nombre + presentación ya existe?
+// ====================================================
+async function verificarDuplicado() {
+    const nombre = document.getElementById('prodNombre').value.trim();
+    const presentacionId = document.getElementById('presentacion').value;
+    const warningDiv = document.getElementById('nombreWarning');
+    const submitBtn = document.querySelector('.btn-crear');
+    
+    if (!nombre) {
+        warningDiv.style.display = 'none';
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    try {
+        // Llamada a la API que crearemos abajo
+        const response = await fetch(`/productos/verificar-duplicado/?nombre=${encodeURIComponent(nombre)}&presentacion=${presentacionId || ''}`);
+        const data = await response.json();
+        
+        if (data.existe) {
+            warningDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+        } else {
+            warningDiv.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    } catch (error) {
+        console.error('Error al verificar duplicado:', error);
+        // Si falla la API, permitimos enviar (el backend ya lo valida)
+        warningDiv.style.display = 'none';
+        submitBtn.disabled = false;
+    }
 }
 
-}
-)
+// Eventos para verificar en tiempo real
+document.getElementById('prodNombre').addEventListener('input', () => {
+    generarCodigo();
+    verificarDuplicado();
+});
+document.getElementById('presentacion').addEventListener('change', () => {
+    generarCodigo();
+    verificarDuplicado();
+});
 
+// Validación precio venta > precio compra
+document.getElementById('productoForm').addEventListener('submit', function(e) {
+    let compra = parseFloat(document.getElementById('precioCompra').value);
+    let venta = parseFloat(document.getElementById('precioVenta').value);
+    
+    if (venta <= compra) {
+        e.preventDefault();
+        alert('El precio de venta debe ser mayor al precio de compra');
+    }
+});
+
+// Inicializar verificación al cargar
+document.addEventListener('DOMContentLoaded', verificarDuplicado);
 </script>
 
 </body>
