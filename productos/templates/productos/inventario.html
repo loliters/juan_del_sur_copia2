@@ -290,7 +290,7 @@
                         <td class="text-secondary fw-semibold">{{ p.codProducto }}</td>
                         <td class="text-dark">{{ p.nomProducto }}</td>
                         <td class="text-secondary">{{ p.categoria }}</td>
-                        <td>${{ p.precioCompra }}</td>
+                        <td>Bs {{ p.precioCompra }}</td>
                         <td class="fw-bold text-dark">Bs {{ p.precioVenta }}</td>
                         <td>
                             <span class="fw-semibold {% if p.inventario.stock_actual <= 5 %}text-danger{% endif %}">
