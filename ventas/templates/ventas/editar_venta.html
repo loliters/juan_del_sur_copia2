@@ -13,124 +13,277 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        body {
-            background-color: #2B2D33;
-            padding: 30px;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+        /* ========== BASE ========== */
+        body { 
+            background: #2B2D33; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0; 
+            padding: 0; 
         }
         
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #232323;
+            color: #a3a3a3;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar h5 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
+
+        .sidebar .menu-category {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666666;
+            margin: 16px 0 6px 12px;
+            display: block;
+            font-weight: 700;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cdcdcd;
+            text-decoration: none;
+            margin: 2px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a i {
+            width: 20px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .sidebar a:hover {
+            background-color: #0d6efd;
+            color: #ffffff;
+        }
+
+        .sidebar a.active {
+            background-color: #0d6efd;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .content-wrapper {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        
+        /* ========== ESTILOS DEL FORMULARIO ========== */
         .card-form {
             max-width: 1000px;
             margin: 0 auto;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            background: white;
+            background: #EAEAEA;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        
+        .card-header-custom {
+            background: #E0E0E0;
+            border-bottom: 3px solid #0671B8;
+            padding: 18px 24px;
+        }
+        
+        .card-body-custom {
+            padding: 28px 24px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #1F2A3E;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-size: 0.8rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 1px solid #CED4DA;
+            padding: 10px 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #0671B8;
+            box-shadow: 0 0 0 3px rgba(6,113,184,0.15);
         }
         
         .btn-primary {
-            background-color: #0671B8;
+            background: #0671B8;
             border: none;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: 0.2s;
         }
         
         .btn-primary:hover {
-            background-color: #055A9A;
+            background: #055A9A;
+            transform: translateY(-2px);
         }
         
+        .btn-secondary {
+            background: #6C757D;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: 0.2s;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            color: white;
+        }
+        
+        /* Productos */
         .producto-item {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
+        
+        .producto-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(4px);
         }
         
         .producto-info {
-            flex: 1;
+            flex: 2;
         }
         
         .producto-nombre {
-            font-weight: 600;
-            margin-bottom: 5px;
+            font-weight: 700;
+            color: #1F2A3E;
+            margin-bottom: 4px;
         }
         
         .producto-precio {
             font-size: 0.85rem;
             color: #0671B8;
+            font-weight: 500;
         }
         
         .producto-acciones {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
         .cantidad-btn {
             background: #0671B8;
             border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
             color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            cursor: pointer;
             font-weight: bold;
+            transition: 0.2s;
         }
         
         .cantidad-btn:hover {
             background: #055A9A;
+            transform: scale(1.05);
         }
         
         .cantidad-display {
-            background: white;
-            padding: 5px 12px;
-            border-radius: 6px;
+            background: #F8F9FA;
+            padding: 5px 14px;
+            border-radius: 40px;
             font-weight: 600;
-            min-width: 50px;
+            min-width: 55px;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid #dee2e6;
         }
         
         .btn-eliminar-producto {
             background: #DC3545;
             border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
+            padding: 6px 14px;
+            border-radius: 40px;
             color: white;
-            cursor: pointer;
-            font-size: 0.8rem;
+            transition: 0.2s;
         }
         
         .btn-eliminar-producto:hover {
             background: #c82333;
-        }
-        
-        .total-box {
-            background: #0671B8;
-            color: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
+            transform: scale(1.02);
         }
         
         .btn-agregar-producto {
             background: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
+            border-radius: 40px;
+            padding: 12px 20px;
             width: 100%;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: 0.2s;
         }
         
         .btn-agregar-producto:hover {
             background: #218838;
+            transform: translateY(-2px);
         }
         
+        .total-box {
+            background: linear-gradient(135deg, #0671B8, #0a86d6);
+            color: white;
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        
+        /* Modal moderno */
         .modal-productos {
             display: none;
             position: fixed;
@@ -138,7 +291,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             overflow-y: auto;
         }
@@ -148,184 +302,231 @@
         }
         
         .modal-content-productos {
-            background: white;
+            background: #EAEAEA;
             max-width: 800px;
             margin: 50px auto;
-            border-radius: 20px;
-            padding: 20px;
-            max-height: 80vh;
-            overflow-y: auto;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px black;
         }
         
         .modal-header {
+            background: #E0E0E0;
+            border-bottom: 3px solid #0671B8;
+            padding: 18px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #0671B8;
+        }
+        
+        .buscar-producto-modal {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid #ddd;
+            border-radius: 40px;
+            margin: 20px 20px 10px;
+            width: calc(100% - 40px);
         }
         
         .producto-card {
-            background: #f5f5f5;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
+            background: white;
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
         
         .producto-card:hover {
             background: #0671B8;
             color: white;
-            transform: translateX(5px);
+            transform: translateX(8px);
+        }
+        
+        .producto-card-nombre {
+            font-weight: 700;
+        }
+        
+        .producto-card-precio {
+            font-weight: 700;
+            color: #0671B8;
         }
         
         .producto-card:hover .producto-card-precio {
             color: white;
         }
         
-        .producto-card-nombre {
-            font-weight: 600;
-        }
-        
-        .producto-card-precio {
-            color: #0671B8;
-            font-weight: bold;
-        }
-        
         .producto-card-stock {
             font-size: 0.7rem;
-            color: #666;
+            color: #6c757d;
         }
         
-        .buscar-producto-modal {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+            .content-wrapper {
+                margin-left: 0;
+            }
+            .producto-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .producto-acciones {
+                justify-content: center;
+            }
         }
     </style>
 </head>
-
 <body>
-<div class="card-form">
-    <h4 class="text-center mb-3">
-        <i class="bi bi-pencil-square text-primary"></i> Editar Venta #{{ venta.id_venta }}
-    </h4>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
-                {{ message|safe }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    <div class="mb-3">
-        <label class="form-label"><i class="bi bi-calendar me-1"></i>Fecha</label>
-        <input type="text" class="form-control" value="{{ venta.fecha|date:'d/m/Y H:i' }}" disabled>
+
+<!-- SIDEBAR MODERNO -->
+<div class="sidebar">
+    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
+    <div class="sidebar-menu">
+        <div class="menu-category">General</div>
+        <a href="{% url 'dashboard_admin' %}"><i class="bi bi-house-door"></i> Inicio</a>
+        <a href="/admin/auth/user/"><i class="bi bi-people"></i> Gestión de Usuarios</a>
+
+        <div class="menu-category">Almacén</div>
+        <a href="{% url 'productos:inventario' %}"><i class="bi bi-box-seam"></i> Productos</a>
+        <a href="{% url 'categorias:lista' %}"><i class="bi bi-tags"></i> Categorías</a>
+        <a href="{% url 'proveedores:lista' %}"><i class="bi bi-truck"></i> Proveedores</a>
+
+        <div class="menu-category">Operaciones</div>
+        <a href="{% url 'compras:ver_compras' %}"><i class="bi bi-cart-check"></i> Compras</a>
+        <a href="{% url 'ventas:ver_ventas' %}"><i class="bi bi-receipt"></i> Ventas</a>
+        <a href="{% url 'reportes:ventas_report' %}"><i class="bi bi-file-earmark-bar-graph"></i> Reportes</a>
+
+        <div class="menu-category">Análisis de Stock</div>
+        <a href="{% url 'estadisticas:top_productos' %}"><i class="bi bi-graph-up-arrow"></i> Top Productos</a>
+        <a href="{% url 'estadisticas:prediccion' %}"><i class="bi bi-graph-up"></i> Predicción de Stock</a>
+
+        <div class="menu-category">Recuperar</div>
+        <a href="{% url 'proveedores:inactivos' %}"><i class="bi bi-archive"></i> Proveedores Eliminados</a>
+        <a href="{% url 'categorias:inactivas' %}"><i class="bi bi-archive"></i> Categorías Eliminadas</a>
+        <a href="{% url 'productos:lista_recuperar' %}"><i class="bi bi-archive"></i> Productos Eliminados</a>
     </div>
-    
-    <form method="POST" id="formEditarVenta">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-            <label class="form-label"><i class="bi bi-person me-1"></i>Cliente</label>
-            <select name="cliente_id" class="form-select" required>
-                <option value="">Seleccione un cliente</option>
-                {% for cliente in clientes %}
-                <option value="{{ cliente.id_cliente }}" {% if venta.cliente.id_cliente == cliente.id_cliente %}selected{% endif %}>
-                    {{ cliente.nombre }} - {{ cliente.carnet|default:"Sin carnet" }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label"><i class="bi bi-credit-card me-1"></i>Método de Pago</label>
-            <select name="metodo_pago_id" class="form-select" required>
-                <option value="">Seleccione un método</option>
-                {% for mp in metodos_pago %}
-                <option value="{{ mp.id_met_pago }}" {% if venta.metodo_pago.id_met_pago == mp.id_met_pago %}selected{% endif %}>
-                    {{ mp.tipoPago }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <!-- SECCIÓN: Productos actuales -->
-        <div class="mb-3">
-            <label class="form-label"><i class="bi bi-cart me-1"></i>Productos en la venta</label>
-            <div id="productos-container">
-                {% for detalle in detalles %}
-                <div class="producto-item" data-producto-id="{{ detalle.inventario.producto.codProducto }}">
-                    <div class="producto-info">
-                        <div class="producto-nombre">{{ detalle.inventario.producto.nomProducto }}</div>
-                        <div class="producto-precio">
-                            Bs {{ detalle.precio_unitario|floatformat:2 }} c/u
-                        </div>
-                    </div>
-                    <div class="producto-acciones">
-                        <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, -1)">-</button>
-                        <span class="cantidad-display">{{ detalle.cantidad }}</span>
-                        <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, 1)">+</button>
-                        <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    <!-- CORREGIDO: precio entre comillas dobles -->
-                    <!-- <input type="hidden" name="productos[]" class="producto-input" value='{"cod":"{{ detalle.inventario.producto.codProducto }}", "cantidad":{{ detalle.cantidad }}, "precio":"{{ detalle.precio_unitario|floatformat:2 }}" }'> -->
-                     <input type="hidden" name="productos[]" class="producto-input"
-value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <button type="button" class="btn-agregar-producto" onclick="abrirModalProductos()">
-                <i class="fas fa-plus-circle me-2"></i> Agregar más productos
-            </button>
-            
-            <div class="total-box">
-                <div class="d-flex justify-content-between">
-                    <strong>Total:</strong>
-                    <strong id="total-venta">Bs 0.00</strong>
-                </div>
-            </div>
-        </div>
-        
-        <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-primary w-50">
-                <i class="bi bi-save"></i> Guardar Cambios
-            </button>
-            <a href="{% url 'ventas:ver_ventas' %}" class="btn btn-secondary w-50">
-                Cancelar
-            </a>
-        </div>
-    </form>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+    </div>
 </div>
 
-<!-- MODAL DE PRODUCTOS -->
+<!-- CONTENIDO PRINCIPAL -->
+<div class="content-wrapper">
+    <div class="card-form">
+        <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h4 class="m-0"><i class="bi bi-pencil-square me-2" style="color:#0671B8;"></i> Editar Venta #{{ venta.id_venta }}</h4>
+            <a href="{% url 'ventas:ver_ventas' %}" class="btn-secondary"><i class="fas fa-arrow-left me-1"></i> Volver</a>
+        </div>
+        
+        <div class="card-body-custom">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show rounded-4">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-calendar me-1"></i> Fecha</label>
+                <input type="text" class="form-control" value="{{ venta.fecha|date:'d/m/Y H:i' }}" disabled>
+            </div>
+            
+            <form method="POST" id="formEditarVenta">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person me-1"></i> Cliente</label>
+                    <select name="cliente_id" class="form-select" required>
+                        <option value="">Seleccione un cliente</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id_cliente }}" {% if venta.cliente.id_cliente == cliente.id_cliente %}selected{% endif %}>
+                            {{ cliente.nombre }} - {{ cliente.carnet|default:"Sin carnet" }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-credit-card me-1"></i> Método de Pago</label>
+                    <select name="metodo_pago_id" class="form-select" required>
+                        <option value="">Seleccione un método</option>
+                        {% for mp in metodos_pago %}
+                        <option value="{{ mp.id_met_pago }}" {% if venta.metodo_pago.id_met_pago == mp.id_met_pago %}selected{% endif %}>
+                            {{ mp.tipoPago }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Productos actuales -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-cart me-1"></i> Productos en la venta</label>
+                    <div id="productos-container">
+                        {% for detalle in detalles %}
+                        <div class="producto-item" data-producto-id="{{ detalle.inventario.producto.codProducto }}">
+                            <div class="producto-info">
+                                <div class="producto-nombre">{{ detalle.inventario.producto.nomProducto }}</div>
+                                <div class="producto-precio">Bs {{ detalle.precio_unitario|floatformat:2 }} c/u</div>
+                            </div>
+                            <div class="producto-acciones">
+                                <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, -1)">-</button>
+                                <span class="cantidad-display">{{ detalle.cantidad }}</span>
+                                <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, 1)">+</button>
+                                <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(this)">
+                                    <i class="fas fa-trash-alt me-1"></i> Eliminar
+                                </button>
+                            </div>
+                            <input type="hidden" name="productos[]" class="producto-input" value='{"cod":"{{ detalle.inventario.producto.codProducto }}", "cantidad":{{ detalle.cantidad }}, "precio":"{{ detalle.precio_unitario|floatformat:2 }}" }'>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="button" class="btn-agregar-producto" onclick="abrirModalProductos()">
+                        <i class="fas fa-plus-circle me-2"></i> Agregar más productos
+                    </button>
+                    
+                    <div class="total-box">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong><i class="fas fa-calculator me-2"></i> Total:</strong>
+                            <strong id="total-venta">Bs 0.00</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn-primary w-50"><i class="bi bi-save me-2"></i> Guardar Cambios</button>
+                    <a href="{% url 'ventas:ver_ventas' %}" class="btn-secondary w-50 text-center"><i class="bi bi-x-circle me-2"></i> Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PRODUCTOS -->
 <div id="modalProductos" class="modal-productos">
     <div class="modal-content-productos">
         <div class="modal-header">
-            <h5><i class="fas fa-boxes me-2"></i>Seleccionar Producto</h5>
-            <button type="button" class="btn-close" onclick="cerrarModalProductos()" style="background: none; border: none; font-size: 24px;">&times;</button>
+            <h5><i class="fas fa-boxes me-2"></i> Seleccionar Producto</h5>
+            <button type="button" class="btn-close" onclick="cerrarModalProductos()" aria-label="Close"></button>
         </div>
-        
         <input type="text" id="buscarProductoModal" class="buscar-producto-modal" placeholder="🔍 Buscar producto por nombre...">
-        
         <div id="listaProductosModal">
             {% for producto in productos_disponibles %}
             <div class="producto-card" data-cod="{{ producto.codProducto }}" data-nombre="{{ producto.nomProducto }}" data-precio="{{ producto.precioVenta|floatformat:2 }}" data-stock="{{ producto.stockActual }}" onclick="seleccionarProducto(this)">
                 <div>
                     <div class="producto-card-nombre">{{ producto.nomProducto }}</div>
-                    <div class="producto-card-stock"><i class="fas fa-boxes me-1"></i>Stock: {{ producto.stockActual }}</div>
+                    <div class="producto-card-stock"><i class="fas fa-boxes me-1"></i> Stock: {{ producto.stockActual }}</div>
                 </div>
                 <div class="producto-card-precio">Bs {{ producto.precioVenta|floatformat:2 }}</div>
             </div>
@@ -335,13 +536,12 @@ value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
 </div>
 
 <script>
+    // Funciones de cantidad, eliminar, total, modal (igual funcionalidad original, pero con mejor estilo)
     function cambiarCantidad(btn, delta) {
-        const productoItem = btn.closest('.producto-item');
-        const cantidadSpan = productoItem.querySelector('.cantidad-display');
-        let cantidadActual = parseInt(cantidadSpan.innerText);
-        let nuevaCantidad = cantidadActual + delta;
-        
-        if (nuevaCantidad < 1) {
+        const item = btn.closest('.producto-item');
+        const cantidadSpan = item.querySelector('.cantidad-display');
+        let cantidad = parseInt(cantidadSpan.innerText) + delta;
+        if (cantidad < 1) {
             Swal.fire({
                 title: '¿Eliminar producto?',
                 text: 'La cantidad sería 0. ¿Deseas eliminar este producto?',
@@ -354,21 +554,8 @@ value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
             });
             return;
         }
-        
-        cantidadSpan.innerText = nuevaCantidad;
-        
-        const inputHidden = productoItem.querySelector('.producto-input');
-        if (inputHidden && inputHidden.value) {
-            try {
-                const data = JSON.parse(inputHidden.value);
-                data.cantidad = nuevaCantidad;
-                inputHidden.value = JSON.stringify(data);
-                console.log('Cantidad actualizada:', data);
-            } catch(e) {
-                console.error('Error:', e);
-            }
-        }
-        
+        cantidadSpan.innerText = cantidad;
+        actualizarInputHidden(item);
         recalcularTotal();
     }
     
@@ -377,31 +564,31 @@ value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
         recalcularTotal();
     }
     
+    function actualizarInputHidden(item) {
+        const input = item.querySelector('.producto-input');
+        if (input && input.value) {
+            try {
+                let data = JSON.parse(input.value);
+                data.cantidad = parseInt(item.querySelector('.cantidad-display').innerText);
+                input.value = JSON.stringify(data);
+            } catch(e) { console.error(e); }
+        }
+    }
+    
     function recalcularTotal() {
         let total = 0;
-        let contador = 0;
         document.querySelectorAll('.producto-item').forEach(item => {
-            const inputHidden = item.querySelector('.producto-input');
-            if (inputHidden && inputHidden.value) {
+            const input = item.querySelector('.producto-input');
+            if (input && input.value) {
                 try {
-                    const data = JSON.parse(inputHidden.value);
+                    let data = JSON.parse(input.value);
                     let precio = parseFloat(data.precio);
-                    let cantidad = parseInt(data.cantidad);
-                    if (!isNaN(precio) && !isNaN(cantidad) && precio > 0) {
-                        const subtotal = precio * cantidad;
-                        total += subtotal;
-                        contador++;
-                        console.log(`Producto ${contador}: ${data.cod} - ${cantidad} x ${precio} = ${subtotal}`);
-                    } else {
-                        console.warn(`Producto con datos inválidos:`, data);
-                    }
-                } catch(e) {
-                    console.error('Error al recalcular:', e, 'Valor:', inputHidden.value);
-                }
+                    let cant = parseInt(data.cantidad);
+                    if (!isNaN(precio) && !isNaN(cant)) total += precio * cant;
+                } catch(e) {}
             }
         });
         document.getElementById('total-venta').innerHTML = `Bs ${total.toFixed(2)}`;
-        console.log(`Total calculado: Bs ${total.toFixed(2)}`);
     }
     
     function abrirModalProductos() {
@@ -414,11 +601,11 @@ value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
         document.getElementById('modalProductos').classList.remove('active');
     }
     
-    function seleccionarProducto(elemento) {
-        const cod = elemento.getAttribute('data-cod');
-        const nombre = elemento.getAttribute('data-nombre');
-        const precio = parseFloat(elemento.getAttribute('data-precio'));
-        const stock = parseInt(elemento.getAttribute('data-stock'));
+    function seleccionarProducto(el) {
+        const cod = el.getAttribute('data-cod');
+        const nombre = el.getAttribute('data-nombre');
+        const precio = parseFloat(el.getAttribute('data-precio'));
+        const stock = parseInt(el.getAttribute('data-stock'));
         
         if (document.querySelector(`.producto-item[data-producto-id="${cod}"]`)) {
             Swal.fire({ title: 'Producto ya existe', text: 'Este producto ya está en la venta.', icon: 'warning', timer: 2000, showConfirmButton: false });
@@ -444,218 +631,38 @@ value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
                 <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, -1)">-</button>
                 <span class="cantidad-display">1</span>
                 <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, 1)">+</button>
-                <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(this)">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(this)"><i class="fas fa-trash-alt me-1"></i> Eliminar</button>
             </div>
-            <input type="hidden" name="productos" class="producto-input" value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
+            <input type="hidden" name="productos[]" class="producto-input" value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
         `;
         container.appendChild(nuevoItem);
         recalcularTotal();
-        
         Swal.fire({ title: '✓ Producto agregado', text: `${nombre} agregado a la venta`, icon: 'success', timer: 1500, showConfirmButton: false });
         cerrarModalProductos();
     }
     
     function filtrarProductos() {
         const busqueda = document.getElementById('buscarProductoModal').value.toLowerCase();
-        document.querySelectorAll('#listaProductosModal .producto-card').forEach(producto => {
-            const nombre = producto.getAttribute('data-nombre').toLowerCase();
-            producto.style.display = nombre.includes(busqueda) ? 'flex' : 'none';
+        document.querySelectorAll('#listaProductosModal .producto-card').forEach(p => {
+            const nombre = p.getAttribute('data-nombre').toLowerCase();
+            p.style.display = nombre.includes(busqueda) ? 'flex' : 'none';
         });
     }
     
-    // Inicializar: recalcular total al cargar la página
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== INICIALIZANDO PÁGINA ===');
-        
-        // Verificar cada producto existente
-        document.querySelectorAll('.producto-item').forEach((item, index) => {
-            const inputHidden = item.querySelector('.producto-input');
-            if (inputHidden && inputHidden.value) {
-                try {
-                    const data = JSON.parse(inputHidden.value);
-                    console.log(`Producto ${index + 1} cargado:`, data);
-                    console.log(`  - Precio: ${data.precio} (tipo: ${typeof data.precio})`);
-                    console.log(`  - Cantidad: ${data.cantidad}`);
-                    
-                    // Si el precio es 0 o inválido, intentar obtenerlo del elemento HTML
-                    if (data.precio === 0 || data.precio === null || isNaN(parseFloat(data.precio))) {
-                        const precioSpan = item.querySelector('.producto-precio');
-                        if (precioSpan) {
-                            let precioTexto = precioSpan.innerText;
-                            let precioMatch = precioTexto.match(/[\d,.]+/);
-                            if (precioMatch) {
-                                data.precio = parseFloat(precioMatch[0].replace(',', '.'));
-                                inputHidden.value = JSON.stringify(data);
-                                console.log(`  Precio corregido: ${data.precio}`);
-                            }
-                        }
-                    }
-                } catch(e) {
-                    console.error('Error cargando producto:', e);
-                }
-            } else {
-                console.warn(`Producto ${index + 1} no tiene input hidden`);
-            }
-        });
-        
+    document.addEventListener('DOMContentLoaded', () => {
         recalcularTotal();
+        document.getElementById('buscarProductoModal').addEventListener('input', filtrarProductos);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModalProductos(); });
     });
     
-    // Event listeners
-    document.getElementById('buscarProductoModal').addEventListener('input', filtrarProductos);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModalProductos(); });
-    
-    // Al enviar el formulario, mostrar en consola qué se envía
+    // Preparar envío
     document.getElementById('formEditarVenta').addEventListener('submit', function(e) {
-        console.log('=== ENVIANDO FORMULARIO ===');
-        let contador = 0;
         document.querySelectorAll('.producto-item').forEach(item => {
-            const cantidadSpan = item.querySelector('.cantidad-display');
-            const inputHidden = item.querySelector('.producto-input');
-            if (inputHidden && cantidadSpan) {
-                try {
-                    const data = JSON.parse(inputHidden.value);
-                    data.cantidad = parseInt(cantidadSpan.innerText);
-                    inputHidden.value = JSON.stringify(data);
-                    console.log(`Producto ${++contador}:`, data);
-                } catch(e) { 
-                    console.error('Error:', e); 
-                }
-            }
+            actualizarInputHidden(item);
         });
-        console.log(`Total productos a enviar: ${contador}`);
+        // Envío normal (sin fetch para evitar conflictos)
+        // Se permite el envío normal del formulario.
     });
-
-    // Función para verificar y corregir los datos antes de enviar
-function prepararDatosParaEnvio() {
-    console.log('=== PREPARANDO DATOS PARA ENVÍO ===');
-    let productosValidos = [];
-    
-    document.querySelectorAll('.producto-item').forEach((item, index) => {
-        const cantidadSpan = item.querySelector('.cantidad-display');
-        const inputHidden = item.querySelector('.producto-input');
-        
-        if (inputHidden && cantidadSpan) {
-            try {
-                // Obtener el valor actual del hidden
-                let valorActual = inputHidden.value;
-                let data;
-                
-                // Intentar parsear el JSON existente
-                try {
-                    data = JSON.parse(valorActual);
-                } catch(e) {
-                    // Si no es JSON válido, crear uno nuevo
-                    console.warn(`Producto ${index + 1} tiene JSON inválido, creando nuevo...`);
-                    data = {};
-                }
-                
-                // Actualizar con los valores actuales
-                const cod = item.getAttribute('data-producto-id');
-                const cantidad = parseInt(cantidadSpan.innerText);
-                
-                // Obtener precio del elemento
-                let precio = data.precio;
-                if (!precio || precio === 0) {
-                    const precioSpan = item.querySelector('.producto-precio');
-                    if (precioSpan) {
-                        const precioTexto = precioSpan.innerText;
-                        const precioMatch = precioTexto.match(/[\d,.]+/);
-                        if (precioMatch) {
-                            precio = parseFloat(precioMatch[0].replace(',', '.'));
-                        }
-                    }
-                }
-                
-                // Crear objeto actualizado
-                const productoActualizado = {
-                    cod: cod,
-                    cantidad: cantidad,
-                    precio: precio
-                };
-                
-                // Actualizar el input hidden
-                inputHidden.value = JSON.stringify(productoActualizado);
-                productosValidos.push(productoActualizado);
-                
-                console.log(`Producto ${index + 1}:`, productoActualizado);
-                
-            } catch(e) {
-                console.error(`Error preparando producto ${index + 1}:`, e);
-            }
-        }
-    });
-    
-    console.log(`Total productos preparados: ${productosValidos.length}`);
-    return productosValidos;
-}
-
-// Modificar el evento submit del formulario
-document.getElementById('formEditarVenta').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevenir envío normal
-    
-    console.log('=== VERIFICANDO PRODUCTOS ANTES DE ENVIAR ===');
-    
-    // Preparar todos los datos
-    const productosValidos = prepararDatosParaEnvio();
-    
-    if (productosValidos.length === 0) {
-        Swal.fire({
-            title: 'Error',
-            text: 'Debe agregar al menos un producto',
-            icon: 'error',
-            timer: 2000,
-            showConfirmButton: false
-        });
-        return;
-    }
-    
-    // Crear FormData con todos los datos
-    const formData = new FormData(this);
-    
-    // Limpiar productos existentes en FormData (por si acaso)
-    formData.delete('productos');
-    
-    // Agregar cada producto individualmente
-    document.querySelectorAll('.producto-input').forEach(input => {
-        if (input.value && input.value !== 'null' && input.value !== 'undefined') {
-            try {
-                const data = JSON.parse(input.value);
-                if (data.cod && data.cantidad && data.precio) {
-                    formData.append('productos', input.value);
-                    console.log('Producto agregado a FormData:', data);
-                }
-            } catch(e) {
-                console.error('Error al agregar producto a FormData:', e);
-            }
-        }
-    });
-    
-    // Verificar cuántos productos se enviarán
-    const productosEnviados = formData.getAll('productos');
-    console.log(`Enviando ${productosEnviados.length} productos al servidor`);
-    
-    // Enviar el formulario
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    }).then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else {
-            return response.text();
-        }
-    }).catch(error => {
-        console.error('Error:', error);
-        // Si falla el fetch, enviar normalmente
-        this.submit();
-    });
-});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
