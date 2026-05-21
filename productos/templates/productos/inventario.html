@@ -6,174 +6,330 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { background-color: #f5f5f5; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        .main-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .table thead { background-color: #f8f9fa; }
-        .btn-nuevo { background-color: #0076CE; color: white; border-radius: 8px; font-weight: bold; }
-        .btn-nuevo:hover { background-color: #005fa3; color: white; }
-        .badge-activo { background-color: #77B347; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; }
-        .badge-inactivo { background-color: #D1D5DB; color: #4B5563; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; }
-        .action-icon { text-decoration: none; margin: 0 5px; font-size: 1.2rem; transition: 0.3s; }
-        .search-input { border-radius: 8px; border: 1px solid #ddd; padding: 8px 15px; width: 250px; }
-        .alert { margin-bottom: 20px; }
+        body { 
+            margin: 0; 
+            background: #f1f1f1; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+        }
 
-        .icon-editar { color: #0076CE; }
-        .icon-editar:hover { color: #005fa3; }
-
-        .icon-eliminar { color: #DC3545; }
-        .icon-eliminar:hover { color: #a71d2a; }
-
+        /* SIDEBAR ESTRUCTURADO Y PREMIUM */
         .sidebar {
-            width: 250px;
+            width: 260px;
             height: 100vh;
-            background: #2f2f2f;
-            color: white;
+            background: #232323; 
+            color: #a3a3a3;
             position: fixed;
             top: 0;
             left: 0;
-            padding: 20px;
+            padding: 24px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
             z-index: 100;
         }
 
-        .sidebar a {
+        .sidebar h5 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a;
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
+
+        .sidebar .menu-category {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666666;
+            margin: 16px 0 6px 12px;
             display: block;
-            color: white;
+            font-weight: 700;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cdcdcd;
             text-decoration: none;
-            margin: 12px 0;
-            padding: 8px 12px;
+            margin: 2px 0;
+            padding: 10px 14px;
             border-radius: 8px;
-            transition: 0.3s;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a i {
+            width: 20px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0.8;
         }
 
         .sidebar a:hover {
             background-color: #0d6efd;
+            color: #ffffff;
         }
 
-        .sidebar hr {
-            border-color: #555;
-            margin: 15px 0;
+        .sidebar a:hover i {
+            opacity: 1;
         }
 
+        .sidebar a.active {
+            background-color: #0d6efd;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        /* WRAPPER DE CONTENIDO */
         .content-wrapper {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        /* TARJETA BLANCA PRINCIPAL */
+        .main-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 24px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            border: 1px solid #eef2f5;
+        }
+
+        /* BOTONES DE FLUJO PRINCIPAL */
+        .btn-nuevo { 
+            background-color: #0d6efd; 
+            color: white; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            transition: 0.2s;
+        }
+        .btn-nuevo:hover { 
+            background-color: #0b5ed7; 
+            color: white; 
+        }
+
+        /* ESTILO DE LA TABLA BASADO FIELMENTE EN TU CAPTURA DE PANTALLA */
+        .table-responsive {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table-dark th {
+            background-color: #343a40 !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            padding: 14px 16px;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .table td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* BADGES RECTANGULARES CON BORDES REDONDEADOS (ESTILO IMAGEN) */
+        .badge-status-activo {
+            background-color: #198754;
+            color: white;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .badge-status-inactivo {
+            background-color: #6c757d;
+            color: white;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        /* BOTONES DE ACCIONES EXACTOS A LA IMAGEN (CUADRADOS PLANOS CON CONTRASTE ALTO) */
+        .btn-action-edit {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .btn-action-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
+
+        .btn-action-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .btn-action-delete:hover {
+            background-color: #c82333;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-    <h5>Dashboard</h5>
-    <a href="#">Inicio</a>
-    <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
-
-    <hr>
-    <a href="{% url 'productos:inventario' %}">Productos</a>
-
-    <hr>
-    <a href="{% url 'categorias:lista' %}">Categorías</a>
-    <hr>
-    <a href="{% url 'compras:ver_compras' %}">Compras</a>
-        
-    <a href="{% url 'productos:lista_recuperar' %}">Recuperar</a>
-    <hr>
-        
-    <a href="{% url 'reportes:compras_report' %}">Reportes</a>
+    <h5><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</h5>
     
-    <hr> <!-- Separador para el nuevo módulo -->
-    <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
-    <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
+    <a href="#">
+        <i class="fas fa-home"></i> Inicio
+    </a>
+    <a href="{% url 'dashboard_admin' %}">
+        <i class="fas fa-users"></i> Gestión de Usuarios
+    </a>
+
+    <span class="menu-category">Estructura Comercial</span>
+    <a href="{% url 'productos:inventario' %}" class="active">
+        <i class="fas fa-box"></i> Productos
+    </a>
+    <a href="{% url 'categorias:lista' %}">
+        <i class="fas fa-tags"></i> Categorías
+    </a>
     
-    <hr>
-    <a href="{% url 'logout' %}">Cerrar sesión</a>
+    <span class="menu-category">Operaciones</span>
+    <a href="{% url 'compras:ver_compras' %}">
+        <i class="fas fa-shopping-cart"></i> Compras
+    </a>
+
+    <span class="menu-category">Reportes y Datos</span>
+    <a href="{% url 'reportes:compras_report' %}">
+        <i class="fas fa-chart-bar"></i> Reportes Generales
+    </a>
+    <a href="{% url 'estadisticas:top_productos' %}">
+        <i class="fas fa-chart-bar"></i> Top Productos
+    </a>
+    <a href="{% url 'estadisticas:prediccion' %}">
+        <i class="fas fa-chart-line"></i> Predicción de Stock
+    </a>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'productos:lista_recuperar' %}">
+            <i class="fas fa-archive"></i> Recuperar
+        </a>
+        <a href="{% url 'logout' %}" style="transition: 0.2s;" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.15)', this.style.color='#dc3545'" onmouseout="this.style.backgroundColor='transparent', this.style.color='#cdcdcd'">
+            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+        </a>
+    </div>
 </div>
 
-<!-- CONTENIDO -->
 <div class="content-wrapper">
-    <div class="container main-card">
+    <div class="main-card">
 
-        <!-- MENSAJES -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm" style="border-radius: 8px;">
+                    <i class="fas fa-info-circle me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
 
-        <!-- HEADER -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Inventario General</h2>
+            <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-boxes me-2 text-primary"></i> Inventario General</h4>
 
-            <!-- SOLO ADMIN -->
             {% if request.session.rol != 'Cajero' %}
-                <a href="{% url 'productos:registrar' %}" class="btn btn-nuevo px-4">
-                    + Nuevo Producto
+                <a href="{% url 'productos:registrar' %}" class="btn btn-nuevo px-3 shadow-sm">
+                    <i class="fas fa-plus me-1"></i> Nuevo Producto
                 </a>
             {% endif %}
         </div>
 
-        <!-- TABLA -->
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Precio Compra</th>
-                    <th>Precio Venta</th>
-                    <th>Stock</th>
-                    <th>Unidad</th>
-                    <th>Estado</th>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Stock</th>
+                        <th>Unidad</th>
+                        <th>Estado</th>
+                        {% if request.session.rol != 'Cajero' %}
+                            <th style="text-align: center; width: 120px;">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
 
-                    {% if request.session.rol != 'Cajero' %}
-                        <th>Acciones</th>
-                    {% endif %}
-                </tr>
-            </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td class="text-secondary fw-semibold">{{ p.codProducto }}</td>
+                        <td class="text-dark">{{ p.nomProducto }}</td>
+                        <td class="text-secondary">{{ p.categoria }}</td>
+                        <td>${{ p.precioCompra }}</td>
+                        <td class="fw-bold text-dark">Bs {{ p.precioVenta }}</td>
+                        <td>
+                            <span class="fw-semibold {% if p.inventario.stock_actual <= 5 %}text-danger{% endif %}">
+                                {{ p.inventario.stock_actual }}
+                            </span>
+                        </td>
+                        <td class="text-secondary small">{{ p.inventario.tipo_unidad.nombre }}</td>
 
-            <tbody>
-                {% for p in productos %}
-                <tr>
-                    <td class="text-muted">{{ p.codProducto }}</td>
-                    <td class="fw-medium">{{ p.nomProducto }}</td>
-                    <td class="text-muted">{{ p.categoria }}</td>
-                    <td>${{ p.precioCompra }}</td>
-                    <td class="fw-bold">Bs {{ p.precioVenta }}</td>
-                    <td>{{ p.inventario.stock_actual }}</td>
-                    <td>{{ p.inventario.tipo_unidad.nombre }}</td>
+                        <td>
+                            {% if p.estado == 'activo' %}
+                                <span class="badge-status-activo">Activo</span>
+                            {% else %}
+                                <span class="badge-status-inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
 
-                    <td>
-                        <span class="{% if p.estado == 'activo' %}badge-activo{% else %}badge-inactivo{% endif %}">
-                            {{ p.get_estado_display }}
-                        </span>
-                    </td>
+                        {% if request.session.rol != 'Cajero' %}
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'productos:editar' p.id %}" class="btn-action-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'productos:eliminar' p.id %}" class="btn-action-delete" title="Eliminar"
+                                   onclick="return confirm('¿Eliminar producto?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
 
-                    <!-- ACCIONES SOLO ADMIN -->
-                    {% if request.session.rol != 'Cajero' %}
-                    <td>
-                        <a href="{% url 'productos:editar' p.id %}" class="action-icon icon-editar">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <a href="{% url 'productos:eliminar' p.id %}" class="action-icon icon-eliminar">
-                            <i class="bi bi-trash3"></i>
-                        </a>
-                    </td>
-                    {% endif %}
-                </tr>
-
-                {% empty %}
-                <tr>
-                    <td colspan="8" class="text-center">No hay productos registrados</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-secondary">No hay productos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     </div>
 </div>
