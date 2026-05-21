@@ -17,6 +17,7 @@ from inventario.models import Inventario
 # PREDICCIÓN DE STOCK
 # =========================
 def estadisticas_prediccion(request):
+
     producto_id = request.GET.get('producto')
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
@@ -25,7 +26,7 @@ def estadisticas_prediccion(request):
     producto_nombre = "Selecciona un producto"
 
     # =========================
-    # SI NO HAY PRODUCTO → FORZAR GRAFICA VACÍA
+    # SI NO HAY PRODUCTO
     # =========================
     if not producto_id:
         return render(request, 'estadisticas/prediccion.html', {
@@ -42,12 +43,18 @@ def estadisticas_prediccion(request):
             'n_registros': 0,
         })
 
+    # =========================
+    # STOCK
+    # =========================
     inventarios = Inventario.objects.filter(producto_id=producto_id)
     stock_total = inventarios.aggregate(total=Sum('stock_actual'))['total'] or 0
 
     if inventarios.exists():
         producto_nombre = inventarios.first().producto.nomProducto
 
+    # =========================
+    # VENTAS FILTRADAS
+    # =========================
     ventas_query = DetalleVenta.objects.filter(
         inventario__producto_id=producto_id
     )
@@ -87,9 +94,10 @@ def estadisticas_prediccion(request):
     r2_score = None
 
     # =========================
-    # MODELO IA (REGRESIÓN LINEAL)
+    # MODELO IA
     # =========================
     if len(df) >= 2:
+
         df['x'] = np.arange(1, len(df) + 1)
         df['y'] = df['cantidad']
 
@@ -109,9 +117,10 @@ def estadisticas_prediccion(request):
         estimacion_data = df['y_pred'].round(2).tolist()
 
         # =========================
-        # FECHA DE AGOTAMIENTO
+        # FECHA AGOTAMIENTO
         # =========================
         if pendiente_b != 0 and stock_total > 0:
+
             dias = (stock_total - intercepto_a) / pendiente_b
 
             if dias > 0:
@@ -121,19 +130,12 @@ def estadisticas_prediccion(request):
         r2_score = model.score(X, y)
 
     else:
-        # =========================
-        # FORZAR GRAFICA SI NO HAY DATOS
-        # =========================
         labels = ["Sin datos 1", "Sin datos 2", "Sin datos 3"]
         medicion_data = [0, 0, 0]
         estimacion_data = [0, 0, 0]
 
-        pendiente_b = 0
-        intercepto_a = 0
-        r2_score = None
-
     # =========================
-    # RETURN FINAL SEGURO
+    # RETURN
     # =========================
     return render(request, 'estadisticas/prediccion.html', {
         'productos': Producto.objects.all(),
@@ -157,42 +159,76 @@ def estadisticas_prediccion(request):
 
 
 # =========================
-# TOP PRODUCTOS
+# TOP PRODUCTOS (CORREGIDO)
 # =========================
 def estadisticas_top_productos(request):
+
     top_n = int(request.GET.get('top', 5))
     categoria_id = request.GET.get('categoria')
     mes = request.GET.get('mes')
     anio = request.GET.get('anio')
 
-    query = DetalleVenta.objects.values(
-        'inventario__producto__nomProducto'
-    ).annotate(
-        total_vendido=Sum('cantidad')
-    ).order_by('-total_vendido')
+    # =========================
+    # QUERY BASE (SIN AGRUPAR AÚN)
+    # =========================
+    query = DetalleVenta.objects.select_related(
+        'inventario__producto'
+    )
 
+    # =========================
+    # FILTROS CORRECTOS
+    # =========================
     if categoria_id:
-        query = query.filter(inventario__producto__categoria_id=categoria_id)
+        query = query.filter(
+            inventario__producto__categoria_id=categoria_id
+        )
+
     if mes:
-        query = query.filter(venta__fecha__month=int(mes))
+        query = query.filter(
+            venta__fecha__month=int(mes)
+        )
+
     if anio:
-        query = query.filter(venta__fecha__year=int(anio))
+        query = query.filter(
+            venta__fecha__year=int(anio)
+        )
 
-    query = query[:top_n]
+    # =========================
+    # AGRUPAR DESPUÉS DE FILTRAR
+    # =========================
+    query = (
+        query.values('inventario__producto__nomProducto')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:top_n]
+    )
 
-    productos_labels = [q['inventario__producto__nomProducto'] for q in query]
-    ventas_data = [q['total_vendido'] for q in query]
+    productos_labels = [
+        q['inventario__producto__nomProducto']
+        for q in query
+    ]
 
+    ventas_data = [
+        q['total_vendido']
+        for q in query
+    ]
+
+    # =========================
+    # AÑOS DISPONIBLES
+    # =========================
     anos_disponibles = DetalleVenta.objects.annotate(
         ano=ExtractYear('venta__fecha')
     ).values_list('ano', flat=True).distinct().order_by('-ano')
 
     return render(request, 'estadisticas/top_productos.html', {
         'categorias': Categoria.objects.all(),
+
         'productos_labels': json.dumps(productos_labels),
         'ventas_data': json.dumps(ventas_data),
+
         'top_n': top_n,
+        'categoria_id': categoria_id,
         'mes': mes,
         'anio': anio,
+
         'anos_disponibles': list(anos_disponibles),
     })

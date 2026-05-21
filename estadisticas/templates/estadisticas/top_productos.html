@@ -16,7 +16,6 @@ body {
   background: #f1f1f1;
 }
 
-/* SIDEBAR */
 .sidebar {
   width: 260px;
   height: 100vh;
@@ -51,7 +50,6 @@ body {
 
 .sidebar i { width: 20px; }
 
-/* MAIN */
 .main {
   margin-left: 260px;
   padding: 20px;
@@ -64,7 +62,6 @@ body {
   margin-bottom: 15px;
 }
 
-/* FILTROS */
 .filters {
   background: white;
   padding: 15px;
@@ -94,17 +91,6 @@ select {
   min-width: 120px;
 }
 
-/* BOTONES */
-.btn-group-custom {
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  border-radius: 6px;
-}
-
-/* CHART */
 .chart-box {
   background: white;
   padding: 20px;
@@ -112,7 +98,6 @@ select {
   height: 450px;
 }
 
-/* PRINT */
 @media print {
   .sidebar,
   .filters,
@@ -163,57 +148,74 @@ select {
 <!-- MAIN -->
 <div class="main">
 
-  <!-- HEADER -->
   <div class="header">
     <h3><i class="fas fa-chart-bar"></i> Top Productos</h3>
 
-    <div class="btn-group-custom">
-      <button class="btn btn-danger" onclick="window.print()">
-        <i class="fas fa-file-pdf"></i> PDF
-      </button>
-    </div>
+    <button class="btn btn-danger" onclick="window.print()">
+      <i class="fas fa-file-pdf"></i> PDF
+    </button>
   </div>
 
   <!-- FILTROS -->
   <form method="GET">
     <div class="filters">
 
+      <!-- TOP -->
       <div class="field">
         <label>Top</label>
         <select name="top">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
+          <option value="5" {% if top_n == 5 %}selected{% endif %}>5</option>
+          <option value="10" {% if top_n == 10 %}selected{% endif %}>10</option>
+          <option value="15" {% if top_n == 15 %}selected{% endif %}>15</option>
+          <option value="20" {% if top_n == 20 %}selected{% endif %}>20</option>
         </select>
       </div>
 
+      <!-- CATEGORÍA -->
       <div class="field">
         <label>Categoría</label>
         <select name="categoria">
           <option value="">Todas</option>
           {% for c in categorias %}
-          <option value="{{ c.id }}">{{ c.nomCategoria }}</option>
+          <option value="{{ c.id }}"
+            {% if categoria_id == c.id|stringformat:"s" %}selected{% endif %}>
+            {{ c.nomCategoria }}
+          </option>
           {% endfor %}
         </select>
       </div>
 
+      <!-- MES -->
       <div class="field">
         <label>Mes</label>
         <select name="mes">
           <option value="">Todos</option>
-          <option value="1">Enero</option>
-          <option value="2">Febrero</option>
-          <option value="3">Marzo</option>
-          <option value="4">Abril</option>
-          <option value="5">Mayo</option>
-          <option value="6">Junio</option>
-          <option value="7">Julio</option>
-          <option value="8">Agosto</option>
-          <option value="9">Septiembre</option>
-          <option value="10">Octubre</option>
-          <option value="11">Noviembre</option>
-          <option value="12">Diciembre</option>
+          <option value="1" {% if mes == "1" %}selected{% endif %}>Enero</option>
+          <option value="2" {% if mes == "2" %}selected{% endif %}>Febrero</option>
+          <option value="3" {% if mes == "3" %}selected{% endif %}>Marzo</option>
+          <option value="4" {% if mes == "4" %}selected{% endif %}>Abril</option>
+          <option value="5" {% if mes == "5" %}selected{% endif %}>Mayo</option>
+          <option value="6" {% if mes == "6" %}selected{% endif %}>Junio</option>
+          <option value="7" {% if mes == "7" %}selected{% endif %}>Julio</option>
+          <option value="8" {% if mes == "8" %}selected{% endif %}>Agosto</option>
+          <option value="9" {% if mes == "9" %}selected{% endif %}>Septiembre</option>
+          <option value="10" {% if mes == "10" %}selected{% endif %}>Octubre</option>
+          <option value="11" {% if mes == "11" %}selected{% endif %}>Noviembre</option>
+          <option value="12" {% if mes == "12" %}selected{% endif %}>Diciembre</option>
+        </select>
+      </div>
+
+      <!-- AÑO -->
+      <div class="field">
+        <label>Año</label>
+        <select name="anio">
+          <option value="">Todos</option>
+          {% for a in anos_disponibles %}
+          <option value="{{ a }}"
+            {% if anio == a|stringformat:"s" %}selected{% endif %}>
+            {{ a }}
+          </option>
+          {% endfor %}
         </select>
       </div>
 
@@ -232,15 +234,18 @@ select {
 </div>
 
 <script>
+const labels = JSON.parse('{{ productos_labels|escapejs }}');
+const data = JSON.parse('{{ ventas_data|escapejs }}');
+
 const ctx = document.getElementById('topChart');
 
 new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: {{ productos_labels|safe }},
+    labels: labels,
     datasets: [{
       label: 'Unidades Vendidas',
-      data: {{ ventas_data|safe }},
+      data: data,
       backgroundColor: '#0d6efd'
     }]
   },
