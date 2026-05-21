@@ -106,6 +106,33 @@
             border: 1px solid #eef2f5;
         }
 
+        /* BUSCADOR ESTILIZADO */
+        .search-container {
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .search-input {
+            border-radius: 8px;
+            padding: 9px 14px;
+            border: 1px solid #ced4da;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        }
+
+        .search-icon-btn {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: #6c757d;
+        }
+
         /* BOTONES DE FLUJO PRINCIPAL */
         .btn-nuevo { 
             background-color: #0d6efd; 
@@ -113,13 +140,14 @@
             border-radius: 8px; 
             font-weight: 600; 
             transition: 0.2s;
+            white-space: nowrap;
         }
         .btn-nuevo:hover { 
             background-color: #0b5ed7; 
             color: white; 
         }
 
-        /* ESTILO DE LA TABLA BASADO FIELMENTE EN TU CAPTURA DE PANTALLA */
+        /* ESTILO DE LA TABLA */
         .table-responsive {
             border: 1px solid #dee2e6;
             border-radius: 4px;
@@ -146,7 +174,7 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* BADGES RECTANGULARES CON BORDES REDONDEADOS (ESTILO IMAGEN) */
+        /* BADGES RECTANGULARES CON BORDES REDONDEADOS */
         .badge-status-activo {
             background-color: #198754;
             color: white;
@@ -167,7 +195,7 @@
             display: inline-block;
         }
 
-        /* BOTONES DE ACCIONES EXACTOS A LA IMAGEN (CUADRADOS PLANOS CON CONTRASTE ALTO) */
+        /* BOTONES DE ACCIONES EXACTOS */
         .btn-action-edit {
             background-color: #ffc107;
             color: #212529;
@@ -256,18 +284,25 @@
             {% endfor %}
         {% endif %}
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-boxes me-2 text-primary"></i> Inventario General</h4>
 
+            <div class="search-container input-group shadow-sm">
+                <input type="text" id="inputBuscar" class="form-control search-input" placeholder="Buscar por nombre o código...">
+                <span class="input-group-text search-icon-btn">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>
+
             {% if request.session.rol != 'Cajero' %}
-                <a href="{% url 'productos:registrar' %}" class="btn btn-nuevo px-3 shadow-sm">
+                <a href="{% url 'productos:registrar' %}" class="btn btn-nuevo px-3 shadow-sm d-flex align-items-center justify-content-center">
                     <i class="fas fa-plus me-1"></i> Nuevo Producto
                 </a>
             {% endif %}
         </div>
 
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
+            <table class="table table-striped table-hover align-middle" id="tablaProductos">
                 <thead class="table-dark">
                     <tr>
                         <th>Código</th>
@@ -287,8 +322,8 @@
                 <tbody>
                     {% for p in productos %}
                     <tr>
-                        <td class="text-secondary fw-semibold">{{ p.codProducto }}</td>
-                        <td class="text-dark">{{ p.nomProducto }}</td>
+                        <td class="text-secondary fw-semibold col-codigo">{{ p.codProducto }}</td>
+                        <td class="text-dark col-nombre">{{ p.nomProducto }}</td>
                         <td class="text-secondary">{{ p.categoria }}</td>
                         <td>Bs {{ p.precioCompra }}</td>
                         <td class="fw-bold text-dark">Bs {{ p.precioVenta }}</td>
@@ -329,10 +364,14 @@
                     </tr>
 
                     {% empty %}
-                    <tr>
+                    <tr id="filaVacia">
                         <td colspan="9" class="text-center py-4 text-secondary">No hay productos registrados</td>
                     </tr>
                     {% endfor %}
+                    
+                    <tr id="filaSinResultados" style="display: none;">
+                        <td colspan="9" class="text-center py-4 text-secondary">No se encontraron productos que coincidan con la búsqueda</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -341,6 +380,52 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.getElementById('inputBuscar').addEventListener('keyup', function() {
+    let filtro = this.value.toLowerCase().trim();
+    let tabla = document.getElementById('tablaProductos');
+    let filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    let resultadosEncontrados = false;
+    let tieneProductosOriginales = false;
+
+    for (let i = 0; i < filas.length; i++) {
+        // Ignorar las filas de control de mensajes "vacíos"
+        if (filas[i].id === 'filaSinResultados') continue;
+        if (filas[i].id === 'filaVacia') {
+            tieneProductosOriginales = true;
+            continue;
+        }
+
+        let celdaCodigo = filas[i].querySelector('.col-codigo');
+        let celdaNombre = filas[i].querySelector('.col-nombre');
+        
+        if (celdaCodigo || celdaNombre) {
+            tieneProductosOriginales = true;
+            let textoCodigo = celdaCodigo ? celdaCodigo.textContent.toLowerCase() : '';
+            let textoNombre = celdaNombre ? celdaNombre.textContent.toLowerCase() : '';
+
+            // Comprobar si el filtro coincide con el código o con el nombre
+            if (textoCodigo.includes(filtro) || textoNombre.includes(filtro)) {
+                filas[i].style.display = '';
+                resultadosEncontrados = true;
+            } else {
+                filas[i].style.display = 'none';
+            }
+        }
+    }
+
+    // Manejo de visibilidad del mensaje "Sin resultados" si la tabla posee registros reales
+    let msgSinResultados = document.getElementById('filaSinResultados');
+    if (msgSinResultados && tieneProductosOriginales) {
+        if (!resultadosEncontrados && filtro !== '') {
+            msgSinResultados.style.display = '';
+        } else {
+            msgSinResultados.style.display = 'none';
+        }
+    }
+});
+</script>
 
 </body>
 </html>
