@@ -33,7 +33,8 @@ def lista_inventario(request):
     # Cargar relaciones necesarias
     inventarios = Inventario.objects.select_related(
         'producto',
-        'tipo_unidad'
+        'producto__presentacion',
+        'producto__presentacion__medida'
     ).all()
 
     return render(
