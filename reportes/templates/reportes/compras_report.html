@@ -17,56 +17,87 @@
             padding: 0; 
         }
         
-        /* ========== SIDEBAR STYLES ========== */
+        /* ========== SIDEBAR STYLES MEJORADOS ========== */
         .sidebar {
-            width: 250px;
+            width: 260px;
             height: 100vh;
-            background: #2f2f2f;
-            color: white;
+            background: #232323;
+            color: #a3a3a3;
             position: fixed;
             top: 0;
             left: 0;
-            padding: 20px;
-            z-index: 100;
+            padding: 24px 16px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
         }
 
         .sidebar h5 {
-            margin-bottom: 25px;
+            color: #ffffff;
+            margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #555;
+            border-bottom: 1px solid #3a3a3a;
             font-weight: 600;
+            font-size: 1.15rem;
+        }
+
+        .sidebar .menu-category {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666666;
+            margin: 16px 0 6px 12px;
+            display: block;
+            font-weight: 700;
         }
 
         .sidebar a {
-            display: block;
-            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cdcdcd;
             text-decoration: none;
-            margin: 8px 0;
-            padding: 10px 15px;
+            margin: 2px 0;
+            padding: 10px 14px;
             border-radius: 8px;
-            transition: 0.3s;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a i {
+            width: 20px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0.8;
         }
 
         .sidebar a:hover {
             background-color: #0d6efd;
+            color: #ffffff;
+        }
+
+        .sidebar a:hover i {
+            opacity: 1;
         }
 
         .sidebar a.active {
             background-color: #0d6efd;
-            font-weight: 500;
+            color: #ffffff;
+            font-weight: 600;
         }
 
-        .sidebar hr {
-            border-color: #555;
-            margin: 15px 0;
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #3a3a3a;
         }
 
         .content-wrapper {
-            margin-left: 250px;
+            margin-left: 260px;
             padding: 20px;
             min-height: 100vh;
+            transition: all 0.3s;
         }
 
         /* ========== REPORT STYLES ========== */
@@ -359,6 +390,7 @@
                 width: 100%;
                 height: auto;
                 position: relative;
+                padding: 15px;
             }
             .content-wrapper {
                 margin-left: 0;
@@ -395,39 +427,62 @@
 </head>
 <body>
 
-    <!-- SIDEBAR -->
+<div class="sidebar">
+    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
 
-    <div class="sidebar">
+    <div class="sidebar-menu">
+        <div class="menu-category">General</div>
+        <a href="{% url 'dashboard_admin' %}">
+            <i class="bi bi-house-door"></i> Inicio
+        </a>
+        <a href="{% url 'dashboard_admin' %}">
+             <i class="bi bi-people"></i> Gestión de Usuarios
+        </a>
+        <div class="menu-category">Almacén</div>
+        <a href="{% url 'productos:inventario' %}">
+            <i class="bi bi-box-seam"></i> Productos
+        </a>
+        <a href="{% url 'categorias:lista' %}">
+            <i class="bi bi-tags"></i> Categorías
+        </a>
+        <a href="{% url 'proveedores:lista' %}">
+            <i class="bi bi-truck"></i> Proveedores
+        </a>
 
-        <h5>Dashboard</h5>
+        <div class="menu-category">Operaciones</div>
+        <a href="{% url 'compras:ver_compras' %}">
+            <i class="bi bi-cart-check"></i> Compras
+        </a>
+        <a href="{% url 'reportes:compras_report' %}" class="active">
+            <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+        </a>
 
-        <a href="#">Inicio</a>
+        <div class="menu-category">Análisis de Stock</div>
+        <a href="{% url 'estadisticas:top_productos' %}">
+            <i class="bi bi-graph-up-arrow"></i> Top Productos
+        </a>
+        <a href="{% url 'estadisticas:prediccion' %}">
+            <i class="bi bi-graph-up"></i> Predicción de Stock
+        </a>
 
-        <a href="{% url 'dashboard_admin' %}">Gestión de Usuarios</a>
-
-
-        <hr>
-        <a href="{% url 'productos:inventario' %}">Productos</a>
-
-        <hr>
-
-        <a href="{% url 'categorias:lista' %}">Categorías</a>
-
-        <hr>
-
-        <a href="{% url 'compras:ver_compras' %}">Compras</a>
-    
-        <hr>
-
-        <a href="{% url 'reportes:compras_report' %}">Reportes</a>
-
-        <hr> <!-- Separador para el nuevo módulo -->
-        <a href="{% url 'estadisticas:top_productos' %}">Top Productos</a>
-        <a href="{% url 'estadisticas:prediccion' %}">Predicción de Stock</a> <!-- Recomendado: así accedes fácil a ambas vistas -->
-
-        <hr>
-        <a href="{% url 'logout' %}">Cerrar sesión</a>
+        <div class="menu-category">Recuperar</div>
+        <a href="{% url 'proveedores:inactivos' %}">
+            <i class="bi bi-archive"></i> Proveedores Eliminados
+        </a>
+        <a href="{% url 'categorias:inactivas' %}">
+            <i class="bi bi-archive"></i> Categorías Eliminadas
+        </a>
+        <a href="{% url 'productos:lista_recuperar' %}">
+            <i class="bi bi-archive"></i> Productos Eliminados
+        </a>
     </div>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </a>
+    </div>
+</div>
 
 
     <!-- ========== CONTENT WRAPPER ========== -->
@@ -498,13 +553,13 @@
                                 <label class="filter-label">Producto</label>
                                 <div style="position: relative;">
                                     <input type="text" id="productoSearch" class="form-control" 
-                                           placeholder="🔍 Buscar producto..." style="padding-right: 35px;">
+                                           placeholder="Buscar producto..." style="padding-right: 35px;">
                                     <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
                                 </div>
                                 <select name="producto" id="productoSelect" class="form-select" style="margin-top: 0.5rem;">
                                     <option value="">Todos los productos</option>
                                     <option value="mas_comprado" {% if producto_filter == 'mas_comprado' %}selected{% endif %}>
-                                        🏆 Producto Más Comprado
+                                        Producto Más Comprado
                                     </option>
                                     {% for producto in productos %}
                                     <option value="{{ producto.id }}" 
@@ -523,7 +578,7 @@
                                 <label class="filter-label">Categoría</label>
                                 <div style="position: relative;">
                                     <input type="text" id="categoriaSearch" class="form-control" 
-                                           placeholder="🔍 Buscar categoría..." style="padding-right: 35px;">
+                                           placeholder="Buscar categoría..." style="padding-right: 35px;">
                                     <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
                                 </div>
                                 <select name="categoria" id="categoriaSelect" class="form-select" style="margin-top: 0.5rem;">

@@ -49,9 +49,12 @@
         }
 
         .sidebar a:hover {
-            background-color: #0d6efd;
+        background-color: #0d6efd !important;
+        color: #ffffff !important;
         }
-
+        .sidebar a:hover i {
+            opacity: 1 !important;
+        }
         .sidebar a.active {
             background-color: #0d6efd;
         }
@@ -167,24 +170,65 @@
 <body>
 
     <!-- ========== SIDEBAR ========== -->
-    <div class="sidebar">
-        <h5><i class="fas fa-tachometer-alt me-2"></i> Dashboard</h5>
-        <a href="{% url 'dashboard_admin' %}"><i class="fas fa-home me-2"></i> Inicio</a>
-        <a href="{% url 'dashboard_admin' %}"><i class="fas fa-users me-2"></i> Gestión de Usuarios</a>
-        <a href="{% url 'productos:inventario' %}"><i class="fas fa-box me-2"></i> Productos</a>
-        <a href="{% url 'categorias:lista' %}"><i class="fas fa-tags me-2"></i> Categorías</a>
-        <a href="{% url 'proveedores:lista' %}"><i class="fas fa-truck me-2"></i> Proveedores</a>
-        <a href="{% url 'compras:ver_compras' %}"><i class="fas fa-shopping-cart me-2"></i> Compras</a>
-        <a href="{% url 'reportes:compras_report' %}"><i class="fas fa-chart-bar me-2"></i> Reportes</a>
-
-        <hr>
+    <div class="sidebar" style="width: 260px; height: 100vh; background: #232323; color: #a3a3a3; position: fixed; top: 0; left: 0; padding: 24px 16px; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;">
         
-        <a href="{% url 'compras:compras_desactivadas' %}">
-            <i class="fas fa-archive me-2"></i> Ver inactivos
+        <h5 style="color: #ffffff; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #3a3a3a; font-weight: 600; font-size: 1.15rem;">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard
+        </h5>
+        
+        <a href="#" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-home" style="width: 20px; text-align: center; opacity: 0.8;"></i> Inicio
         </a>
         
-        <hr>
-        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Cerrar sesión</a>
+        <a href="{% url 'dashboard_admin' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-users" style="width: 20px; text-align: center; opacity: 0.8;"></i> Gestión de Usuarios
+        </a>
+
+        <span class="menu-category" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: #666666; margin: 16px 0 6px 12px; display: block; font-weight: 700;">Estructura Comercial</span>
+        
+        <a href="{% url 'productos:inventario' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-box" style="width: 20px; text-align: center; opacity: 0.8;"></i> Productos
+        </a>
+        
+        <a href="{% url 'categorias:lista' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-tags" style="width: 20px; text-align: center; opacity: 0.8;"></i> Categorías
+        </a>
+        
+        <a href="{% url 'proveedores:lista' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-truck" style="width: 20px; text-align: center; opacity: 0.8;"></i> Proveedores
+        </a>
+        
+        <span class="menu-category" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: #666666; margin: 16px 0 6px 12px; display: block; font-weight: 700;">Operaciones</span>
+        
+        <a href="{% url 'compras:ver_compras' %}" class="active" style="display: flex; align-items: center; gap: 12px; background-color: #0d6efd; color: #ffffff; font-weight: 600; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-shopping-cart" style="width: 20px; text-align: center; opacity: 1;"></i> Compras
+        </a>
+
+        <span class="menu-category" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: #666666; margin: 16px 0 6px 12px; display: block; font-weight: 700;">Reportes y Datos</span>
+        
+        <a href="{% url 'reportes:compras_report' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-chart-bar" style="width: 20px; text-align: center; opacity: 0.8;"></i> Reportes Generales
+        </a>
+        
+        <a href="{% url 'estadisticas:top_productos' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-chart-bar" style="width: 20px; text-align: center; opacity: 0.8;"></i> Top Productos
+        </a>
+        
+        <a href="{% url 'estadisticas:prediccion' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+            <i class="fas fa-chart-line" style="width: 20px; text-align: center; opacity: 0.8;"></i> Predicción de Stock
+        </a>
+
+        <div class="sidebar-footer" style="margin-top: auto; padding-top: 15px; border-top: 1px solid #3a3a3a; display: flex; flex-direction: column;">
+            <a href="{% url 'compras:compras_desactivadas' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;">
+                <i class="fas fa-archive" style="width: 20px; text-align: center; opacity: 0.8;"></i> Ver inactivos
+            </a>
+            
+            <a href="{% url 'logout' %}" style="display: flex; align-items: center; gap: 12px; color: #cdcdcd; text-decoration: none; margin: 2px 0; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;" 
+            onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.15)', this.style.color='#dc3545'" 
+            onmouseout="this.style.backgroundColor='transparent', this.style.color='#cdcdcd'">
+                <i class="fas fa-sign-out-alt" style="width: 20px; text-align: center; opacity: 0.8;"></i> Cerrar sesión
+            </a>
+        </div>
     </div>
 
     <!-- ========== CONTENIDO PRINCIPAL ========== -->
