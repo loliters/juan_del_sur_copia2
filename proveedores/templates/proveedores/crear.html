@@ -2,52 +2,145 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Crear Proveedor</title>
+<title>Crear Proveedor - Juan del Sur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-body {
-  background:#2B2D33;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  font-family:'Segoe UI', system-ui, sans-serif;
-}
+    body {
+        background: #f1f1f1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
 
-/* CARD */
-.card-custom {
-  width:420px;
-  background:#EAEAEA;
-  border-radius:28px;
-  box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
-  overflow:hidden;
-}
+    /* CARD PREMIUM UNIFICADO */
+    .card-custom {
+        width: 100%;
+        max-width: 480px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f5;
+    }
 
-/* HEADER */
-.card-header {
-  background:#E0E0E0;
-  padding:16px 20px;
-  border-bottom:3px solid #0671B8;
-}
+    /* HEADER OSCURO COMERCIAL */
+    .card-header-custom {
+        padding: 18px 24px;
+        background: #343a40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: none;
+    }
 
-/* BOTÓN VOLVER */
-.btn-volver {
-  background:#6C757D;
-  border:none;
-  border-radius:40px;
-  padding:6px 14px;
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-}
+    .card-header-custom h5 {
+        margin: 0;
+        font-weight: bold;
+        color: #ffffff;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+    }
 
-.btn-volver:hover {
-  background:#5a6268;
-  color:white;
-}
+    /* BODY */
+    .card-body-custom {
+        padding: 30px;
+    }
+
+    /* FORMULARIO Y INPUTS */
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #6c757d;
+        border-radius: 8px 0 0 8px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 11px 14px;
+        border: 1px solid #ced4da;
+        color: #212529;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+    }
+    
+    /* CORRECCIÓN DE BORDES EN INPUT GROUP */
+    .input-group > .form-control {
+        border-radius: 0 8px 8px 0;
+    }
+
+    /* BOTÓN GUARDAR (AZUL PLANO PREMIUM) */
+    .btn-crear {
+        width: 100%;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-crear:hover {
+        background: #0b5ed7;
+    }
+
+    /* BOTÓN CANCELAR PLANO */
+    .btn-cancelar {
+        display: block;
+        margin-top: 12px;
+        text-decoration: none;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        background: #6c757d;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: #5c636a;
+        color: white;
+    }
+
+    .btn-volver-top {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-volver-top:hover {
+        background-color: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+    }
 </style>
 </head>
 
@@ -55,52 +148,78 @@ body {
 
 <div class="card-custom">
 
-  <!-- HEADER -->
-  <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header-custom">
+        <h5>
+            <i class="fas fa-plus-circle me-2 text-primary"></i>
+            Nuevo Proveedor
+        </h5>
 
-    <h5 class="mb-0">
-      <i class="fas fa-plus-circle me-2" style="color:#0671B8;"></i>
-      Nuevo Proveedor
-    </h5>
+        <a href="{% if request.session.rol == 'cajero' %}{% url 'dashboard_cajero' %}{% else %}{% url 'dashboard_admin' %}{% endif %}" class="btn-volver-top">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
 
-    <!-- BOTÓN MENÚ -->
-    <a href="{% url 'dashboard_admin' %}" class="btn-volver">
-      <i class="fas fa-arrow-left"></i>
-    </a>
+    <div class="card-body-custom">
 
-  </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
 
-  <!-- BODY -->
-  <div class="p-4">
+        <form method="POST">
+            {% csrf_token %}
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
-    {% endif %}
+            <div class="mb-3">
+                <label class="form-label">Nombre del Proveedor</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                    <input type="text" name="nomProv" class="form-control" placeholder="Ej: Distribuidora del Sur" required>
+                </div>
+            </div>
 
-    <form method="POST">
-      {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Correo Electrónico</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                    <input type="email" name="email" class="form-control" placeholder="proveedor@contacto.com">
+                </div>
+            </div>
 
-      <input name="nomProv" class="form-control mb-2" placeholder="Nombre" required>
-      <input name="email" class="form-control mb-2" placeholder="Email">
-      <input name="telefono" class="form-control mb-2" placeholder="Teléfono">
-      <input name="direccion" class="form-control mb-3" placeholder="Dirección">
+            <div class="mb-3">
+                <label class="form-label">Teléfono / Celular</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                    <input type="text" name="telefono" class="form-control" placeholder="Ej: +56 9 1234 5678">
+                </div>
+            </div>
 
-      <button class="btn btn-primary w-100">Guardar</button>
+            <div class="mb-4">
+                <label class="form-label">Dirección Comercial</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" name="direccion" class="form-control" placeholder="Ej: Av. Principal #123">
+                </div>
+            </div>
 
-      <a href="{% url 'proveedores:lista' %}" class="btn btn-secondary w-100 mt-2">
-        Cancelar
-      </a>
+            <button type="submit" class="btn-crear">
+                <i class="fas fa-save me-2"></i> Guardar Proveedor
+            </button>
 
-    </form>
+            <a href="{% url 'proveedores:lista' %}" class="btn-cancelar">
+                <i class="fas fa-times me-2"></i> Cancelar
+            </a>
 
-  </div>
+        </form>
+
+    </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

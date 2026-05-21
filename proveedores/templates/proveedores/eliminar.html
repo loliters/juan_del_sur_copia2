@@ -2,27 +2,179 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Eliminar Proveedor</title>
+<title>Eliminar Proveedor - Juan del Sur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body {
+        background: #f1f1f1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    /* CARD PREMIUM UNIFICADO */
+    .card-custom {
+        width: 100%;
+        max-width: 460px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f5;
+        text-align: center;
+    }
+
+    /* HEADER OSCURO COMERCIAL */
+    .card-header-custom {
+        padding: 18px 24px;
+        background: #343a40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: none;
+    }
+
+    .card-header-custom h5 {
+        margin: 0;
+        font-weight: bold;
+        color: #ffffff;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* BODY */
+    .card-body-custom {
+        padding: 30px;
+    }
+
+    /* CONTENEDOR DE ICONO ALERTA */
+    .warning-icon-box {
+        font-size: 3rem;
+        color: #dc3545;
+        margin-bottom: 16px;
+    }
+
+    /* TEXTO ADVERTENCIA */
+    .texto-advertencia {
+        font-size: 1rem;
+        color: #495057;
+        line-height: 1.5;
+    }
+
+    .nombre-prov {
+        font-weight: 700;
+        color: #dc3545;
+        background-color: #fff5f5;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #ffe3e3;
+        display: inline-block;
+        margin-top: 6px;
+    }
+
+    /* BOTÓN ELIMINAR (ROJO PLANO PREMIUM) */
+    .btn-eliminar {
+        width: 100%;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        background: #dc3545;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+    }
+
+    .btn-eliminar:hover {
+        background: #bb2d3b;
+    }
+
+    /* BOTÓN CANCELAR PLANO */
+    .btn-cancelar {
+        display: block;
+        margin-top: 12px;
+        text-decoration: none;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        background: #6c757d;
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancelar:hover {
+        background: #5c636a;
+        color: white;
+    }
+
+    .btn-volver-top {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-volver-top:hover {
+        background-color: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+    }
+</style>
 </head>
 
-<body style="background:#2B2D33; display:flex; justify-content:center; align-items:center; height:100vh;">
+<body>
 
-<div class="card p-4 text-center" style="width:400px; border-radius:20px;">
+<div class="card-custom">
 
-<h4>Eliminar Proveedor</h4>
+    <div class="card-header-custom">
+        <h5>
+            <i class="fas fa-trash-alt me-2 text-danger"></i>
+            Eliminar Proveedor
+        </h5>
 
-<p>¿Seguro que deseas eliminar <b>{{ proveedor.nomProv }}</b>?</p>
+        <a href="{% url 'proveedores:lista' %}" class="btn-volver-top">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
 
-<form method="POST">
-{% csrf_token %}
-<button class="btn btn-danger w-100">Eliminar</button>
-</form>
+    <div class="card-body-custom">
+        
+        <div class="warning-icon-box">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
 
-<a href="{% url 'proveedores:lista' %}" class="btn btn-secondary w-100 mt-2">Cancelar</a>
+        <p class="texto-advertencia mb-4">
+            ¿Seguro que deseas eliminar al proveedor?<br>
+            <span class="nombre-prov">{{ proveedor.nomProv }}</span>
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn-eliminar">
+                <i class="fas fa-trash-alt me-2"></i> Sí, confirmar eliminación
+            </button>
+        </form>
+
+        <a href="{% url 'proveedores:lista' %}" class="btn-cancelar">
+            <i class="fas fa-times me-2"></i> Cancelar
+        </a>
+
+    </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
