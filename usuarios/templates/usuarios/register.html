@@ -2,216 +2,405 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro - Sistema</title>
+  <title>Registro - Sistema Juan Del Sur</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% load static %}
 
+  <!-- Bootstrap 5.3.2 & Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
     body {
-      background-color: #2B2D33;
-      height: 100vh;
-      margin: 0;
+      background-color: #1e1f22;
+      /* Gradiente y patrón sutil idéntico al Login para mantener consistencia de marca */
+      background-image: 
+        radial-gradient(at 50% 0%, rgba(6, 113, 184, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(43, 45, 51, 0.5) 0px, transparent 50%);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 30px 20px;
+      margin: 0;
     }
 
-    .card-form {
+    .register-container {
       width: 100%;
-      max-width: 420px;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      background: white;
+      max-width: 460px;
+    }
+
+    .register-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 35px 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .brand-section {
+      margin-bottom: 24px;
     }
 
     .logo {
-      max-height: 50px;
-      margin-bottom: 5px;
-    }
-
-    h5 {
-      font-size: 1.1rem;
+      max-height: 55px;
+      object-fit: contain;
       margin-bottom: 10px;
+      border-radius: 10px;
     }
 
-    label {
+    .brand-title {
+      color: #2B2D33;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .form-heading {
+      color: #2B2D33;
+      font-weight: 600;
+      font-size: 1.05rem;
+      border-bottom: 2px solid #f1f3f5;
+      padding-bottom: 8px;
+    }
+
+    /* Campos de entrada iconizados */
+    .form-label {
+      font-weight: 600;
+      color: #343a40;
+      margin-bottom: 6px;
       font-size: 0.85rem;
     }
 
-    .form-control, .form-select {
-      font-size: 0.9rem;
+    .input-group-custom {
+      position: relative;
+      display: flex;
+      align-items: center;
     }
 
+    .input-group-custom .form-control,
+    .input-group-custom .form-select {
+      border-radius: 12px;
+      padding: 10px 16px 10px 42px;
+      border: 1px solid #ced4da;
+      font-size: 0.9rem;
+      background-color: #fdfdfd;
+      width: 100%;
+      transition: all 0.25s ease;
+    }
+
+    .input-group-custom .form-control:focus,
+    .input-group-custom .form-select:focus {
+      border-color: #0671B8;
+      box-shadow: 0 0 0 4px rgba(6, 113, 184, 0.15);
+      background-color: #ffffff;
+    }
+
+    /* Input deshabilitado/Lectura del correo */
+    .input-group-custom .form-control:disabled {
+      background-color: #f1f3f5;
+      color: #495057;
+      font-weight: 500;
+      border-color: #dee2e6;
+    }
+
+    /* Icono principal dentro del input */
+    .input-prefix-icon {
+      position: absolute;
+      left: 15px;
+      color: #adb5bd;
+      font-size: 1rem;
+      pointer-events: none;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Inputs específicos de contraseña y correo con spinner */
+    .input-group-custom input[type="password"] {
+      padding-right: 46px;
+    }
+
+    .input-group-custom .email-loader {
+      position: absolute;
+      right: 15px;
+      z-index: 5;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      cursor: pointer;
+      color: #adb5bd;
+      font-size: 1.05rem;
+      transition: color 0.2s ease;
+      z-index: 10;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-password:hover {
+      color: #0671B8;
+    }
+
+    /* Switch de Estado Activo Modernizado */
+    .form-switch-custom {
+      background-color: #f8f9fa;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid #dee2e6;
+    }
+
+    /* Botón de envío */
     .btn-main {
       background-color: #0671B8;
       color: white;
-      font-weight: bold;
+      font-weight: 600;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(6, 113, 184, 0.2);
     }
 
     .btn-main:hover {
       background-color: #055a9a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(6, 113, 184, 0.3);
+      color: white;
     }
 
-    /* Spinner de carga */
-    .spinner-border-sm {
-      width: 1rem;
-      height: 1rem;
-      border-width: 0.2em;
+    /* Alertas */
+    .alert {
+      border-radius: 12px;
+      border: none;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    /* Enlaces del Footer */
+    .footer-links {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f3f5;
+    }
+
+    .footer-links a {
+      color: #0671B8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-links a:hover {
+      color: #055a9a;
+      text-decoration: underline;
+    }
+
+    .input-help-text {
+      font-size: 0.78rem;
+      margin-top: 4px;
+      display: block;
+      line-height: 1.2;
     }
   </style>
 </head>
 
 <body>
 
-<div class="card-form text-center">
+<div class="register-container">
+  <div class="card register-card">
 
-  <img src="{% static 'usuarios/IMAGES/logoJuanDelSur.jpg' %}" class="logo">
-
-  <h6>Supermercado Juan Del Sur</h6>
-  <small class="text-muted">Sucursal Los Pinos</small>
-
-  <h5 class="mt-2">Crear Usuario</h5>
-
-  <!-- MENSAJES -->
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-          {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- FORM -->
-  <form method="POST" autocomplete="off" id="registerForm">
-    {% csrf_token %}
-
-    <!-- Nombre -->
-    <div class="mb-2 text-start">
-      <label>Nombre</label>
-      <input type="text" 
-             id="nom_usuario" 
-             name="nom_usuario" 
-             class="form-control" 
-             value="{{ request.POST.nom_usuario|default:'' }}" 
-             autocomplete="off"
-             onkeypress="return soloLetras(event)"
-             onpaste="return false">
+    <!-- SECCIÓN DE MARCA -->
+    <div class="brand-section text-center">
+      <img src="{% static 'usuarios/IMAGES/logoJuanDelSur.jpg' %}" class="logo" alt="Logo Juan Del Sur">
+      <h2 class="brand-title">Supermercado Juan Del Sur</h2>
+      <span class="brand-subtitle"><i class="bi bi-geo-alt-fill me-1"></i>Sucursal Los Pinos</span>
     </div>
 
-    <!-- Primer Apellido -->
-    <div class="mb-2 text-start">
-      <label>Primer Apellido</label>
-      <input type="text" 
-             id="ap1" 
-             name="ap1" 
-             class="form-control" 
-             value="{{ request.POST.ap1|default:'' }}" 
-             autocomplete="off"
-             onkeypress="return soloLetras(event)"
-             onpaste="return false">
-    </div>
+    <h5 class="form-heading mb-3"><i class="bi bi-person-plus me-2"></i>Crear Nuevo Usuario</h5>
 
-    <!-- Segundo Apellido -->
-    <div class="mb-2 text-start">
-      <label>Segundo Apellido</label>
-      <input type="text" 
-             id="ap2" 
-             name="ap2" 
-             class="form-control" 
-             value="{{ request.POST.ap2|default:'' }}" 
-             autocomplete="off"
-             onkeypress="return soloLetras(event)"
-             onpaste="return false">
-    </div>
+    <!-- MENSAJES DE DJANGO -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+          <i class="bi {% if message.tags == 'error' %}bi-x-circle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+          <div>{{ message }}</div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
 
-    <!-- Email generado en tiempo real -->
-    <div class="mb-2 text-start">
-      <label>Correo empresarial</label>
-      <div class="input-group">
-        <input type="email" 
-               id="email_preview" 
-               class="form-control" 
-               readonly 
-               disabled
-               placeholder="Se generará automáticamente"
-               autocomplete="off">
-        <div class="input-group-text" id="emailSpinner" style="display: none;">
-          <div class="spinner-border spinner-border-sm text-primary" role="status">
-            <span class="visually-hidden">Generando...</span>
-          </div>
+    <!-- FORMULARIO -->
+    <form method="POST" autocomplete="off" id="registerForm">
+      {% csrf_token %}
+
+      <!-- Nombre -->
+      <div class="mb-2.5 text-start">
+        <label class="form-label">Nombre</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-person"></i></span>
+          <input type="text" 
+                 id="nom_usuario" 
+                 name="nom_usuario" 
+                 class="form-control" 
+                 required
+                 placeholder="Ej. Alejandro"
+                 value="{{ request.POST.nom_usuario|default:'' }}" 
+                 autocomplete="off"
+                 onkeypress="return soloLetras(event)"
+                 onpaste="return false">
         </div>
       </div>
-      <small class="text-muted" id="emailHelp">
-        El correo se genera automáticamente mientras escribes
-      </small>
+
+      <!-- Primer Apellido -->
+      <div class="mb-2.5 text-start">
+        <label class="form-label">Primer Apellido</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-person-vcard"></i></span>
+          <input type="text" 
+                 id="ap1" 
+                 name="ap1" 
+                 class="form-control" 
+                 required
+                 placeholder="Ej. Choque"
+                 value="{{ request.POST.ap1|default:'' }}" 
+                 autocomplete="off"
+                 onkeypress="return soloLetras(event)"
+                 onpaste="return false">
+        </div>
+      </div>
+
+      <!-- Segundo Apellido -->
+      <div class="mb-2.5 text-start">
+        <label class="form-label">Segundo Apellido</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-person-vcard"></i></span>
+          <input type="text" 
+                 id="ap2" 
+                 name="ap2" 
+                 class="form-control" 
+                 placeholder="Ej. Quispe"
+                 value="{{ request.POST.ap2|default:'' }}" 
+                 autocomplete="off"
+                 onkeypress="return soloLetras(event)"
+                 onpaste="return false">
+        </div>
+      </div>
+
+      <!-- Correo empresarial generado en tiempo real -->
+      <div class="mb-2.5 text-start">
+        <label class="form-label">Correo Empresarial Asignado</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-envelope-at"></i></span>
+          <input type="email" 
+                 id="email_preview" 
+                 class="form-control" 
+                 readonly 
+                 disabled
+                 placeholder="Se generará automáticamente"
+                 autocomplete="off">
+          
+          <!-- Spinner embebido elegantemente a la derecha -->
+          <div class="email-loader" id="emailSpinner" style="display: none;">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
+        </div>
+        <small class="text-muted input-help-text" id="emailHelp">
+          El correo se estructura automáticamente según tus datos de identidad.
+        </small>
+      </div>
+
+      <!-- Rol -->
+      <div class="mb-2.5 text-start">
+        <label class="form-label">Rol del Funcionario</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-briefcase"></i></span>
+          <select name="rol" class="form-select" required>
+            <option value="">Seleccione un rol</option>
+            {% for r in roles %}
+              <option value="{{ r.id }}" {% if request.POST.rol|stringformat:"s" == r.id|stringformat:"s" %}selected{% endif %}>
+                {{ r.nom_rol }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="mb-3 text-start">
+        <label class="form-label">Contraseña</label>
+        <div class="input-group-custom">
+          <span class="input-prefix-icon"><i class="bi bi-key"></i></span>
+          <input type="password" name="password" class="form-control" required placeholder="Defina una clave">
+          <span class="toggle-password"><i class="bi bi-eye-slash"></i></span>
+        </div>
+        <small class="text-muted input-help-text">
+          Mínimo 8 caracteres, combinado con números y caracteres especiales.
+        </small>
+      </div>
+
+      <!-- Estado Activo Modernizado -->
+      <div class="form-check form-switch form-switch-custom d-flex justify-content-between align-items-center mb-3 text-start ps-3">
+        <label class="form-check-label fw-semibold text-dark" style="font-size: 0.9rem;">
+          <i class="bi bi-toggle-on text-success me-1"></i> Estado Inicial Habilitado
+        </label>
+        <input class="form-check-input m-0" type="checkbox" role="switch" name="estado" {% if request.POST.estado or not request.POST %}checked{% endif %} style="cursor: pointer; width: 2.5em; height: 1.25em;">
+      </div>
+
+      <!-- BOTÓN PRINCIPAL -->
+      <button type="submit" class="btn btn-main w-100 mb-2">
+        <i class="bi bi-person-check-fill me-2"></i>Registrar Cuenta
+      </button>
+    </form>
+
+    <!-- FOOTER LINKS -->
+    <div class="footer-links text-center">
+      <span class="text-muted small">
+        ¿Ya formas parte del equipo?
+        <a href="{% url 'login' %}" class="ms-1">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+        </a>
+      </span>
     </div>
 
-    <!-- Rol -->
-    <div class="mb-2 text-start">
-      <label>Rol</label>
-      <select name="rol" class="form-select" required>
-        <option value="">Seleccione un rol</option>
-        {% for r in roles %}
-          <option value="{{ r.id }}" {% if request.POST.rol|stringformat:"s" == r.id|stringformat:"s" %}selected{% endif %}>
-            {{ r.nom_rol }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Password -->
-    <div class="mb-2 text-start">
-      <label>Contraseña</label>
-      <input type="password" name="password" class="form-control" required>
-      <small class="text-muted">
-        Mínimo 8 caracteres, letras, números y símbolo (@$!%*#?&._-)
-      </small>
-    </div>
-
-    <!-- Estado -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <label class="mb-0">Activo</label>
-      <input type="checkbox" name="estado" {% if request.POST.estado or not request.POST %}checked{% endif %}>
-    </div>
-
-    <!-- BOTÓN -->
-    <button type="submit" class="btn btn-main w-100 mb-2">
-      Registrar
-    </button>
-
-    <a href="{% url 'login' %}" class="small">
-      ¿Ya tienes cuenta?
-    </a>
-
-  </form>
-
+  </div>
 </div>
 
+<!-- Bootstrap Bundle con Popper JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-// Función para permitir solo letras
+// 1. FILTRO: Permitir solo letras en inputs críticos
 function soloLetras(event) {
     const key = event.key;
     const keyCode = event.keyCode;
     
-    // Permitir teclas de control
     if (keyCode === 8 || keyCode === 9 || keyCode === 13 || keyCode === 46 || 
         keyCode === 37 || keyCode === 39 || keyCode === 36 || keyCode === 35) {
         return true;
     }
     
-    // Permitir tecla espacio
     if (keyCode === 32) {
         return true;
     }
     
-    // Permitir solo letras
     const letrasPermitidas = /^[A-Za-zÁÉÍÓÚáéíóúÑñ]$/;
-    
     if (letrasPermitidas.test(key)) {
         return true;
     }
@@ -220,26 +409,29 @@ function soloLetras(event) {
     return false;
 }
 
-// Función para generar email mediante AJAX
+// 2. AJAX: Petición asíncrona optimizada para Previsualización de Email
 let timeoutId;
 function actualizarEmail() {
-    // Limpiar timeout anterior
     if (timeoutId) {
         clearTimeout(timeoutId);
     }
     
-    // Obtener valores
     const nombre = document.getElementById('nom_usuario').value.trim();
     const ap1 = document.getElementById('ap1').value.trim();
     const ap2 = document.getElementById('ap2').value.trim();
     
-    // Mostrar spinner
-    document.getElementById('emailSpinner').style.display = 'flex';
-    document.getElementById('emailHelp').innerHTML = 'Generando correo...';
+    // Si no hay datos suficientes, no disparamos el loader innecesariamente
+    if(!nombre && !ap1 && !ap2) {
+        document.getElementById('email_preview').value = '';
+        return;
+    }
+
+    // Mostrar el spinner de forma fluida
+    document.getElementById('emailSpinner').style.display = 'block';
+    document.getElementById('emailHelp').innerHTML = 'Generando identificador único corporativo...';
+    document.getElementById('emailHelp').style.color = '#0671B8';
     
-    // Esperar 300ms después de que el usuario deje de escribir
     timeoutId = setTimeout(function() {
-        // Hacer petición AJAX
         fetch(`{% url 'generar_email_preview' %}?nom_usuario=${encodeURIComponent(nombre)}&ap1=${encodeURIComponent(ap1)}&ap2=${encodeURIComponent(ap2)}`, {
             method: 'GET',
             headers: {
@@ -248,54 +440,47 @@ function actualizarEmail() {
         })
         .then(response => response.json())
         .then(data => {
+            const emailHelp = document.getElementById('emailHelp');
             if (data.success) {
                 document.getElementById('email_preview').value = data.email;
-                document.getElementById('emailHelp').innerHTML = '✓ Correo generado automáticamente';
-                document.getElementById('emailHelp').style.color = '#198754';
+                emailHelp.innerHTML = '<i class="bi bi-check-circle-fill"></i> Correo sugerido disponible';
+                emailHelp.style.color = '#198754';
             } else {
                 document.getElementById('email_preview').value = '';
-                document.getElementById('emailHelp').innerHTML = 'Error al generar correo';
-                document.getElementById('emailHelp').style.color = '#dc3545';
+                emailHelp.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> Datos insuficientes para estructurar correo';
+                emailHelp.style.color = '#dc3545';
             }
         })
         .catch(error => {
             console.error('Error:', error);
             document.getElementById('email_preview').value = '';
-            document.getElementById('emailHelp').innerHTML = 'Error al generar correo';
+            document.getElementById('emailHelp').innerHTML = 'Error en el servidor de nombres';
             document.getElementById('emailHelp').style.color = '#dc3545';
         })
         .finally(() => {
-            // Ocultar spinner
             document.getElementById('emailSpinner').style.display = 'none';
-            // Restaurar color después de 2 segundos
+            
+            // Retornar al texto descriptivo neutral de forma limpia tras 2.5 segundos
             setTimeout(() => {
                 if (document.getElementById('email_preview').value) {
-                    document.getElementById('emailHelp').innerHTML = 'El correo se genera automáticamente mientras escribes';
-                    document.getElementById('emailHelp').style.color = '#6c757d';
+                    const emailHelp = document.getElementById('emailHelp');
+                    emailHelp.innerHTML = 'El correo se genera automáticamente mientras escribes';
+                    emailHelp.style.color = '#6c757d';
                 }
-            }, 2000);
+            }, 2500);
         });
-    }, 300);
+    }, 400); // 400ms debounce para mitigar llamadas excesivas al servidor
 }
 
-// Asignar eventos a los campos
-document.getElementById('nom_usuario').addEventListener('input', function() {
-    // Limpiar caracteres no permitidos
-    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-    actualizarEmail();
+// Escuchadores de entrada con saneamiento regex en tiempo real
+['nom_usuario', 'ap1', 'ap2'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+        this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+        actualizarEmail();
+    });
 });
 
-document.getElementById('ap1').addEventListener('input', function() {
-    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-    actualizarEmail();
-});
-
-document.getElementById('ap2').addEventListener('input', function() {
-    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-    actualizarEmail();
-});
-
-// Generar email inicial si hay valores precargados
+// Carga inicial por si Django devuelve errores de validación de formulario (POST fallback)
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('nom_usuario').value || 
         document.getElementById('ap1').value || 
@@ -303,7 +488,25 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarEmail();
     }
 });
-</script>
 
+// 3. SEGURIDAD: Revelador de Contraseña vía Delegación de Eventos Global
+document.addEventListener('click', function(e) {
+    const toggleBtn = e.target.closest('.toggle-password');
+    if (toggleBtn) {
+        const input = toggleBtn.previousElementSibling;
+        const icon = toggleBtn.querySelector('i');
+        
+        if (input && icon) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye-slash';
+            }
+        }
+    }
+});
+</script>
 </body>
 </html>
