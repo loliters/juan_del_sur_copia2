@@ -129,3 +129,39 @@ def eliminar_proveedor(request, id_proveedor):
         return redirect('proveedores:lista')
 
     return render(request, 'proveedores/eliminar.html', {'proveedor': proveedor})
+
+# =========================
+# LISTAR PROVEEDORES INACTIVOS (ELIMINADOS)
+# =========================
+def lista_inactivos(request):
+    # Verificar sesión
+    if request.session.get('usuario_id') is None:
+        return redirect('login')
+    
+    # Solo administrador puede ver y recuperar
+    if request.session.get('rol') != 'administrador':
+        messages.error(request, '❌ Acceso denegado. Solo el administrador puede recuperar proveedores.')
+        return redirect('proveedores:lista')
+    
+    proveedores = Proveedor.objects.filter(estado=False)
+    return render(request, 'proveedores/recuperar.html', {'proveedores': proveedores})
+
+
+# =========================
+# RECUPERAR PROVEEDOR (REACTIVAR)
+# =========================
+def recuperar_proveedor(request, id_proveedor):
+    # Verificar sesión
+    if request.session.get('usuario_id') is None:
+        return redirect('login')
+    
+    # Solo administrador puede recuperar
+    if request.session.get('rol') != 'administrador':
+        messages.error(request, '❌ Acceso denegado. Solo el administrador puede recuperar proveedores.')
+        return redirect('proveedores:lista')
+    
+    proveedor = get_object_or_404(Proveedor, id=id_proveedor, estado=False)
+    proveedor.estado = True
+    proveedor.save()
+    messages.success(request, f'Proveedor "{proveedor.nomProv}" recuperado correctamente')
+    return redirect('proveedores:inactivos')

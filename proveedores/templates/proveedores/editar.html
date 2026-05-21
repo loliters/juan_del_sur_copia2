@@ -154,7 +154,8 @@
             Editar Proveedor
         </h5>
 
-        <a href="{% if request.session.rol == 'cajero' %}{% url 'dashboard_cajero' %}{% else %}{% url 'dashboard_admin' %}{% endif %}" class="btn-volver-top">
+        <!-- ✅ CORREGIDO: Ahora redirige a la lista de proveedores -->
+        <a href="{% url 'proveedores:lista' %}" class="btn-volver-top">
             <i class="fas fa-arrow-left"></i>
         </a>
     </div>

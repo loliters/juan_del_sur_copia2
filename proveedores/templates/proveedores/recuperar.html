@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Proveedores - Juan del Sur</title>
+    <title>Recuperar Proveedores - Juan del Sur</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -91,13 +91,13 @@
             border-top: 1px solid #3a3a3a;
         }
 
-        /* WRAPPER DE CONTENIDO PARA AJUSTAR AL SIDEBAR */
+        /* WRAPPER DE CONTENIDO */
         .content-wrapper {
             margin-left: 260px;
             padding: 30px;
         }
 
-        /* TARJETA BLANCA PRINCIPAL DE CONTENIDO */
+        /* TARJETA BLANCA PRINCIPAL */
         .main-card { 
             background: white; 
             border-radius: 12px; 
@@ -133,43 +133,6 @@
             color: #6c757d;
         }
 
-        /* BOTONES DE ACCIÓN */
-        .btn-crear {
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 9px 18px;
-            font-weight: 600;
-            font-size: 0.92rem;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-        }
-
-        .btn-crear:hover {
-            background-color: #0b5ed7;
-            color: white;
-        }
-
-        .btn-volver {
-            background-color: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 7px 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .btn-volver:hover {
-            background-color: rgba(255, 255, 255, 0.22);
-            color: #ffffff;
-        }
-
         /* TABLA MODERNA */
         .table-responsive {
             border: 1px solid #dee2e6;
@@ -197,46 +160,23 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* ACCIONES DE TABLA */
-        .btn-action-edit {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: inline-block;
-            transition: background-color 0.2s;
-        }
-        .btn-action-edit:hover {
-            background-color: #e0a800;
-            color: #212529;
-        }
-
-        .btn-action-delete {
-            background-color: #dc3545;
+        /* BOTÓN RECUPERAR PREMIUM */
+        .btn-recuperar-custom {
+            background-color: #198754;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 6px 14px;
             border-radius: 6px;
-            font-size: 0.9rem;
-            display: inline-block;
-            transition: background-color 0.2s;
-        }
-        .btn-action-delete:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-        .badge-solo-lectura {
-            background-color: #e9ecef;
-            color: #495057;
+            font-size: 0.88rem;
             font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            text-decoration: none;
             display: inline-block;
-            border: 1px solid #ced4da;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-recuperar-custom:hover {
+            background-color: #157347;
+            color: white;
         }
     </style>
 </head>
@@ -259,7 +199,7 @@
     <a href="{% url 'categorias:lista' %}">
         <i class="fas fa-tags"></i> Categorías
     </a>
-    <a href="#" class="active">
+    <a href="{% url 'proveedores:lista' %}">
         <i class="fas fa-truck"></i> Proveedores
     </a>
     
@@ -280,7 +220,7 @@
     </a>
 
     <div class="sidebar-footer">
-        <a href="{% url 'proveedores:inactivos' %}">
+        <a href="{% url 'proveedores:inactivos' %}" class="active">
             <i class="fas fa-archive"></i> Recuperar
         </a>
         <a href="{% url 'logout' %}" style="transition: 0.2s;" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.15)', this.style.color='#dc3545'" onmouseout="this.style.backgroundColor='transparent', this.style.color='#cdcdcd'">
@@ -294,80 +234,57 @@
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-truck me-2 text-primary"></i> Proveedores
+                <i class="fas fa-trash-restore me-2 text-success"></i> Proveedores Eliminados
             </h4>
 
             <div class="search-container input-group shadow-sm">
-                <input type="text" id="inputBuscarProv" class="form-control search-input" placeholder="Buscar proveedor...">
+                <input type="text" id="inputBuscarProvEliminado" class="form-control search-input" placeholder="Buscar proveedor eliminado...">
                 <span class="input-group-text search-icon-btn">
                     <i class="fas fa-search"></i>
                 </span>
             </div>
 
-            {% if request.session.rol == 'administrador' %}
-                <a href="{% url 'proveedores:crear' %}" class="btn-crear shadow-sm d-flex align-items-center justify-content-center">
-                    <i class="fas fa-plus me-1"></i> Nuevo Proveedor
-                </a>
-            {% endif %}
+            <a href="{% url 'proveedores:lista' %}" class="btn btn-secondary px-3 shadow-sm d-flex align-items-center justify-content-center" style="border-radius: 8px; font-weight: 600; font-size: 0.92rem;">
+                <i class="fas fa-arrow-left me-1"></i> Regresar
+            </a>
         </div>
 
-        {% if messages %}
-            {% for m in messages %}
-              <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
-                <i class="fas fa-check-circle me-2"></i> {{ m }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-            {% endfor %}
-        {% endif %}
-
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle" id="tablaProveedores">
+            <table class="table table-striped table-hover align-middle" id="tablaProveedoresEliminados">
                 <thead class="table-dark">
                     <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
+                        <th style="width: 90px;">ID</th>
+                        <th>Nombre del Proveedor</th>
                         <th>Dirección</th>
-                        <th style="text-align: center; width: 140px;">Acciones</th>
+                        <th>Teléfono</th>
+                        <th style="text-align: center; width: 160px;">Acción</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    {% for p in proveedores %}
+                    {% for prov in proveedores %}
                     <tr>
-                        <td class="text-secondary fw-semibold">{{ p.id }}</td>
-                        <td class="text-dark fw-semibold col-nombre-prov">{{ p.nomProv }}</td>
-                        <td class="text-secondary">{{ p.email }}</td>
-                        <td class="text-secondary">{{ p.telefono }}</td>
-                        <td class="text-secondary">{{ p.direccion }}</td>
+                        <td class="text-secondary fw-semibold">{{ prov.id }}</td>
+                        <td class="text-dark fw-semibold col-nombre-prov">{{ prov.nomProv }}</td>
+                        <td class="text-secondary">{{ prov.direccion|default:"—" }}</td>
+                        <td class="text-secondary">{{ prov.telefono|default:"—" }}</td>
                         <td class="text-center">
-                            {% if request.session.rol == 'administrador' %}
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{% url 'proveedores:editar' p.id %}" class="btn-action-edit" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{% url 'proveedores:eliminar' p.id %}" class="btn-action-delete" title="Eliminar" onclick="return confirm('¿Eliminar este proveedor?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            {% else %}
-                                <span class="badge-solo-lectura">
-                                    <i class="fas fa-eye me-1"></i> Solo lectura
-                                </span>
-                            {% endif %}
+                            <a href="{% url 'proveedores:recuperar' prov.id %}" class="btn-recuperar-custom" 
+                               onclick="return confirm('¿Recuperar el proveedor «{{ prov.nomProv }}»?')">
+                                <i class="fas fa-undo-alt me-1"></i> Recuperar
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr id="filaVaciaProv">
-                        <td colspan="6" class="text-center py-4 text-secondary">
-                            <i class="fas fa-box-open me-2"></i> No hay proveedores registrados
+                        <td colspan="5" class="text-center py-4 text-secondary">
+                            <i class="fas fa-inbox me-2"></i> No hay proveedores eliminados
                         </td>
                     </tr>
                     {% endfor %}
                     
                     <tr id="filaSinResultadosProv" style="display: none;">
-                        <td colspan="6" class="text-center py-4 text-secondary">No se encontraron proveedores que coincidan con la búsqueda</td>
+                        <td colspan="5" class="text-center py-4 text-secondary">No se encontraron proveedores que coincidan con los criterios</td>
                     </tr>
                 </tbody>
             </table>
@@ -379,9 +296,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.getElementById('inputBuscarProv').addEventListener('keyup', function() {
+document.getElementById('inputBuscarProvEliminado').addEventListener('keyup', function() {
     let filtro = this.value.toLowerCase().trim();
-    let tabla = document.getElementById('tablaProveedores');
+    let tabla = document.getElementById('tablaProveedoresEliminados');
     let filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
     let resultadosEncontrados = false;
     let tieneDatosOriginales = false;
