@@ -1,120 +1,348 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Usuarios Inactivos</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Usuarios Inactivos - Dashboard Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap & Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-<style>
-body {
-  margin: 0;
-  background: #f1f1f1;
-}
+  <style>
+    body {
+      margin: 0;
+      background: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  background: #2f2f2f;
-  color: white;
-  position: fixed;
-  padding: 20px;
-}
+    /* SIDEBAR ESENCIAL */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      background: #2f2f2f;
+      color: white;
+      position: fixed;
+      padding: 20px;
+      overflow-y: auto;
+    }
 
-.sidebar a {
-  display: block;
-  color: white;
-  text-decoration: none;
-  margin: 10px 0;
-}
+    .sidebar h5 {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #555;
+    }
 
-.content {
-  margin-left: 240px;
-  padding: 20px;
-}
-</style>
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      text-decoration: none;
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .sidebar a i {
+      width: 22px;
+      font-size: 1.1rem;
+    }
+
+    .sidebar a:hover {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .sidebar a.active {
+      background-color: #dc3545; /* Color de alerta para la papelera/inactivos */
+    }
+
+    .sidebar hr {
+      border-color: #555;
+      margin: 15px 0;
+    }
+
+    .content {
+      margin-left: 260px;
+      padding: 20px;
+    }
+
+    /* HEADER SUPERIOR */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .top-header h4 {
+      margin: 0;
+    }
+
+    /* Perfil de usuario superior derecho corrigiendo fallos de carga */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 40px;
+      transition: 0.3s;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .user-info:hover {
+      background: #e9ecef;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: #0671B8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: #6c757d;
+    }
+
+    /* Dropdown Menú de Usuario */
+    .dropdown-menu-custom {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      padding: 10px 0;
+      min-width: 200px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .dropdown-menu-custom.show {
+      display: block;
+    }
+
+    .dropdown-menu-custom a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .dropdown-menu-custom a:hover {
+      background: #f8f9fa;
+      color: #0671B8;
+    }
+
+    .dropdown-menu-custom hr {
+      margin: 5px 0;
+      border-color: #eee;
+    }
+
+    .table th {
+      background-color: #f8f9fa;
+    }
+
+    .table-dark th {
+      background-color: #343a40;
+      color: white;
+    }
+
+    .bg-row-inactive {
+      background-color: #ffffff;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: #f8f9fa !important;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR ESENCIAL -->
 <div class="sidebar">
-  <h5>Dashboard</h5>
+  <h5><i class="fas fa-user-shield me-2"></i> Panel Admin</h5>
 
-  <a href="{% url 'dashboard_admin' %}" style="color:#ffc107;">
-     Regresar
+  <a href="{% url 'dashboard_admin' %}">
+    <i class="fas fa-home"></i> Inicio
+  </a>
+  
+  <a href="{% url 'dashboard_admin' %}">
+    <i class="fas fa-users"></i> Gestión Usuarios
   </a>
 
   <hr>
 
-  <a href="{% url 'logout' %}">Cerrar sesión</a>
+  <!-- Enlaces de Control del Sistema Obligatorios -->
+  <a href="{% url 'ver_inactivos' %}" class="active">
+    <i class="fas fa-archive"></i> Ver inactivos
+  </a>
+
+  <hr>
+
+  <a href="{% url 'logout' %}">
+    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </a>
 </div>
 
-<!-- CONTENT -->
+<!-- CONTENT AREA -->
 <div class="content">
 
-  <h4>Usuarios Inactivos</h4>
+  <!-- TOP HEADER (Con redundancia segura si 'usuario' no viene en el contexto) -->
+  <div class="top-header">
+    <h4><i class="fas fa-user-slash me-2 text-danger"></i> Usuarios Inactivos</h4>
+    
+    <div class="user-info" id="userMenuBtn">
+      <div class="user-avatar">
+        {% with nombre_mostrado=usuario.nom_usuario|default:user.username %}
+          {% if nombre_mostrado %}
+            {{ nombre_mostrado|first|upper }}
+          {% else %}
+            <i class="fas fa-user"></i>
+          {% endif %}
+        {% endwith %}
+      </div>
+      <div>
+        <div class="user-name">
+          {{ usuario.nom_usuario|default:user.username }}
+        </div>
+        <div class="user-role">
+          {{ usuario.rol.nom_rol|default:"Administrador" }}
+        </div>
+      </div>
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </div>
 
-  <table class="table table-bordered table-hover bg-white">
+  <!-- Dropdown menú del Perfil -->
+  <div class="dropdown-menu-custom" id="userDropdown">
+    <a href="{% url 'perfil_admin' %}">
+      <i class="fas fa-user-circle"></i> Mi Perfil
+    </a>
+    <a href="{% url 'perfil_admin' %}?cambiar_pass=true">
+      <i class="fas fa-key"></i> Cambiar Contraseña
+    </a>
+    <hr>
+    <a href="{% url 'logout' %}">
+      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </a>
+  </div>
 
-    <thead>
-      <tr>
-        <th>Usuario</th>
-        <th>Email</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
+  <!-- Mensajes de Django -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+        <i class="fas fa-check-circle me-2"></i> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
 
-    <tbody>
+  <!-- Enlace de Retorno Rápido -->
+  <div class="mb-3">
+    <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary btn-sm px-3 py-2">
+      <i class="fas fa-arrow-left me-1"></i> Volver a Gestión de Usuarios
+    </a>
+  </div>
 
-      {% if usuarios_inactivos %}
-
-        {% for u in usuarios_inactivos %}
+  <!-- TABLA DE USUARIOS INACTIVOS -->
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-bordered table-hover align-middle mb-0">
+      <thead class="table-dark">
         <tr>
-
-          <td>{{ u.nom_usuario }} {{ u.ap1 }}</td>
-          <td>{{ u.email }}</td>
-          <td>{{ u.rol.nom_rol }}</td>
-
-          <td>
-            <span class="badge bg-danger">Inactivo</span>
-          </td>
-
-          <!-- TOGGLE EN MISMO VIEW -->
-          <td>
-            <form method="POST">
-              {% csrf_token %}
-
-              <input type="hidden" name="id" value="{{ u.id }}">
-
-              <button class="btn btn-sm btn-success">
-                Activar
-              </button>
-
-            </form>
-          </td>
-
+          <th style="width: 80px;">ID</th>
+          <th>Usuario / Funcionario</th>
+          <th>Correo Electrónico</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th class="text-center" style="width: 150px;">Acción</th>
         </tr>
-        {% endfor %}
-
-      {% else %}
-
-        <tr>
-          <td colspan="5" class="text-center text-muted">
-            No hay usuarios inactivos
-          </td>
-        </tr>
-
-      {% endif %}
-
-    </tbody>
-
-  </table>
+      </thead>
+      <tbody>
+        {% if usuarios_inactivos %}
+          {% for u in usuarios_inactivos %}
+          <tr class="bg-row-inactive">
+            <td><strong>{{ u.id }}</strong></td>
+            <td class="fw-semibold text-dark">{{ u.nom_usuario }} {{ u.ap1 }} {{ u.ap2 }}</td>
+            <td><i class="far fa-envelope me-2 text-muted"></i>{{ u.email }}</td>
+            <td>
+              {% if u.rol.nom_rol == 'administrador' %}
+                <span class="badge bg-danger">Administrador</span>
+              {% elif u.rol.nom_rol == 'cajero' %}
+                <span class="badge bg-info text-dark">Cajero</span>
+              {% else %}
+                <span class="badge bg-light text-dark border">{{ u.rol.nom_rol }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i> Inactivo</span>
+            </td>
+            <td class="text-center">
+              <form method="POST" class="m-0 d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ u.id }}">
+                <button type="submit" class="btn btn-sm btn-success px-3" title="Reactivar Funcionario">
+                  <i class="fas fa-user-check me-1"></i> Activar
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted bg-white">
+              <i class="fas fa-users-slash fa-2x mb-3 text-black-50"></i>
+              <p class="mb-0 fw-medium">No se encontraron usuarios inactivos en el sistema.</p>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
+
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Script Funcional Dropdown -->
+<script>
+  const userMenuBtn = document.getElementById('userMenuBtn');
+  const userDropdown = document.getElementById('userDropdown');
+
+  if (userMenuBtn && userDropdown) {
+    userMenuBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function() {
+      userDropdown.classList.remove('show');
+    });
+  }
+</script>
 
 </body>
 </html>

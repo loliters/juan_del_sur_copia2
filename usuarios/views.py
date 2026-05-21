@@ -610,15 +610,22 @@ def ver_inactivos(request):
     if request.session.get('rol') != "administrador":
         return redirect('login')
     
+    # Obtener el usuario de la sesión
+    usuario_id = request.session.get('usuario_id')
+    usuario = Usuario.objects.get(id=usuario_id)
+    
     if request.method == "POST":
-        usuario_id = request.POST.get("id")
-        usuario = get_object_or_404(Usuario, id=usuario_id)
-        usuario.estado = not usuario.estado
-        usuario.save()
+        usuario_id_post = request.POST.get("id")
+        usuario_obj = get_object_or_404(Usuario, id=usuario_id_post)
+        usuario_obj.estado = not usuario_obj.estado
+        usuario_obj.save()
         return redirect('ver_inactivos')
-
+    
     usuarios_inactivos = Usuario.objects.filter(estado=False)
-    return render(request, "usuarios/ver_inactivos.html", {"usuarios_inactivos": usuarios_inactivos})
+    return render(request, "usuarios/ver_inactivos.html", {
+        "usuarios_inactivos": usuarios_inactivos,
+        "usuario": usuario,   # ← Agregar esta línea
+    })
 
 def recuperar_contraseña(request):
     from django.contrib.auth.hashers import make_password
