@@ -190,11 +190,11 @@
 
             <div class="mb-3">
                 <label class="form-label">Presentación</label>
-                <select name="presentacion" class="form-select">
-                    <option value="">Seleccione una presentación...</option>
+                <select name="presentacion" id="presentacion" class="form-select">
+                    <option value="">Seleccione...</option>
                     {% for p in presentaciones %}
-                        <option value="{{p.id}}" {% if producto.presentacion.id == p.id %}selected{% endif %}>
-                            {{ p.medida.abreviatura }}
+                        <option value="{{ p.id }}">
+                            {{ p.cantidad|floatformat:0 }} {{ p.medida.abreviatura|default:"(sin medida)" }}
                         </option>
                     {% endfor %}
                 </select>

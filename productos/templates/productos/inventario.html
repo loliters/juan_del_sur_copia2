@@ -276,7 +276,7 @@
                         <th>Precio Compra</th>
                         <th>Precio Venta</th>
                         <th>Stock</th>
-                        <th>Unidad</th>
+                        <th>Presentacion</th>
                         <th>Estado</th>
                         {% if request.session.rol != 'Cajero' %}
                             <th style="text-align: center; width: 120px;">Acciones</th>
@@ -297,7 +297,13 @@
                                 {{ p.inventario.stock_actual }}
                             </span>
                         </td>
-                        <td class="text-secondary small">{{ p.inventario.tipo_unidad.nombre }}</td>
+                        <td class="text-secondary small">
+                            {% if p.presentacion %}
+                                {{ p.presentacion.cantidad|floatformat:0 }} {{ p.presentacion.medida.abreviatura|default:"" }}
+                            {% else %}
+                                ---
+                            {% endif %}
+                        </td>
 
                         <td>
                             {% if p.estado == 'activo' %}

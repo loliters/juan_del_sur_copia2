@@ -6,84 +6,142 @@
 <title>Crear Producto - Juan del Sur</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 
 body{
-background:#2B2D33;
+background:#f1f1f1;
 display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
-padding:20px;
-font-family:'Segoe UI';
+padding:40px 20px;
+font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .card-crear{
 width:100%;
 max-width:550px;
-background:#EAEAEA;
-border-radius:30px;
+background:white;
+border-radius:12px;
 overflow:hidden;
-box-shadow:0 25px 50px -12px rgba(0,0,0,.5);
+box-shadow:0 4px 20px rgba(0,0,0,0.04);
+border: 1px solid #eef2f5;
 }
 
-.card-header{
-padding:20px;
-background:#E0E0E0;
-border-bottom:3px solid #0671B8;
+.card-header-custom{
+padding:18px 24px;
+background:#343a40;
 display:flex;
 justify-content:space-between;
 align-items:center;
+border:none;
+}
+
+.card-header-custom h5{
+margin:0;
+font-weight:bold;
+color:#ffffff;
+font-size:1.1rem;
+letter-spacing:0.3px;
 }
 
 .card-body{
 padding:30px;
 }
 
+.form-label {
+font-weight: 600;
+color: #495057;
+font-size: 0.88rem;
+margin-bottom: 6px;
+text-transform: uppercase;
+letter-spacing: 0.3px;
+}
+
 .form-control,
 .form-select{
-border-radius:15px;
-padding:10px;
+border-radius:8px;
+padding:11px 14px;
+border: 1px solid #ced4da;
+color: #212529;
+font-size: 0.95rem;
+background-color: #fff;
+transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+border-color: #0d6efd;
+box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+}
+
+.codigo-generado{
+background-color: #f8f9fa !important;
+color: #4b5563;
+font-weight: 600;
+border-color: #e3e6ea;
+}
+
+.info-box{
+background-color: #f8f9fa;
+padding: 14px 18px;
+border-radius: 8px;
+border: 1px dashed #dee2e6;
+font-size: 0.92rem;
+color: #495057;
 }
 
 .btn-crear{
 width:100%;
 border:none;
 padding:12px;
-border-radius:30px;
-background:#0671B8;
+border-radius:8px;
+background:#0d6efd;
 color:white;
-font-weight:bold;
+font-weight:600;
+transition: all 0.2s ease;
+box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
 }
 
 .btn-crear:hover{
-background:#055A9A;
+background:#0b5ed7;
 }
 
 .btn-cancelar{
 display:block;
-margin-top:10px;
+margin-top:12px;
 text-decoration:none;
 text-align:center;
 padding:12px;
-border-radius:30px;
-background:#6C757D;
+border-radius:8px;
+background:#6c757d;
+color:white;
+font-weight:600;
+transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover{
+background:#5c636a;
 color:white;
 }
 
-.codigo-generado{
-font-weight:bold;
-background:#e9ecef;
+.btn-volver-top {
+background-color: rgba(255, 255, 255, 0.12);
+color: #ffffff;
+border: 1px solid rgba(255, 255, 255, 0.2);
+padding: 7px 14px;
+border-radius: 6px;
+font-size: 0.85rem;
+font-weight: 600;
+text-decoration: none;
+transition: all 0.2s;
 }
 
-.info{
-padding:10px;
-background:#e9ecef;
-border-radius:10px;
-font-size:14px;
+.btn-volver-top:hover {
+background-color: rgba(255, 255, 255, 0.22);
+color: #ffffff;
 }
 
 </style>
@@ -94,18 +152,15 @@ font-size:14px;
 
 <div class="card-crear">
 
-<div class="card-header">
+<div class="card-header-custom">
 
-<h4>
-<i class="fas fa-plus-circle"></i>
+<h5>
+<i class="fas fa-plus-circle me-2 text-primary"></i>
 Crear Producto
-</h4>
+</h5>
 
-<a href="{% url 'productos:inventario' %}"
-class="btn btn-secondary">
-
-Volver
-
+<a href="{% url 'productos:inventario' %}" class="btn-volver-top">
+<i class="fas fa-arrow-left me-1"></i> Volver
 </a>
 
 </div>
@@ -116,14 +171,10 @@ Volver
 
 {% csrf_token %}
 
-<!-- CODIGO -->
-
 <div class="mb-3">
 
 <label class="form-label">
-
 Código
-
 </label>
 
 <input
@@ -133,21 +184,17 @@ id="codProducto"
 class="form-control codigo-generado"
 readonly>
 
-<small>
+<div class="form-text text-muted" style="font-size: 0.75rem;">
 Se genera automáticamente
-</small>
+</div>
 
 </div>
 
 
-<!-- NOMBRE -->
-
 <div class="mb-3">
 
 <label class="form-label">
-
 Nombre
-
 </label>
 
 <input
@@ -155,19 +202,16 @@ type="text"
 name="nomProducto"
 id="prodNombre"
 class="form-control"
+placeholder="Ej. Coca Cola 2L"
 required>
 
 </div>
 
 
-<!-- CATEGORIA -->
-
 <div class="mb-3">
 
 <label class="form-label">
-
 Categoría
-
 </label>
 
 <select
@@ -176,7 +220,7 @@ class="form-select"
 required>
 
 <option value="">
-Seleccione
+Seleccione...
 </option>
 
 {% for cat in categorias %}
@@ -192,89 +236,28 @@ Seleccione
 </div>
 
 
-<!-- PRESENTACION -->
-
 <div class="mb-3">
 
 <label class="form-label">
-
 Presentación
-
 </label>
 
-<select
-name="presentacion"
-id="presentacion"
-class="form-select">
-
-<option value="">
-
-Seleccione
-
-</option>
-
-{% for p in presentaciones %}
-
-<option value="{{p.id}}">
-
-{{p.cantidad}}
-{{p.unidad_medida.abreviatura}}
-
-</option>
-
-{% endfor %}
-
+<select name="presentacion" id="presentacion" class="form-select">
+    <option value="">Seleccione...</option>
+    {% for p in presentaciones %}
+        <option value="{{ p.id }}">
+            {{ p.cantidad|floatformat:0 }} {{ p.medida.abreviatura|default:"(sin medida)" }}
+        </option>
+    {% endfor %}
 </select>
 
 </div>
 
 
-<!-- UNIDAD VENTA -->
-
 <div class="mb-3">
 
 <label class="form-label">
-
-Unidad Venta
-
-</label>
-
-<select
-name="unidad_venta"
-id="unidadVenta"
-class="form-select"
-required>
-
-<option value="">
-
-Seleccione
-
-</option>
-
-{% for uv in unidades_venta %}
-
-<option value="{{uv.id}}">
-
-{{uv.nombre}}
-({{uv.abreviatura}})
-
-</option>
-
-{% endfor %}
-
-</select>
-
-</div>
-
-
-<!-- PRECIO COMPRA -->
-
-<div class="mb-3">
-
-<label class="form-label">
-
-Precio Compra
-
+Precio Compra (Bs)
 </label>
 
 <input
@@ -283,19 +266,16 @@ step="0.01"
 name="precioCompra"
 id="precioCompra"
 class="form-control"
+placeholder="0.00"
 required>
 
 </div>
 
 
-<!-- PRECIO VENTA -->
-
-<div class="mb-3">
+<div class="mb-4">
 
 <label class="form-label">
-
-Precio Venta
-
+Precio Venta (Bs)
 </label>
 
 <input
@@ -304,21 +284,18 @@ step="0.01"
 name="precioVenta"
 id="precioVenta"
 class="form-control"
+placeholder="0.00"
 required>
 
 </div>
 
 
-<div class="info">
+<div class="info-box">
 
-<i class="fas fa-eye"></i>
-
-Resumen:
-
-<span id="preview">
-
+<i class="fas fa-eye me-1 text-primary"></i>
+<strong>Resumen:</strong>
+<span id="preview" class="text-secondary">
 ---
-
 </span>
 
 </div>
@@ -328,17 +305,13 @@ Resumen:
 <button
 type="submit"
 class="btn-crear">
-
-Guardar Producto
-
+<i class="fas fa-save me-2"></i> Guardar Producto
 </button>
 
 <a
 href="{% url 'productos:inventario' %}"
 class="btn-cancelar">
-
-Cancelar
-
+<i class="fas fa-times me-2"></i> Cancelar
 </a>
 
 </form>
@@ -349,105 +322,47 @@ Cancelar
 
 <script>
 
-function abreviarNombre(nombre){
-
-nombre=nombre.toUpperCase()
-
-return nombre
-.replace(/[^A-Z0-9]/g,'')
-.substring(0,4)
-
+function abreviarNombre(nombre) {
+    nombre = nombre.toUpperCase();
+    return nombre.replace(/[^A-Z0-9]/g, '').substring(0, 4);
 }
 
-
-function generarCodigo(){
-
-let nombre=
-document.getElementById(
-'prodNombre'
-).value
-
-let unidad=
-document.getElementById(
-'unidadVenta'
-)
-
-if(!nombre){
-
-document.getElementById(
-'codProducto'
-).value=''
-
-return
-
+function generarCodigo() {
+    let nombre = document.getElementById('prodNombre').value;
+    let presentacionSelect = document.getElementById('presentacion');
+    
+    if (!nombre) {
+        document.getElementById('codProducto').value = '';
+        return;
+    }
+    
+    let nombreAbrev = abreviarNombre(nombre);
+    let abrev = 'GEN'; // Por defecto
+    
+    if (presentacionSelect.value) {
+        // Obtiene el texto de la opción seleccionada, ej: "1.0000 cj"
+        let textoOpcion = presentacionSelect.options[presentacionSelect.selectedIndex].text;
+        // Extrae la abreviatura (última palabra)
+        let partes = textoOpcion.trim().split(' ');
+        abrev = partes[partes.length - 1]; // Toma "cj", "lt", etc.
+    }
+    
+    let codigo = `${nombreAbrev}_${abrev}_000`;
+    document.getElementById('codProducto').value = codigo;
+    document.getElementById('preview').innerHTML = nombre;
 }
 
-let nombreAbrev=
-abreviarNombre(nombre)
+// Eventos
+document.getElementById('prodNombre').addEventListener('input', generarCodigo);
+document.getElementById('presentacion').addEventListener('change', generarCodigo);
 
-let uv='GEN'
-
-if(unidad.value){
-
-let texto=
-unidad.options[
-unidad.selectedIndex
-].text
-
-let match=
-texto.match(/\((.*?)\)/)
-
-uv=match?
-match[1]:
-'GEN'
-
-}
-
-let codigo=
-
-`${nombreAbrev}_${uv}_000`
-
-document.getElementById(
-'codProducto'
-).value=
-codigo
-
-
-document.getElementById(
-'preview'
-).innerHTML=
-
-nombre
-
-}
-
-
-document.getElementById(
-'prodNombre'
-).addEventListener(
-'input',
-generarCodigo
-)
-
-document.getElementById(
-'unidadVenta'
-).addEventListener(
-'change',
-generarCodigo
-)
-
-
-document.getElementById(
-'productoForm'
-).addEventListener(
-'submit',
-function(e){
-
-let compra=
-parseFloat(
-document.getElementById(
-'precioCompra'
-).value
+document.getElementById('productoForm').addEventListener('submit',function(e)
+{
+    let compra=
+    parseFloat(
+    document.getElementById(
+    'precioCompra'
+    ).value
 )
 
 let venta=
