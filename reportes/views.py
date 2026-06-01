@@ -19,6 +19,7 @@ from categorias.models import Categoria
 
 from .utils import PDFReporteGeneral
 
+from django.core.paginator import Paginator#paginador
 
 # =============================================================================
 # FUNCIONES AUXILIARES
@@ -148,16 +149,26 @@ def filtrar_compras(request):
 # =============================================================================
 
 def ventas_report(request):
-    """Vista principal del reporte de ventas"""
-    ventas = filtrar_ventas(request)
+    """Vista principal del reporte de ventas (HTML con paginación)"""
     
-    total_vendido = ventas.aggregate(total=Sum('total'))['total'] or 0
-    cant_ventas = ventas.count()
+    # 1️⃣ Filtrar ventas (misma lógica, sin cambios)
+    ventas_qs = filtrar_ventas(request)  # ← QuerySet filtrado completo
     
+    # 2️⃣ 📄 PAGINACIÓN SOLO PARA LA VISTA HTML
+    paginator = Paginator(ventas_qs, 20)  # 20 registros por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # ← Manejo automático de errores
+    
+    # 3️⃣ Calcular totales con el QuerySet COMPLETO (no paginado)
+    total_vendido = ventas_qs.aggregate(total=Sum('total'))['total'] or 0
+    cant_ventas = ventas_qs.count()  # ← Total real, no solo de la página
+    
+    # 4️⃣ Datos para filtros
     productos = Producto.objects.filter(estado='activo').select_related('categoria')
     categorias = Categoria.objects.filter(estado=True)
     clientes = Cliente.objects.filter(estado=True)
     
+    # 5️⃣ Reconstruir rango de fechas para mostrar
     fecha_desde = request.GET.get('fecha_desde', '')
     fecha_hasta = request.GET.get('fecha_hasta', '')
     filtro_fecha = request.GET.get('filtro_fecha', '')
@@ -168,10 +179,12 @@ def ventas_report(request):
     else:
         fecha_reporte = "Todos los registros"
     
+    # 6️⃣ ✅ IMPORTANTE: Pasar page_obj y total_ventas al template
     context = {
-        'ventas': ventas,
-        'total_vendido': total_vendido,
-        'cant_ventas': cant_ventas,
+        'ventas': page_obj,              # ← Paginado para HTML
+        'ventas_qs_completo': ventas_qs, # ← Opcional: si necesitas el completo en template
+        'total_vendido': total_vendido,  # ← Calculado con QuerySet completo
+        'cant_ventas': cant_ventas,      # ← Total real de registros
         'fecha_reporte': fecha_reporte,
         'productos': productos,
         'categorias': categorias,
@@ -179,22 +192,36 @@ def ventas_report(request):
         'filtro_fecha': filtro_fecha,
         'fecha_desde': fecha_desde,
         'fecha_hasta': fecha_hasta,
+        'page_obj': page_obj,            # ← Para la navegación
+        'total_registros': paginator.count,  # ← Total para mostrar en UI
     }
     
     return render(request, 'reportes/ventas_report.html', context)
 
-
 def compras_report(request):
-    """Vista principal del reporte de compras"""
-    compras = filtrar_compras(request)
+    """Vista principal del reporte de compras (HTML con paginación)"""
     
-    total_comprado = compras.aggregate(total=Sum('total'))['total'] or 0
-    ordenes_realizadas = compras.count()
+    # 1️⃣ Filtrar compras
+    compras_qs = filtrar_compras(request)
     
+    # 🔍 DEBUG opcional (remover en producción)
+    # print(f"🔍 compras_qs.count()={compras_qs.count()}, page={request.GET.get('page')}")
+    
+    # 2️⃣ Paginación
+    paginator = Paginator(compras_qs, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # 3️⃣ Totales con QuerySet COMPLETO (antes de paginar)
+    total_comprado = compras_qs.aggregate(total=Sum('total'))['total'] or 0
+    ordenes_realizadas = compras_qs.count()
+    
+    # 4️⃣ Datos para filtros
     productos = Producto.objects.filter(estado='activo').select_related('categoria')
     categorias = Categoria.objects.filter(estado=True)
     proveedores = Proveedor.objects.filter(estado=True)
     
+    # 5️⃣ Rango de fechas
     fecha_desde = request.GET.get('fecha_desde', '')
     fecha_hasta = request.GET.get('fecha_hasta', '')
     filtro_fecha = request.GET.get('filtro_fecha', '')
@@ -205,10 +232,11 @@ def compras_report(request):
     else:
         fecha_reporte = "Todos los registros"
     
+    # 6️⃣ Contexto
     context = {
-        'compras': compras,
+        'compras': page_obj,              # ← Paginado para HTML
         'total_comprado': total_comprado,
-        'ordenes_realizadas': ordenes_realizadas,
+        'ordenes_realizadas': ordenes_realizadas,  # ← Total real
         'fecha_reporte': fecha_reporte,
         'productos': productos,
         'categorias': categorias,
@@ -216,10 +244,16 @@ def compras_report(request):
         'filtro_fecha': filtro_fecha,
         'fecha_desde': fecha_desde,
         'fecha_hasta': fecha_hasta,
+        'page_obj': page_obj,
+        'total_registros': paginator.count,  # ← Para UI
+        # Estos dos ayudan a preservar filtros en paginación:
+        'producto_filter': request.GET.get('producto', ''),
+        'categoria_filter': request.GET.get('categoria', ''),
+        'proveedor_filter': request.GET.get('proveedor', ''),
+        'estado_inventario': request.GET.get('estado_inventario', ''),
     }
     
     return render(request, 'reportes/compras_report.html', context)
-
 
 # =============================================================================
 # CLASES PDF PARA FACTURAS INDIVIDUALES

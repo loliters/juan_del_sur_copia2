@@ -495,6 +495,63 @@
         </table>
     </div>
 </div>
+
+<!-- ================= PAGINACIÓN DE REPORTES ================= -->
+{% if page_obj.has_other_pages %}
+<div class="mt-4 d-flex flex-column align-items-center gap-2">
+    
+    <!-- Navegación con filtros preservados -->
+    <nav aria-label="Paginación de reportes">
+        <ul class="pagination pagination-sm mb-0">
+            
+            <!-- Primera y Anterior -->
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% include 'reportes/_filtros_params.html' %}">&laquo; Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% include 'reportes/_filtros_params.html' %}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Primera</span></li>
+                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+            
+            <!-- Números de página -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% include 'reportes/_filtros_params.html' %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Siguiente y Última -->
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% include 'reportes/_filtros_params.html' %}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% include 'reportes/_filtros_params.html' %}">Última &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                <li class="page-item disabled"><span class="page-link">Última &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+    <!-- Info de rango -->
+    <small class="text-muted">
+        Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ total_registros }} registros
+    </small>
+    
+</div>
+{% endif %}
+<!-- =============== FIN PAGINACIÓN =============== -->
+
 {% endblock %}
 
 {% block extra_js %}
