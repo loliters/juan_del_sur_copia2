@@ -1,260 +1,309 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top Productos</title>
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% block title %}Top Productos - Juan del Sur{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js (solo para esta página) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f1f1f1;
-}
-
-.sidebar {
-  width: 260px;
-  height: 100vh;
-  background: #2f2f2f;
-  color: white;
-  position: fixed;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.sidebar h5 {
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #555;
-}
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  text-decoration: none;
-  padding: 10px 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-}
-
-.sidebar a:hover,
-.sidebar a.active {
-  background: #0d6efd;
-}
-
-.sidebar i { width: 20px; }
-
-.main {
-  margin-left: 260px;
-  padding: 20px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.filters {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: end;
-  margin-bottom: 20px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-}
-
-.field label {
-  font-size: 12px;
-  font-weight: bold;
-  margin-bottom: 3px;
-}
-
-select {
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  min-width: 120px;
-}
-
-.chart-box {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  height: 450px;
-}
-
-@media print {
-  .sidebar,
-  .filters,
-  .btn-group-custom {
-    display: none !important;
-  }
-
-  .main {
-    margin: 0;
-  }
-
-  body {
-    background: white;
-  }
-}
+    /* Estilos específicos SOLO para esta página */
+    
+    /* Layout principal */
+    .main {
+        margin-left: 260px;
+        padding: 20px;
+    }
+    
+    /* Header con título y botón PDF */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    /* Filtros */
+    .filters {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: end;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .field {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .field label {
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 3px;
+        color: #333;
+    }
+    
+    select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        min-width: 120px;
+        font-size: 0.9rem;
+    }
+    
+    select:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    
+    /* Contenedor del gráfico */
+    .chart-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        height: 450px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* ===== ESTILOS PARA IMPRESIÓN/PDF ===== */
+    @media print {
+        .sidebar,
+        .filters,
+        .btn,
+        .header,
+        .no-print {
+            display: none !important;
+        }
+        
+        .main, .content-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        
+        body {
+            background: white !important;
+        }
+        
+        .chart-box {
+            box-shadow: none;
+            border: 1px solid #ddd;
+            height: auto !important;
+            page-break-inside: avoid;
+        }
+        
+        /* Asegurar que el canvas se imprima */
+        canvas {
+            max-width: 100% !important;
+        }
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        .main { margin-left: 0; padding: 15px; }
+        .filters { flex-direction: column; align-items: stretch; }
+        .field { width: 100%; }
+        select { width: 100%; }
+        .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
 </style>
-</head>
+{% endblock %}
 
-<body>
+{% block content %}
+<!-- Contenedor principal con ajuste de margen para sidebar -->
+<div class="main" style="margin-left: 260px; padding: 20px;">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h5><i class="fas fa-tachometer-alt"></i> Dashboard</h5>
-
-  <a href="{% url 'dashboard_admin' %}"><i class="fas fa-home"></i> Inicio</a>
-  <a href="{% url 'productos:inventario' %}"><i class="fas fa-box"></i> Productos</a>
-  <a href="{% url 'categorias:lista' %}"><i class="fas fa-tags"></i> Categorías</a>
-  <a href="{% url 'compras:ver_compras' %}"><i class="fas fa-shopping-cart"></i> Compras</a>
-  <a href="{% url 'ventas:ver_ventas' %}"><i class="fas fa-cash-register"></i> Ventas</a>
-
-  <hr>
-
-  <a class="active" href="{% url 'estadisticas:top_productos' %}">
-    <i class="fas fa-chart-bar"></i> Top Productos
-  </a>
-
-  <a href="{% url 'estadisticas:prediccion' %}">
-    <i class="fas fa-chart-line"></i> Predicción
-  </a>
-
-  <hr>
-
-  <a href="{% url 'logout' %}">
-    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-  </a>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <div class="header">
-    <h3><i class="fas fa-chart-bar"></i> Top Productos</h3>
-
-    <button class="btn btn-danger" onclick="window.print()">
-      <i class="fas fa-file-pdf"></i> PDF
-    </button>
-  </div>
-
-  <!-- FILTROS -->
-  <form method="GET">
-    <div class="filters">
-
-      <!-- TOP -->
-      <div class="field">
-        <label>Top</label>
-        <select name="top">
-          <option value="5" {% if top_n == 5 %}selected{% endif %}>5</option>
-          <option value="10" {% if top_n == 10 %}selected{% endif %}>10</option>
-          <option value="15" {% if top_n == 15 %}selected{% endif %}>15</option>
-          <option value="20" {% if top_n == 20 %}selected{% endif %}>20</option>
-        </select>
-      </div>
-
-      <!-- CATEGORÍA -->
-      <div class="field">
-        <label>Categoría</label>
-        <select name="categoria">
-          <option value="">Todas</option>
-          {% for c in categorias %}
-          <option value="{{ c.id }}"
-            {% if categoria_id == c.id|stringformat:"s" %}selected{% endif %}>
-            {{ c.nomCategoria }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- MES -->
-      <div class="field">
-        <label>Mes</label>
-        <select name="mes">
-          <option value="">Todos</option>
-          <option value="1" {% if mes == "1" %}selected{% endif %}>Enero</option>
-          <option value="2" {% if mes == "2" %}selected{% endif %}>Febrero</option>
-          <option value="3" {% if mes == "3" %}selected{% endif %}>Marzo</option>
-          <option value="4" {% if mes == "4" %}selected{% endif %}>Abril</option>
-          <option value="5" {% if mes == "5" %}selected{% endif %}>Mayo</option>
-          <option value="6" {% if mes == "6" %}selected{% endif %}>Junio</option>
-          <option value="7" {% if mes == "7" %}selected{% endif %}>Julio</option>
-          <option value="8" {% if mes == "8" %}selected{% endif %}>Agosto</option>
-          <option value="9" {% if mes == "9" %}selected{% endif %}>Septiembre</option>
-          <option value="10" {% if mes == "10" %}selected{% endif %}>Octubre</option>
-          <option value="11" {% if mes == "11" %}selected{% endif %}>Noviembre</option>
-          <option value="12" {% if mes == "12" %}selected{% endif %}>Diciembre</option>
-        </select>
-      </div>
-
-      <!-- AÑO -->
-      <div class="field">
-        <label>Año</label>
-        <select name="anio">
-          <option value="">Todos</option>
-          {% for a in anos_disponibles %}
-          <option value="{{ a }}"
-            {% if anio == a|stringformat:"s" %}selected{% endif %}>
-            {{ a }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <button class="btn btn-primary">
-        <i class="fas fa-search"></i> Filtrar
-      </button>
-
+    <div class="header no-print">
+        <h3 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar text-primary me-2"></i> Top Productos
+        </h3>
+        <button class="btn btn-danger px-3 shadow-sm" onclick="window.print()">
+            <i class="fas fa-file-pdf me-1"></i> PDF
+        </button>
     </div>
-  </form>
 
-  <!-- GRAFICO -->
-  <div class="chart-box">
-    <canvas id="topChart"></canvas>
-  </div>
+    <!-- FILTROS -->
+    <form method="GET" class="no-print">
+        <div class="filters">
+
+            <!-- TOP N -->
+            <div class="field">
+                <label>Top</label>
+                <select name="top" class="form-select">
+                    <option value="5" {% if top_n == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if top_n == 10 %}selected{% endif %}>10</option>
+                    <option value="15" {% if top_n == 15 %}selected{% endif %}>15</option>
+                    <option value="20" {% if top_n == 20 %}selected{% endif %}>20</option>
+                </select>
+            </div>
+
+            <!-- CATEGORÍA -->
+            <div class="field">
+                <label>Categoría</label>
+                <select name="categoria" class="form-select">
+                    <option value="">Todas</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}"
+                        {% if categoria_id == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.nomCategoria }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- MES -->
+            <div class="field">
+                <label>Mes</label>
+                <select name="mes" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="1" {% if mes == "1" %}selected{% endif %}>Enero</option>
+                    <option value="2" {% if mes == "2" %}selected{% endif %}>Febrero</option>
+                    <option value="3" {% if mes == "3" %}selected{% endif %}>Marzo</option>
+                    <option value="4" {% if mes == "4" %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if mes == "5" %}selected{% endif %}>Mayo</option>
+                    <option value="6" {% if mes == "6" %}selected{% endif %}>Junio</option>
+                    <option value="7" {% if mes == "7" %}selected{% endif %}>Julio</option>
+                    <option value="8" {% if mes == "8" %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if mes == "9" %}selected{% endif %}>Septiembre</option>
+                    <option value="10" {% if mes == "10" %}selected{% endif %}>Octubre</option>
+                    <option value="11" {% if mes == "11" %}selected{% endif %}>Noviembre</option>
+                    <option value="12" {% if mes == "12" %}selected{% endif %}>Diciembre</option>
+                </select>
+            </div>
+
+            <!-- AÑO -->
+            <div class="field">
+                <label>Año</label>
+                <select name="anio" class="form-select">
+                    <option value="">Todos</option>
+                    {% for a in anos_disponibles %}
+                    <option value="{{ a }}"
+                        {% if anio == a|stringformat:"s" %}selected{% endif %}>
+                        {{ a }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-search me-1"></i> Filtrar
+            </button>
+
+        </div>
+    </form>
+
+    <!-- GRÁFICO DE BARRAS -->
+    <div class="chart-box">
+        <canvas id="topChart"></canvas>
+    </div>
 
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-const labels = JSON.parse('{{ productos_labels|escapejs }}');
-const data = JSON.parse('{{ ventas_data|escapejs }}');
+// Datos del gráfico (parsing seguro para evitar errores de sintaxis)
+const labels = JSON.parse('{{ productos_labels|escapejs }}') || [];
+const data = JSON.parse('{{ ventas_data|escapejs }}') || [];
 
 const ctx = document.getElementById('topChart');
 
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: labels,
-    datasets: [{
-      label: 'Unidades Vendidas',
-      data: data,
-      backgroundColor: '#0d6efd'
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false
-  }
+// Inicializar Chart.js cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    if (!labels.length || !data.length) {
+        // Gráfico vacío o sin datos
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Sin datos"],
+                datasets: [{
+                    label: 'Unidades Vendidas',
+                    data: [0],
+                    backgroundColor: '#6c757d'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, display: false },
+                    x: { display: false }
+                }
+            }
+        });
+    } else {
+        // Gráfico con datos reales
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Unidades Vendidas',
+                    data: data,
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' unidades';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return value + ' un.';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
 });
 </script>
-
-</body>
-</html>
+{% endblock %}

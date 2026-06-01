@@ -1,213 +1,164 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predicción de Stock</title>
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block title %}Predicción de Stock - Juan del Sur{% endblock %}
 
-    <style>
+{% block extra_css %}
+<!-- Chart.js (solo para esta página) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* Estilos específicos SOLO para esta página */
+    
+    /* Layout principal de predicción */
+    .main {
+        margin-left: 260px;
+        padding: 25px;
+    }
+    
+    /* Header con botón de PDF */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    /* Filtros */
+    .filters {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        align-items: flex-end;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .field {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .field label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    select, input {
+        padding: 7px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        min-width: 150px;
+    }
+    
+    /* Alerta de proyección */
+    .alert-box {
+        background: #e7f3ff;
+        border-left: 5px solid #0d6efd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    /* Contenedor del gráfico */
+    .chart-box {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        height: 450px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    /* Badge de estados */
+    .badge-critico { background-color: #dc3545; color: white; }
+    .badge-advertencia { background-color: #ffc107; color: #212529; }
+    .badge-info-custom { background-color: #17a2b8; color: white; }
+    
+    /* Ocultar elementos en impresión */
+    .no-print {
+        /* Visible en pantalla, oculto en print */
+    }
+    
+    /* ===== HOJA MEMBRETADA PARA PDF/IMPRESIÓN ===== */
+    @media print {
         body {
+            background: #fff;
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #f1f1f1;
+            padding: 0;
         }
-
-        /* SIDEBAR IGUAL DASHBOARD ADMIN */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: #2f2f2f;
-            color: #fff;
-            position: fixed;
-            padding: 20px;
-            overflow-y: auto;
+        
+        /* Ocultar sidebar, filtros y botones */
+        .sidebar,
+        .filters,
+        .btn,
+        .no-print,
+        .header {
+            display: none !important;
         }
-
-        .sidebar h5 {
-            border-bottom: 1px solid #555;
+        
+        /* Ajustar contenido principal */
+        .main, .content-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Mostrar encabezado de impresión */
+        .print-header {
+            display: block !important;
+            text-align: center;
+            border-bottom: 3px solid #0d6efd;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            margin: 6px 0;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #fff;
+        
+        .print-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #000;
         }
-
-        .sidebar a:hover {
-            background: #0d6efd;
+        
+        .print-sub {
+            font-size: 13px;
+            color: #666;
         }
-
-        .sidebar a.active {
-            background: #0d6efd;
-        }
-
-        .sidebar hr {
-            border-color: #555;
-            margin: 15px 0;
-        }
-
-        /* MAIN */
-        .main {
-            margin-left: 260px;
-            padding: 25px;
-        }
-
-        /* HEADER */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* FILTROS */
-        .filters {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: flex-end; /* Alinea el botón con los inputs */
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .field label {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        select, input {
-            padding: 7px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        /* ALERTA */
-        .alert-box {
-            background: #e7f3ff;
-            border-left: 5px solid #0d6efd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        /* CHART */
+        
+        /* Ajustar gráfico para impresión */
         .chart-box {
-            background: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            height: 450px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+            box-shadow: none;
+            border: 1px solid #ddd;
+            height: auto !important;
+            page-break-inside: avoid;
         }
-
-        /* Ocultar encabezado de impresión en pantalla */
-        .print-header {
-            display: none;
+        
+        /* Ajustar tabla para impresión */
+        .table {
+            font-size: 12px;
         }
+    }
+    
+    /* Mostrar encabezado de impresión solo en print */
+    .print-header {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .main { margin-left: 0; padding: 15px; }
+        .filters { flex-direction: column; align-items: stretch; }
+        .field { width: 100%; }
+        select, input { width: 100%; }
+    }
+</style>
+{% endblock %}
 
-        /* ===== HOJA MEMBRETADA PDF ===== */
-        @media print {
-            body {
-                background: #fff;
-            }
-
-            .sidebar,
-            .filters,
-            .btn,
-            .no-print {
-                display: none !important;
-            }
-
-            .main {
-                margin: 0;
-                padding: 0;
-            }
-
-            .print-header {
-                display: block !important; /* Mostrar solo al imprimir */
-                text-align: center;
-                border-bottom: 3px solid #0d6efd;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-
-            .print-title {
-                font-size: 22px;
-                font-weight: bold;
-            }
-
-            .print-sub {
-                font-size: 13px;
-                color: #666;
-            }
-
-            .chart-box {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h5>
-        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-    </h5>
-
-    <a href="{% url 'dashboard_admin' %}">
-        <i class="fas fa-home"></i> Inicio
-    </a>
-    <a href="{% url 'productos:inventario' %}">
-        <i class="fas fa-box"></i> Productos
-    </a>
-    <a href="{% url 'categorias:lista' %}">
-        <i class="fas fa-tags"></i> Categorías
-    </a>
-    <a href="{% url 'compras:ver_compras' %}">
-        <i class="fas fa-shopping-cart"></i> Compras
-    </a>
-
-    <hr>
-
-    <a href="{% url 'estadisticas:top_productos' %}">
-        <i class="fas fa-chart-bar"></i> Top Productos
-    </a>
-    <a href="{% url 'estadisticas:prediccion' %}" class="active">
-        <i class="fas fa-chart-line"></i> Predicción
-    </a>
-
-    <hr>
-
-    <a href="{% url 'logout' %}">
-        <i class="fas fa-sign-out-alt"></i> Salir
-    </a>
-</div>
-
-<!-- MAIN -->
-<div class="main">
+{% block content %}
+<!-- Ajuste para que el contenido use .main en lugar de .main-card -->
+<div class="main" style="margin-left: 260px; padding: 25px;">
 
     <!-- HOJA MEMBRETADA (Solo visible en PDF/Impresión) -->
     <div class="print-header">
@@ -215,23 +166,20 @@
         <div class="print-sub">Análisis de ventas y proyección de agotamiento</div>
     </div>
 
-    <!-- HEADER -->
+    <!-- HEADER con botón PDF -->
     <div class="header no-print">
-        <h3>Predicción de Stock</h3>
-        <div>
-            <button class="btn btn-primary" onclick="window.print()">
-                <i class="fas fa-file-pdf"></i> Descargar PDF
-            </button>
-        </div>
+        <h3 class="fw-bold mb-0">Predicción de Stock</h3>
+        <button class="btn btn-primary px-3 shadow-sm" onclick="window.print()">
+            <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+        </button>
     </div>
 
-    <!-- ALERTA PROYECCIÓN -->
+    <!-- ALERTA DE PROYECCIÓN -->
     {% if fecha_agotamiento %}
     <div class="alert-box">
         <strong>Producto:</strong> {{ nombre_producto }} <br>
-        Stock actual: {{ stock_actual }} <br>
-        <!--Pendiente (m): {{ pendiente }} | Intercepto (b): {{ intercepto }} <br>
-        <strong>Fecha estimada de agotamiento:</strong> {{ fecha_agotamiento|date:"d/m/Y" }}-->
+        <strong>Stock actual:</strong> {{ stock_actual }} <br>
+        <strong>Fecha estimada de agotamiento:</strong> {{ fecha_agotamiento|date:"d/m/Y" }}
     </div>
     {% endif %}
 
@@ -240,7 +188,7 @@
         <div class="filters">
             <div class="field">
                 <label>Producto</label>
-                <select name="producto">
+                <select name="producto" class="form-select">
                     <option value="">Seleccionar</option>
                     {% for p in productos %}
                         <option value="{{ p.id }}" {% if request.GET.producto == p.id|stringformat:"i" %}selected{% endif %}>
@@ -252,134 +200,177 @@
 
             <div class="field">
                 <label>Desde</label>
-                <input type="date" name="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
             </div>
 
             <div class="field">
                 <label>Hasta</label>
-                <input type="date" name="fecha_fin" value="{{ request.GET.fecha_fin }}">
+                <input type="date" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Analizar
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-search me-1"></i> Analizar
             </button>
         </div>
     </form>
 
-    <!-- ALERTAS REABASTRCIMIENTO -->
+    <!-- ALERTAS DE REABASTECIMIENTO -->
     <div class="mb-4">
-        <h4>
+        <h4 class="fw-bold mb-3">
             <i class="fas fa-exclamation-triangle text-danger me-2"></i> Productos para reabastecimiento
         </h4>
 
-        <table class="table table-bordered bg-white align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Producto</th>
-                    <th>Stock</th>
-                    <th>Promedio ventas/día</th>
-                    <th>Días restantes</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in alertas %}
-                <tr>
-                    <td>{{ a.producto }}</td>
-                    <td>{{ a.stock }}</td>
-                    <td>{{ a.promedio }}</td>
-                    <td>{{ a.dias_restantes }}</td>
-                    <td>
-                        {% if a.estado == "Stock crítico" %}
-                            <span class="badge bg-danger">{{ a.estado }}</span>
-                        {% elif a.estado == "Reabastecer esta semana" %}
-                            <span class="badge bg-warning text-dark">{{ a.estado }}</span>
-                        {% else %}
-                            <span class="badge bg-info">{{ a.estado }}</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        No existen alertas de reabastecimiento en este momento.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle bg-white">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Stock</th>
+                        <th>Promedio ventas/día</th>
+                        <th>Días restantes</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alertas %}
+                    <tr>
+                        <td class="fw-semibold">{{ a.producto }}</td>
+                        <td>{{ a.stock }}</td>
+                        <td>{{ a.promedio }}</td>
+                        <td>{{ a.dias_restantes }}</td>
+                        <td>
+                            {% if a.estado == "Stock crítico" %}
+                                <span class="badge bg-danger">{{ a.estado }}</span>
+                            {% elif a.estado == "Reabastecer esta semana" %}
+                                <span class="badge bg-warning text-dark">{{ a.estado }}</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ a.estado }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle me-2"></i> No existen alertas de reabastecimiento en este momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- GRAFICO -->
+    <!-- GRÁFICO DE PREDICCIÓN -->
     <div class="chart-box">
-	<h4>
-            <i class="fas text-danger me-2"></i> Tendencia de Demanda del Producto
+        <h4 class="fw-bold mb-3">
+            <i class="fas fa-chart-line text-primary me-2"></i> Tendencia de Demanda del Producto
         </h4>
         <canvas id="prediccionChart"></canvas>
     </div>
 
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-// Evitamos errores de sintaxis si las variables vienen vacías convirtiéndolas a arreglos vacíos por defecto.
+// Datos del gráfico (safe parsing para evitar errores)
 const labels = JSON.parse('{{ labels|escapejs }}') || [];
 const medicion = JSON.parse('{{ medicion_data|escapejs }}') || [];
 const estimacion = JSON.parse('{{ estimacion_data|escapejs }}') || [];
 
 const canvas = document.getElementById("prediccionChart");
 
-if (!labels.length) {
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: ["Sin datos"],
-            datasets: [{
-                label: "Sin datos",
-                data: [0],
-                borderColor: "#0d6efd"
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-} else {
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Ventas reales',
-                    data: medicion,
-                    borderColor: '#000',
-                    backgroundColor: 'rgba(0,0,0,0.1)',
-                    pointRadius: 4,
-                    tension: 0.2
-                },
-                {
-                    label: 'Tendencia',
-                    data: estimacion,
-                    borderColor: '#dc3545',
-                    borderWidth: 3,
+// Configurar Chart.js
+document.addEventListener('DOMContentLoaded', function() {
+    if (!labels.length || labels[0] === "Sin datos") {
+        // Gráfico vacío
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: ["Sin datos suficientes"],
+                datasets: [{
+                    label: "Sin datos",
+                    data: [0],
+                    borderColor: "#6c757d",
+                    borderDash: [5, 5],
                     pointRadius: 0,
-                    tension: 0.3
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, display: false },
+                    x: { display: false }
                 }
             }
-        }
-    });
-}
+        });
+    } else {
+        // Gráfico con datos
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Ventas reales',
+                        data: medicion,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.2,
+                        fill: true
+                    },
+                    {
+                        label: 'Tendencia (proyección)',
+                        data: estimacion,
+                        borderColor: '#dc3545',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        borderDash: [5, 5],
+                        tension: 0.3,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { usePointStyle: true }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 12,
+                        displayColors: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: { callback: function(value) { return value + ' un.'; } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { maxRotation: 45, minRotation: 45 }
+                    }
+                }
+            }
+        });
+    }
+});
 </script>
-
-</body>
-</html>
+{% endblock %}

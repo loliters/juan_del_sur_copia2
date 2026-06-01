@@ -1,372 +1,135 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Categorías - Juan del Sur</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% block title %}Categorías - Juan del Sur{% endblock %}
 
-    <style>
-        body { 
-            margin: 0; 
-            background: #f1f1f1; 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-        }
+{% block extra_css %}
+<style>
+    /* Estilos específicos solo para esta página */
+    .btn-crear {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 18px;
+        font-weight: 600;
+        font-size: 0.92rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    .btn-crear:hover {
+        background-color: #0b5ed7;
+        color: white;
+    }
+    .btn-secundario-custom {
+        background-color: #6c757d;
+        color: white;
+        border-radius: 8px;
+        padding: 9px 16px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .btn-secundario-custom:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+    .badge-solo-lectura {
+        background-color: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        display: inline-block;
+        border: 1px solid #ced4da;
+    }
+    #filaSinResultadosCat, #filaVaciaCat { font-style: italic; }
+</style>
+{% endblock %}
 
-        /* SIDEBAR ESTRUCTURADO Y PREMIUM OBLIGATORIO */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: #232323; 
-            color: #a3a3a3;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 24px 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <h4 class="mb-0 fw-bold text-dark">
+        <i class="fas fa-tags me-2 text-primary"></i> Categorías
+    </h4>
 
-        .sidebar h5 {
-            color: #ffffff;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #3a3a3a;
-            font-weight: 600;
-            font-size: 1.15rem;
-        }
-
-        .sidebar .menu-category {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #666666;
-            margin: 16px 0 6px 12px;
-            display: block;
-            font-weight: 700;
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #cdcdcd;
-            text-decoration: none;
-            margin: 2px 0;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar a i {
-            width: 20px;
-            font-size: 1.05rem;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .sidebar a:hover {
-            background-color: #0d6efd;
-            color: #ffffff;
-        }
-
-        .sidebar a:hover i {
-            opacity: 1;
-        }
-
-        .sidebar a.active {
-            background-color: #0d6efd;
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid #3a3a3a;
-        }
-
-        /* WRAPPER DE CONTENIDO PARA AJUSTAR AL SIDEBAR */
-        .content-wrapper {
-            margin-left: 260px;
-            padding: 30px;
-        }
-
-        /* TARJETA BLANCA PRINCIPAL DE CONTENIDO */
-        .main-card { 
-            background: white; 
-            border-radius: 12px; 
-            padding: 24px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            border: 1px solid #eef2f5;
-        }
-
-        /* BUSCADOR ESTILIZADO */
-        .search-container {
-            max-width: 380px;
-            width: 100%;
-        }
-
-        .search-input {
-            border-radius: 8px;
-            padding: 9px 14px;
-            border: 1px solid #ced4da;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
-        }
-
-        .search-icon-btn {
-            background: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-left: none;
-            border-radius: 0 8px 8px 0;
-            color: #6c757d;
-        }
-
-        /* BOTONES DE ACCIÓN */
-        .btn-crear {
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 9px 18px;
-            font-weight: 600;
-            font-size: 0.92rem;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-        }
-
-        .btn-crear:hover {
-            background-color: #0b5ed7;
-            color: white;
-        }
-
-        .btn-secundario-custom {
-            background-color: #6c757d;
-            color: white;
-            border-radius: 8px;
-            padding: 9px 16px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .btn-secundario-custom:hover {
-            background-color: #5c636a;
-            color: white;
-        }
-
-        /* TABLA MODERNA */
-        .table-responsive {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table-dark th {
-            background-color: #343a40 !important;
-            color: #ffffff !important;
-            font-weight: bold;
-            padding: 14px 16px;
-            border: none;
-            font-size: 0.95rem;
-        }
-
-        .table td {
-            padding: 14px 16px;
-            vertical-align: middle;
-            font-size: 0.95rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        /* ACCIONES DE TABLA */
-        .btn-action-edit {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-        .btn-action-edit:hover {
-            background-color: #e0a800;
-            color: #212529;
-        }
-
-        .btn-action-delete {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-        .btn-action-delete:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-        .badge-solo-lectura {
-            background-color: #e9ecef;
-            color: #495057;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            display: inline-block;
-            border: 1px solid #ced4da;
-        }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h5><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</h5>
-    
-    <a href="#">
-        <i class="fas fa-home"></i> Inicio
-    </a>
-    <a href="{% url 'dashboard_admin' %}">
-        <i class="fas fa-users"></i> Gestión de Usuarios
-    </a>
-
-    <span class="menu-category">Estructura Comercial</span>
-    <a href="{% url 'productos:inventario' %}">
-        <i class="fas fa-box"></i> Productos
-    </a>
-    <a href="{% url 'categorias:lista' %}" class="active">
-        <i class="fas fa-tags"></i> Categorías
-    </a>
-    
-    <span class="menu-category">Operaciones</span>
-    <a href="{% url 'compras:ver_compras' %}">
-        <i class="fas fa-shopping-cart"></i> Compras
-    </a>
-
-    <span class="menu-category">Reportes y Datos</span>
-    <a href="{% url 'reportes:compras_report' %}">
-        <i class="fas fa-chart-bar"></i> Reportes Generales
-    </a>
-    <a href="{% url 'estadisticas:top_productos' %}">
-        <i class="fas fa-chart-bar"></i> Top Productos
-    </a>
-    <a href="{% url 'estadisticas:prediccion' %}">
-        <i class="fas fa-chart-line"></i> Predicción de Stock
-    </a>
-
-    <div class="sidebar-footer">
-        <a href="{% url 'categorias:inactivas' %}">
-            <i class="fas fa-archive"></i> Recuperar
-        </a>
-        <a href="{% url 'logout' %}" style="transition: 0.2s;" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.15)', this.style.color='#dc3545'" onmouseout="this.style.backgroundColor='transparent', this.style.color='#cdcdcd'">
-            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-        </a>
+    <div class="search-container input-group shadow-sm">
+        <input type="text" id="inputBuscarCat" class="form-control search-input" placeholder="Buscar categoría...">
+        <span class="input-group-text search-icon-btn">
+            <i class="fas fa-search"></i>
+        </span>
     </div>
+
+    {% if request.session.rol == 'administrador' %}
+        <a href="{% url 'categorias:crear' %}" class="btn btn-nuevo px-3 shadow-sm d-flex align-items-center justify-content-center">
+            <i class="fas fa-plus me-1"></i> Nueva Categoría
+        </a>
+    {% endif %}
 </div>
 
-<div class="content-wrapper">
-    <div class="main-card">
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle" id="tablaCategorias">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 100px;">ID</th>
+                <th>Nombre de Categoría</th>
+                {% if request.session.rol == 'administrador' or request.session.rol == 'cajero' %}
+                    <th style="text-align: center; width: 140px;">Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-            <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-tags me-2 text-primary"></i> Categorías
-            </h4>
-
-            <div class="search-container input-group shadow-sm">
-                <input type="text" id="inputBuscarCat" class="form-control search-input" placeholder="Buscar categoría...">
-                <span class="input-group-text search-icon-btn">
-                    <i class="fas fa-search"></i>
-                </span>
-            </div>
-
-            {% if request.session.rol == 'administrador' %}
-                <a href="{% url 'categorias:crear' %}" class="btn-crear shadow-sm d-flex align-items-center justify-content-center">
-                    <i class="fas fa-plus me-1"></i> Nueva Categoría
-                </a>
-            {% endif %}
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle" id="tablaCategorias">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 100px;">ID</th>
-                        <th>Nombre de Categoría</th>
-                        {% if request.session.rol == 'administrador' or request.session.rol == 'cajero' %}
-                            <th style="text-align: center; width: 140px;">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for cat in categorias %}
-                    <tr>
-                        <td class="text-secondary fw-semibold">{{ cat.id }}</td>
-                        <td class="text-dark fw-semibold col-nombre-cat">{{ cat.nomCategoria }}</td>
-                        <td class="text-center">
-                            {% if request.session.rol == 'administrador' %}
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{% url 'categorias:editar' cat.id %}" class="btn-action-edit" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{% url 'categorias:eliminar' cat.id %}" class="btn-action-delete" title="Eliminar" onclick="return confirm('¿Eliminar esta categoría?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            {% else %}
-                                <span class="badge-solo-lectura">
-                                    <i class="fas fa-eye me-1"></i> Solo lectura
-                                </span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr id="filaVaciaCat">
-                        <td colspan="3" class="text-center py-4 text-secondary">
-                            <i class="fas fa-box-open me-2"></i> No hay categorías registradas
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    
-                    <tr id="filaSinResultadosCat" style="display: none;">
-                        <td colspan="3" class="text-center py-4 text-secondary">No se encontraron categorías que coincidan con la búsqueda</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        {% if request.session.rol == 'administrador' %}
-        <div class="mt-4 pt-3 border-top">
-            <a href="{% url 'categorias:inactivas' %}" class="btn-secundario-custom shadow-sm">
-                <i class="fas fa-archive me-2"></i> Ver eliminadas
-            </a>
-        </div>
-        {% endif %}
-
-    </div>
+        <tbody>
+            {% for cat in categorias %}
+            <tr>
+                <td class="text-secondary fw-semibold">{{ cat.id }}</td>
+                <td class="text-dark fw-semibold col-nombre-cat">{{ cat.nomCategoria }}</td>
+                <td class="text-center">
+                    {% if request.session.rol == 'administrador' %}
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'categorias:editar' cat.id %}" class="btn-action-edit" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'categorias:eliminar' cat.id %}" class="btn-action-delete" title="Eliminar" onclick="return confirm('¿Eliminar esta categoría?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <span class="badge-solo-lectura">
+                            <i class="fas fa-eye me-1"></i> Solo lectura
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr id="filaVaciaCat">
+                <td colspan="3" class="text-center py-4 text-secondary">
+                    <i class="fas fa-box-open me-2"></i> No hay categorías registradas
+                </td>
+            </tr>
+            {% endfor %}
+            
+            <tr id="filaSinResultadosCat" style="display: none;">
+                <td colspan="3" class="text-center py-4 text-secondary">No se encontraron categorías que coincidan con la búsqueda</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% if request.session.rol == 'administrador' %}
+<div class="mt-4 pt-3 border-top">
+    <a href="{% url 'categorias:inactivas' %}" class="btn-secundario-custom shadow-sm">
+        <i class="fas fa-archive me-2"></i> Ver eliminadas
+    </a>
+</div>
+{% endif %}
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.getElementById('inputBuscarCat').addEventListener('keyup', function() {
     let filtro = this.value.toLowerCase().trim();
@@ -407,6 +170,4 @@ document.getElementById('inputBuscarCat').addEventListener('keyup', function() {
     }
 });
 </script>
-
-</body>
-</html>
+{% endblock %}

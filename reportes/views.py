@@ -494,35 +494,47 @@ def imprimir_compra(request, id_compra):
 # =============================================================================
 
 def exportar_ventas_pdf(request):
-    """Generar PDF con reporte general de ventas filtradas"""
+    """Generar PDF con reporte general de ventas filtradas (AGREGADO POR PRODUCTO)"""
     ventas = filtrar_ventas(request)
     
-    # ===== PROCESAR DATOS PARA EL PDF =====
-    productos_data = []
-    total_ventas = 0
-    total_ganancia = 0
+    # ===== 1. PROCESAR Y AGRUPAR DATOS POR PRODUCTO =====
+    productos_agg = {}
+    total_ventas = 0.0
+    total_ganancia = 0.0
     
     for venta in ventas:
         for detalle in venta.detalles.select_related('inventario__producto'):
             producto = detalle.inventario.producto
+            pid = producto.id  # Clave para agrupar sin duplicados
+            
             precio_venta = float(producto.precioVenta) if producto.precioVenta is not None else 0.0
             precio_compra = float(producto.precioCompra) if producto.precioCompra is not None else 0.0
             cantidad = int(detalle.cantidad) if detalle.cantidad else 0
             subtotal = float(detalle.subtotal) if detalle.subtotal else 0.0
             ganancia = (precio_venta - precio_compra) * cantidad
             
-            productos_data.append({
-                'cod': producto.codProducto or '',
-                'nom': producto.nomProducto,
-                'cantidad': cantidad,
-                'precio_unit': precio_venta,
-                'subtotal': subtotal,
-                'ganancia': ganancia,
-            })
+            if pid not in productos_agg:
+                productos_agg[pid] = {
+                    'cod': producto.codProducto or '',
+                    'nom': producto.nomProducto,
+                    'cantidad': 0,
+                    'subtotal': 0.0,
+                    'ganancia': 0.0,
+                }
+            
+            productos_agg[pid]['cantidad'] += cantidad
+            productos_agg[pid]['subtotal'] += subtotal
+            productos_agg[pid]['ganancia'] += ganancia
+            
             total_ventas += subtotal
             total_ganancia += ganancia
     
-    # ===== RECONSTRUIR FILTROS PARA EL PDF =====
+    # Convertir a lista y calcular precio unitario promedio ponderado
+    productos_data = list(productos_agg.values())
+    for p in productos_data:
+        p['precio_unit'] = p['subtotal'] / p['cantidad'] if p['cantidad'] > 0 else 0.0
+        
+    # ===== 2. RECONSTRUIR FILTROS PARA EL PDF =====
     filtro_fecha = request.GET.get('filtro_fecha', '')
     fecha_desde = request.GET.get('fecha_desde', '')
     fecha_hasta = request.GET.get('fecha_hasta', '')
@@ -564,7 +576,7 @@ def exportar_ventas_pdf(request):
         'Categoria': texto_categoria,
     }
     
-    # ===== GENERAR PDF =====
+    # ===== 3. GENERAR PDF =====
     buffer = io.BytesIO()
     pdf = PDFReporteGeneral()
     pdf.add_page()
@@ -580,7 +592,7 @@ def exportar_ventas_pdf(request):
     pdf.cell(40, 6, 'Total Ventas:', 0, 0)
     pdf.cell(0, 6, f"{ventas.count()} registros", 0, 1)
     pdf.cell(40, 6, 'Productos únicos:', 0, 0)
-    num_unicos = len(set(p['nom'] for p in productos_data))
+    num_unicos = len(productos_data)
     pdf.cell(0, 6, f"{num_unicos}", 0, 1)
     pdf.ln(3)
     
@@ -611,12 +623,14 @@ def exportar_ventas_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="reporte_ventas.pdf"'
     return response
 
+
 def exportar_compras_pdf(request):
-    """Generar PDF con reporte general de compras filtradas + proveedores"""
+    """Generar PDF con reporte general de compras filtradas + proveedores (AGREGADO POR PRODUCTO)"""
     compras = filtrar_compras(request)
     
-    productos_data = []
-    total_compras = 0
+    # ===== 1. PROCESAR Y AGRUPAR DATOS POR PRODUCTO =====
+    productos_agg = {}
+    total_compras = 0.0
     proveedores_usados = set()
     
     for compra in compras:
@@ -625,37 +639,39 @@ def exportar_compras_pdf(request):
         
         for detalle in compra.detalles.select_related('inventario__producto'):
             producto = detalle.inventario.producto
-            precio_compra = float(producto.precioCompra) if producto.precioCompra else 0
+            pid = producto.id  # Clave para agrupar sin duplicados
+            
+            precio_compra = float(producto.precioCompra) if producto.precioCompra else 0.0
             cantidad = int(detalle.cantidad) if detalle.cantidad else 0
             subtotal = cantidad * precio_compra
             
-            productos_data.append({
-                'cod': producto.codProducto or '',
-                'nom': producto.nomProducto,
-                'cantidad': cantidad,
-                'precio_unit': precio_compra,
-                'subtotal': subtotal,
-                'proveedor': proveedor.nomProv,
-                'compra_id': compra.id_compra,
-                'fecha': compra.fecha
-            })
+            if pid not in productos_agg:
+                productos_agg[pid] = {
+                    'cod': producto.codProducto or '',
+                    'nom': producto.nomProducto,
+                    'cantidad': 0,
+                    'subtotal': 0.0,
+                    'precio_unit': 0.0,
+                }
+            
+            productos_agg[pid]['cantidad'] += cantidad
+            productos_agg[pid]['subtotal'] += subtotal
             total_compras += subtotal
     
-    
-    #++++
-    # filtros
-    #++++
-    # Reconstruir los filtros con los mismos nombres que usa filtrar_compras()
+    # Convertir a lista y calcular precio unitario promedio ponderado
+    productos_data = list(productos_agg.values())
+    for p in productos_data:
+        p['precio_unit'] = p['subtotal'] / p['cantidad'] if p['cantidad'] > 0 else 0.0
+        
+    # ===== 2. RECONSTRUIR FILTROS PARA EL PDF =====
     filtro_fecha = request.GET.get('filtro_fecha', '')
     fecha_desde = request.GET.get('fecha_desde', '')
     fecha_hasta = request.GET.get('fecha_hasta', '')
 
-    # Obtener el texto legible para el rango de fechas (igual que en compras_report)
     from_date, to_date = get_date_range(filtro_fecha, fecha_desde, fecha_hasta)
     if from_date and to_date:
         texto_fecha = f"{from_date.strftime('%d/%m/%Y')} - {to_date.strftime('%d/%m/%Y')}"
     elif filtro_fecha:
-        # Mapeo de nombres preestablecidos
         nombres_filtro = {
             'ultimo_dia': 'Último día',
             'ultima_semana': 'Última semana',
@@ -666,7 +682,6 @@ def exportar_compras_pdf(request):
     else:
         texto_fecha = 'Todos'
 
-    # Mapeo de nombres para productos y categorías (opcional, para mostrar nombres en vez de IDs)
     producto_id = request.GET.get('producto', '')
     categoria_id = request.GET.get('categoria', '')
     proveedor_id = request.GET.get('proveedor', '')
@@ -697,8 +712,8 @@ def exportar_compras_pdf(request):
         'Categoria': texto_categoria,
         'Proveedor': texto_proveedor,
     }
-
     
+    # ===== 3. GENERAR PDF =====
     buffer = io.BytesIO()
     pdf = PDFReporteGeneral()
     pdf.add_page()
@@ -714,7 +729,7 @@ def exportar_compras_pdf(request):
     pdf.cell(40, 6, 'Total Compras:', 0, 0)
     pdf.cell(0, 6, f"{compras.count()} registros", 0, 1)
     pdf.cell(40, 6, 'Proveedores:', 0, 0)
-    pdf.cell(0, 6, f"{len(proveedores_usados)} unicos", 0, 1)
+    pdf.cell(0, 6, f"{len(proveedores_usados)} únicos", 0, 1)
     pdf.ln(3)
     
     if productos_data:
@@ -761,7 +776,6 @@ def exportar_compras_pdf(request):
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="reporte_compras.pdf"'
     return response
-
 
 # =============================================================================
 # FUNCIÓN DE PRUEBA (DEBUG)

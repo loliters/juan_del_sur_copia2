@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Sistema{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body { margin: 0; background: #f1f1f1; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        
+        .sidebar {
+            width: 260px; height: 100vh; background: #232323; color: #a3a3a3;
+            position: fixed; top: 0; left: 0; padding: 24px 16px;
+            overflow-y: auto; display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar h5 {
+            color: #ffffff; margin-bottom: 20px; padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a3a; font-weight: 600; font-size: 1.15rem;
+        }
+        .sidebar .menu-category {
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px;
+            color: #666666; margin: 16px 0 6px 12px; display: block; font-weight: 700;
+        }
+        .sidebar a {
+            display: flex; align-items: center; gap: 12px; color: #cdcdcd;
+            text-decoration: none; margin: 2px 0; padding: 10px 14px;
+            border-radius: 8px; font-size: 0.92rem; transition: all 0.2s ease;
+        }
+        .sidebar a i { width: 20px; font-size: 1.05rem; text-align: center; opacity: 0.8; }
+        .sidebar a:hover, .sidebar a.active { background-color: #0d6efd; color: #ffffff; }
+        .sidebar a:hover i, .sidebar a.active i { opacity: 1; }
+        .sidebar-footer { margin-top: auto; padding-top: 15px; border-top: 1px solid #3a3a3a; }
+        .sidebar .logout-btn:hover { background-color: rgba(220, 53, 69, 0.15); color: #dc3545; }
+        
+        .content-wrapper { margin-left: 260px; padding: 30px; min-height: 100vh; }
+        .main-card {
+            background: white; border-radius: 12px; padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #eef2f5;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 24px 8px; }
+            .sidebar h5, .sidebar .menu-category, .sidebar a span { display: none; }
+            .sidebar a { justify-content: center; padding: 12px; }
+            .sidebar a i { margin: 0; font-size: 1.2rem; }
+            .content-wrapper { margin-left: 0; padding: 15px; }
+        }
+        
+        .search-container { max-width: 380px; width: 100%; }
+        .search-input { border-radius: 8px; padding: 9px 14px; border: 1px solid #ced4da; font-size: 0.92rem; }
+        .search-input:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12); }
+        .search-icon-btn { background: #f8f9fa; border: 1px solid #ced4da; border-left: none; border-radius: 0 8px 8px 0; color: #6c757d; }
+        .btn-nuevo { background-color: #0d6efd; color: white; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .btn-nuevo:hover { background-color: #0b5ed7; color: white; }
+        .table-responsive { border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; }
+        .table-dark th { background-color: #343a40 !important; color: #ffffff !important; font-weight: bold; padding: 14px 16px; }
+        .table td { padding: 14px 16px; vertical-align: middle; font-size: 0.95rem; border-bottom: 1px solid #eee; }
+        .badge-status-activo { background-color: #198754; color: white; font-weight: bold; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+        .badge-status-inactivo { background-color: #6c757d; color: white; font-weight: bold; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+        .btn-action-edit { background-color: #ffc107; color: #212529; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; }
+        .btn-action-edit:hover { background-color: #e0a800; }
+        .btn-action-delete { background-color: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; }
+        .btn-action-delete:hover { background-color: #c82333; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {% include 'sistema/partials/sidebar.html' %}
+
+    <div class="content-wrapper">
+        <div class="main-card">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm" style="border-radius: 8px;">
+                        <i class="fas fa-info-circle me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,839 +1,638 @@
+{% extends 'sistema/base.html' %}
 {% load static %}
 {% load custom_filters %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Compras</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        /* ========== BASE STYLES ========== */
-        body { 
-            background-color: #f5f5f5; 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            padding: 0; 
-        }
-        
-        /* ========== SIDEBAR STYLES MEJORADOS ========== */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: #232323;
-            color: #a3a3a3;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 24px 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
 
-        .sidebar h5 {
-            color: #ffffff;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #3a3a3a;
-            font-weight: 600;
-            font-size: 1.15rem;
-        }
+{% block title %}Reporte de Compras - Juan del Sur{% endblock %}
 
-        .sidebar .menu-category {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #666666;
-            margin: 16px 0 6px 12px;
-            display: block;
-            font-weight: 700;
-        }
+{% block extra_css %}
+<style>
+    /* ===== ESTILOS ÚNICOS PARA REPORTES ===== */
+    
+    /* Contenedor principal de reportes */
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+    
+    /* Stats cards con gradientes */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, var(--primary-color, #2563eb), var(--secondary-color, #60a5fa));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-card.light {
+        background: linear-gradient(135deg, #93c5fd, #60a5fa);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+    
+    /* Rango de fecha */
+    .date-range {
+        background: #f3f4f6;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 500;
+    }
+    
+    /* Sección de filtros */
+    .filters-section {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .date-filters {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    
+    .date-filter-btn {
+        padding: 0.5rem 1.5rem;
+        border: 2px solid var(--primary-color, #2563eb);
+        background: white;
+        color: var(--primary-color, #2563eb);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+    
+    .date-filter-btn:hover,
+    .date-filter-btn.active {
+        background: var(--primary-color, #2563eb);
+        color: white;
+    }
+    
+    .custom-date {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.625rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color, #2563eb);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .btn-filter {
+        background: var(--primary-color, #2563eb);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-filter:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+    
+    /* Tabla de reportes */
+    .table-container {
+        margin-top: 2rem;
+    }
+    
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-export {
+        background: var(--primary-color, #2563eb);
+        color: white;
+        border: none;
+        padding: 0.625rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-export:hover {
+        background: #1d4ed8;
+    }
+    
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table thead {
+        background: var(--primary-color, #2563eb);
+        color: white;
+    }
+    
+    .table th {
+        font-weight: 600;
+        border: none;
+        padding: 1rem;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+    
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        padding: 0.375rem 0.75rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-view {
+        background: #dbeafe;
+        color: var(--primary-color, #2563eb);
+    }
+    .btn-view:hover {
+        background: #bfdbfe;
+    }
+    
+    .btn-print {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    .btn-print:hover {
+        background: #fde68a;
+    }
+    
+    /* Detalle expandible */
+    .compra-detalle {
+        display: none;
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    .compra-detalle.show {
+        display: block;
+    }
+    
+    .compra-header {
+        background: var(--primary-color, #2563eb);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    /* Tabs de navegación */
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .tab {
+        padding: 0.75rem 2rem;
+        border: none;
+        background: #e5e7eb;
+        color: #374151;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .tab.active {
+        background: var(--primary-color, #2563eb);
+        color: white;
+    }
+    
+    .tab:hover:not(.active) {
+        background: #d1d5db;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .main-container { padding: 1rem; }
+        .custom-date { grid-template-columns: 1fr; }
+        .date-filters { flex-direction: column; }
+        .tabs { flex-wrap: wrap; }
+        .tab { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        .compra-header { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
 
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #cdcdcd;
-            text-decoration: none;
-            margin: 2px 0;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar a i {
-            width: 20px;
-            font-size: 1.05rem;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .sidebar a:hover {
-            background-color: #0d6efd;
-            color: #ffffff;
-        }
-
-        .sidebar a:hover i {
-            opacity: 1;
-        }
-
-        .sidebar a.active {
-            background-color: #0d6efd;
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid #3a3a3a;
-        }
-
-        .content-wrapper {
-            margin-left: 260px;
-            padding: 20px;
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-
-        /* ========== REPORT STYLES ========== */
-        .main-card { 
-            background: white; 
-            border-radius: 15px; 
-            padding: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-        }
-        
-        .card {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            border: none;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            border-radius: 10px 10px 0 0 !important;
-            padding: 1rem 1.5rem;
-        }
-        
-        .bg-primary-custom {
-            background-color: #2563eb !important;
-            color: white;
-        }
-        
-        .table th {
-            background-color: #f9fafb;
-            font-weight: 600;
-        }
-        
-        .btn-nuevo { 
-            background-color: #0076CE; 
-            color: white; 
-            border-radius: 8px; 
-            font-weight: bold; 
-        }
-        
-        .btn-nuevo:hover { 
-            background-color: #005fa3; 
-            color: white; 
-        }
-
-        .alert { 
-            margin-bottom: 20px; 
-        }
-
-        /* ===== Reportes específicos ===== */
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #60a5fa;
-            --accent-color: #fbbf24;
-        }
-        
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-        
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .stat-card.light {
-            background: linear-gradient(135deg, #93c5fd, #60a5fa);
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-        
-        .date-range {
-            background: #f3f4f6;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 500;
-        }
-        
-        .filters-section {
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .filter-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .filter-label {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        
-        .date-filters {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-        
-        .date-filter-btn {
-            padding: 0.5rem 1.5rem;
-            border: 2px solid var(--primary-color);
-            background: white;
-            color: var(--primary-color);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        
-        .date-filter-btn:hover,
-        .date-filter-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .custom-date {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .form-control, .form-select {
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 0.625rem;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-        }
-        
-        .btn-filter {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-filter:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-        
-        .table-container {
-            margin-top: 2rem;
-        }
-        
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .btn-export {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.625rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-export:hover {
-            background: #1d4ed8;
-        }
-        
-        .table {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .table thead {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .table th {
-            font-weight: 600;
-            border: none;
-            padding: 1rem;
-        }
-        
-        .table td {
-            padding: 1rem;
-            vertical-align: middle;
-        }
-        
-        .table tbody tr:hover {
-            background: #f9fafb;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn-action {
-            padding: 0.375rem 0.75rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-view {
-            background: #dbeafe;
-            color: var(--primary-color);
-        }
-        
-        .btn-view:hover {
-            background: #bfdbfe;
-        }
-        
-        .btn-print {
-            background: #fef3c7;
-            color: #d97706;
-        }
-        
-        .btn-print:hover {
-            background: #fde68a;
-        }
-        
-        .compra-detalle {
-            display: none;
-            background: #f9fafb;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-        
-        .compra-detalle.show {
-            display: block;
-        }
-        
-        .compra-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 15px;
-            }
-            .content-wrapper {
-                margin-left: 0;
-            }
-        }
-
-         .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .tab {
-            padding: 0.75rem 2rem;
-            border: none;
-            background: #e5e7eb;
-            color: #374151;
-            border-radius: 8px 8px 0 0;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        .tab:hover:not(.active) {
-            background: #d1d5db;
-        }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
-
-    <div class="sidebar-menu">
-        <div class="menu-category">General</div>
-        <a href="{% url 'dashboard_admin' %}">
-            <i class="bi bi-house-door"></i> Inicio
-        </a>
-        <a href="{% url 'dashboard_admin' %}">
-             <i class="bi bi-people"></i> Gestión de Usuarios
-        </a>
-        <div class="menu-category">Almacén</div>
-        <a href="{% url 'productos:inventario' %}">
-            <i class="bi bi-box-seam"></i> Productos
-        </a>
-        <a href="{% url 'categorias:lista' %}">
-            <i class="bi bi-tags"></i> Categorías
-        </a>
-        <a href="{% url 'proveedores:lista' %}">
-            <i class="bi bi-truck"></i> Proveedores
-        </a>
-
-        <div class="menu-category">Operaciones</div>
-        <a href="{% url 'compras:ver_compras' %}">
-            <i class="bi bi-cart-check"></i> Compras
-        </a>
-        <a href="{% url 'reportes:compras_report' %}" class="active">
-            <i class="bi bi-file-earmark-bar-graph"></i> Reportes
-        </a>
-
-        <div class="menu-category">Análisis de Stock</div>
-        <a href="{% url 'estadisticas:top_productos' %}">
-            <i class="bi bi-graph-up-arrow"></i> Top Productos
-        </a>
-        <a href="{% url 'estadisticas:prediccion' %}">
-            <i class="bi bi-graph-up"></i> Predicción de Stock
-        </a>
-
-        <div class="menu-category">Recuperar</div>
-        <a href="{% url 'proveedores:inactivos' %}">
-            <i class="bi bi-archive"></i> Proveedores Eliminados
-        </a>
-        <a href="{% url 'categorias:inactivas' %}">
-            <i class="bi bi-archive"></i> Categorías Eliminadas
-        </a>
-        <a href="{% url 'productos:lista_recuperar' %}">
-            <i class="bi bi-archive"></i> Productos Eliminados
-        </a>
+{% block content %}
+<div class="main-container">
+    
+    <!-- Tabs de navegación entre reportes -->
+    <div class="tabs">
+        <a href="{% url 'reportes:ventas_report' %}" class="tab">Reporte de Ventas</a>
+        <a href="{% url 'reportes:compras_report' %}" class="tab active">Reporte de Compras</a>
     </div>
 
-    <div class="sidebar-footer">
-        <a href="{% url 'logout' %}">
-            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-        </a>
-    </div>
-</div>
-
-
-    <!-- ========== CONTENT WRAPPER ========== -->
-    <div class="content-wrapper">
-        <div class="main-container">
-                         <!-- Tabs -->
-            <div class="tabs">
-                <a href="{% url 'reportes:ventas_report' %}" class="tab">Reporte de Ventas</a>
-                <a href="{% url 'reportes:compras_report' %}" class="tab active">Reporte de Compras</a>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-value">Bs {{ total_comprado|floatformat:2 }}</div>
-                    <div class="stat-label">TOTAL COMPRADO</div>
-                </div>
-                <div class="stat-card light">
-                    <div class="stat-value">{{ ordenes_realizadas }}</div>
-                    <div class="stat-label">ORDENES REALIZADAS</div>
-                </div>
-            </div>
-            
-            <!-- Date Range -->
-            <div class="date-range">
-                FECHA: {{ fecha_reporte }}
-            </div>
-            
-            <!-- Filters -->
-            <div class="filters-section">
-                <h5 class="filter-label"><i class="bi bi-funnel"></i> Filtros</h5>
-                
-                <form method="GET" id="filterForm">
-                    <!-- Date Filter -->
-                    <div class="filter-group">
-                        <label class="filter-label">Fecha</label>
-                        <div class="date-filters">
-                            <button type="button" class="date-filter-btn {% if filtro_fecha == 'ultimo_dia' %}active{% endif %}" 
-                                    data-filter="ultimo_dia">Último Día</button>
-                            <button type="button" class="date-filter-btn {% if filtro_fecha == 'ultima_semana' %}active{% endif %}" 
-                                    data-filter="ultima_semana">Última Semana</button>
-                            <button type="button" class="date-filter-btn {% if filtro_fecha == 'este_mes' %}active{% endif %}" 
-                                    data-filter="este_mes">Este Mes</button>
-                            <button type="button" class="date-filter-btn {% if filtro_fecha == 'este_año' %}active{% endif %}" 
-                                    data-filter="este_año">Este Año</button>
-                        </div>
-                        
-                        <div class="filter-label" style="margin-top: 1rem;">Fecha Personalizada</div>
-                        <div class="custom-date">
-                            <div>
-                                <label class="filter-label">Desde</label>
-                                <input type="date" name="fecha_desde" class="form-control" 
-                                       value="{{ fecha_desde }}" id="fechaDesde">
-                            </div>
-                            <div>
-                                <label class="filter-label">Hasta</label>
-                                <input type="date" name="fecha_hasta" class="form-control" 
-                                       value="{{ fecha_hasta }}" id="fechaHasta">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Product, Category, Provider -->
-                    <div class="row">
-                        <!-- Producto con buscador -->
-                        <div class="col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label">Producto</label>
-                                <div style="position: relative;">
-                                    <input type="text" id="productoSearch" class="form-control" 
-                                           placeholder="Buscar producto..." style="padding-right: 35px;">
-                                    <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                                </div>
-                                <select name="producto" id="productoSelect" class="form-select" style="margin-top: 0.5rem;">
-                                    <option value="">Todos los productos</option>
-                                    <option value="mas_comprado" {% if producto_filter == 'mas_comprado' %}selected{% endif %}>
-                                        Producto Más Comprado
-                                    </option>
-                                    {% for producto in productos %}
-                                    <option value="{{ producto.id }}" 
-                                            data-name="{{ producto.nomProducto|lower }}"
-                                            {% if producto_filter == producto.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ producto.nomProducto }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Categoría con buscador -->
-                        <div class="col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label">Categoría</label>
-                                <div style="position: relative;">
-                                    <input type="text" id="categoriaSearch" class="form-control" 
-                                           placeholder="Buscar categoría..." style="padding-right: 35px;">
-                                    <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                                </div>
-                                <select name="categoria" id="categoriaSelect" class="form-select" style="margin-top: 0.5rem;">
-                                    <option value="">Todas las categorías</option>
-                                    {% for categoria in categorias %}
-                                    <option value="{{ categoria.id }}" 
-                                            data-name="{{ categoria.nomCategoria|lower }}"
-                                            {% if categoria_filter == categoria.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ categoria.nomCategoria }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Proveedor -->
-                        <div class="col-md-4">
-                            <div class="filter-group">
-                                <label class="filter-label">Proveedor</label>
-                                <select name="proveedor" class="form-select">
-                                    <option value="">Todos los proveedores</option>
-                                    {% for proveedor in proveedores %}
-                                    <option value="{{ proveedor.id }}" {% if proveedor_filter == proveedor.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ proveedor.nomProv }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    
-                    <!-- Inventory Status -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="filter-group">
-                                <label class="filter-label">Estado en el Inventario</label>
-                                <select name="estado_inventario" class="form-select">
-                                    <option value="">Todos</option>
-                                    <option value="agotado" {% if estado_inventario == 'agotado' %}selected{% endif %}>Agotado</option>
-                                    <option value="bajo_stock" {% if estado_inventario == 'bajo_stock' %}selected{% endif %}>Bajo Stock</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-end">
-                        <button type="submit" class="btn-filter">
-                            <i class="bi bi-search"></i> Filtrar
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Purchases Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h5><i class="bi bi-list-ul"></i> Listado de Compras</h5>
-                    <button class="btn-export" onclick="exportarReporte('compras')">
-                        <i class="bi bi-download"></i> Exportar PDF
-                    </button>
-                </div>
-                
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>N Compra</th>
-                            <th>Proveedor</th>
-                            <th>Total</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for compra in compras %}
-                        <tr>
-                            <td>{{ compra.fecha|date:"Y-m-d" }}</td>
-                            <td>{{ compra.id_compra }}</td>
-                            <td>{{ compra.proveedor.nomProv }}</td>
-                            <td>Bs {{ compra.total|floatformat:2 }}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-action btn-view" onclick="toggleDetalle({{ compra.id_compra }})" 
-                                            title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn-action btn-print" onclick="imprimirCompra({{ compra.id_compra }})" 
-                                            title="Imprimir">
-                                        <i class="bi bi-printer"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="detalle-{{ compra.id_compra }}" class="compra-detalle">
-                            <td colspan="5">
-                                <div class="compra-header">
-                                    <span>Compra #{{ compra.id_compra }}</span>
-                                    <span>{{ compra.fecha|date:"d/m/Y H:i" }}</span>
-                                    <span>Proveedor: {{ compra.proveedor.nomProv }}</span>
-                                </div>
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio Unit.</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for detalle in compra.detalles.all %}
-                                        <tr>
-                                            <td>{{ detalle.inventario.producto.nomProducto }}</td>
-                                            <td>{{ detalle.cantidad }}</td>
-                                            <td>Bs {{ detalle.inventario.producto.precioCompra|floatformat:2 }}</td>
-                                           <td>Bs {{ detalle.subtotal|floatformat:2 }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                <div class="text-end">
-                                    <strong>Total: Bs {{ compra.total|floatformat:2 }}</strong>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center">No hay compras registradas</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value">Bs {{ total_comprado|floatformat:2 }}</div>
+            <div class="stat-label">TOTAL COMPRADO</div>
+        </div>
+        <div class="stat-card light">
+            <div class="stat-value">{{ ordenes_realizadas }}</div>
+            <div class="stat-label">ORDENES REALIZADAS</div>
         </div>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Date filter buttons
-        document.querySelectorAll('.date-filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                document.getElementById('fechaDesde').value = '';
-                document.getElementById('fechaHasta').value = '';
-                
-                const filterType = this.getAttribute('data-filter');
-                const url = new URL(window.location);
-                url.searchParams.set('filtro_fecha', filterType);
-                url.searchParams.delete('fecha_desde');
-                url.searchParams.delete('fecha_hasta');
-                window.location = url;
-            });
-        });
+    <!-- Rango de fecha del reporte -->
+    <div class="date-range">
+        FECHA: {{ fecha_reporte }}
+    </div>
+    
+    <!-- Sección de Filtros -->
+    <div class="filters-section">
+        <h5 class="filter-label"><i class="bi bi-funnel"></i> Filtros</h5>
         
-        function toggleDetalle(compraId) {
-            const detalle = document.getElementById(`detalle-${compraId}`);
+        <form method="GET" id="filterForm">
+            <!-- Filtro de Fecha -->
+            <div class="filter-group">
+                <label class="filter-label">Fecha</label>
+                <div class="date-filters">
+                    <button type="button" class="date-filter-btn {% if filtro_fecha == 'ultimo_dia' %}active{% endif %}" 
+                            data-filter="ultimo_dia">Último Día</button>
+                    <button type="button" class="date-filter-btn {% if filtro_fecha == 'ultima_semana' %}active{% endif %}" 
+                            data-filter="ultima_semana">Última Semana</button>
+                    <button type="button" class="date-filter-btn {% if filtro_fecha == 'este_mes' %}active{% endif %}" 
+                            data-filter="este_mes">Este Mes</button>
+                    <button type="button" class="date-filter-btn {% if filtro_fecha == 'este_año' %}active{% endif %}" 
+                            data-filter="este_año">Este Año</button>
+                </div>
+                
+                <div class="filter-label" style="margin-top: 1rem;">Fecha Personalizada</div>
+                <div class="custom-date">
+                    <div>
+                        <label class="filter-label">Desde</label>
+                        <input type="date" name="fecha_desde" class="form-control" 
+                               value="{{ fecha_desde }}" id="fechaDesde">
+                    </div>
+                    <div>
+                        <label class="filter-label">Hasta</label>
+                        <input type="date" name="fecha_hasta" class="form-control" 
+                               value="{{ fecha_hasta }}" id="fechaHasta">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros: Producto, Categoría, Proveedor -->
+            <div class="row">
+                <!-- Producto con buscador -->
+                <div class="col-md-4">
+                    <div class="filter-group">
+                        <label class="filter-label">Producto</label>
+                        <div style="position: relative;">
+                            <input type="text" id="productoSearch" class="form-control" 
+                                   placeholder="Buscar producto..." style="padding-right: 35px;">
+                            <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                        </div>
+                        <select name="producto" id="productoSelect" class="form-select" style="margin-top: 0.5rem;">
+                            <option value="">Todos los productos</option>
+                            <option value="mas_comprado" {% if producto_filter == 'mas_comprado' %}selected{% endif %}>
+                                Producto Más Comprado
+                            </option>
+                            {% for producto in productos %}
+                            <option value="{{ producto.id }}" 
+                                    data-name="{{ producto.nomProducto|lower }}"
+                                    {% if producto_filter == producto.id|stringformat:"s" %}selected{% endif %}>
+                                {{ producto.nomProducto }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Categoría con buscador -->
+                <div class="col-md-4">
+                    <div class="filter-group">
+                        <label class="filter-label">Categoría</label>
+                        <div style="position: relative;">
+                            <input type="text" id="categoriaSearch" class="form-control" 
+                                   placeholder="Buscar categoría..." style="padding-right: 35px;">
+                            <i class="bi bi-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                        </div>
+                        <select name="categoria" id="categoriaSelect" class="form-select" style="margin-top: 0.5rem;">
+                            <option value="">Todas las categorías</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" 
+                                    data-name="{{ categoria.nomCategoria|lower }}"
+                                    {% if categoria_filter == categoria.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria.nomCategoria }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Proveedor -->
+                <div class="col-md-4">
+                    <div class="filter-group">
+                        <label class="filter-label">Proveedor</label>
+                        <select name="proveedor" class="form-select">
+                            <option value="">Todos los proveedores</option>
+                            {% for proveedor in proveedores %}
+                            <option value="{{ proveedor.id }}" {% if proveedor_filter == proveedor.id|stringformat:"s" %}selected{% endif %}>
+                                {{ proveedor.nomProv }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estado en Inventario -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="filter-group">
+                        <label class="filter-label">Estado en el Inventario</label>
+                        <select name="estado_inventario" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="agotado" {% if estado_inventario == 'agotado' %}selected{% endif %}>Agotado</option>
+                            <option value="bajo_stock" {% if estado_inventario == 'bajo_stock' %}selected{% endif %}>Bajo Stock</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" class="btn-filter">
+                    <i class="bi bi-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Tabla de Compras -->
+    <div class="table-container">
+        <div class="table-header">
+            <h5><i class="bi bi-list-ul"></i> Listado de Compras</h5>
+            <button class="btn-export" onclick="exportarReporte('compras')">
+                <i class="bi bi-download"></i> Exportar PDF
+            </button>
+        </div>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>N° Compra</th>
+                    <th>Proveedor</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for compra in compras %}
+                <tr>
+                    <td>{{ compra.fecha|date:"Y-m-d" }}</td>
+                    <td>{{ compra.id_compra }}</td>
+                    <td>{{ compra.proveedor.nomProv }}</td>
+                    <td>Bs {{ compra.total|floatformat:2 }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="toggleDetalle({{ compra.id_compra }})" 
+                                    title="Ver detalles">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-action btn-print" onclick="imprimirCompra({{ compra.id_compra }})" 
+                                    title="Imprimir">
+                                <i class="bi bi-printer"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="detalle-{{ compra.id_compra }}" class="compra-detalle">
+                    <td colspan="5">
+                        <div class="compra-header">
+                            <span>Compra #{{ compra.id_compra }}</span>
+                            <span>{{ compra.fecha|date:"d/m/Y H:i" }}</span>
+                            <span>Proveedor: {{ compra.proveedor.nomProv }}</span>
+                        </div>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detalle in compra.detalles.all %}
+                                <tr>
+                                    <td>{{ detalle.inventario.producto.nomProducto }}</td>
+                                    <td>{{ detalle.cantidad }}</td>
+                                    <td>Bs {{ detalle.inventario.producto.precioCompra|floatformat:2 }}</td>
+                                    <td>Bs {{ detalle.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-end">
+                            <strong>Total: Bs {{ compra.total|floatformat:2 }}</strong>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox me-2"></i> No hay compras registradas
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ===== FILTROS DE FECHA =====
+    document.querySelectorAll('.date-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.getElementById('fechaDesde').value = '';
+            document.getElementById('fechaHasta').value = '';
+            
+            const filterType = this.getAttribute('data-filter');
+            const url = new URL(window.location);
+            url.searchParams.set('filtro_fecha', filterType);
+            url.searchParams.delete('fecha_desde');
+            url.searchParams.delete('fecha_hasta');
+            window.location = url;
+        });
+    });
+    
+    // ===== TOGGLE DETALLE DE COMPRA =====
+    function toggleDetalle(compraId) {
+        const detalle = document.getElementById(`detalle-${compraId}`);
+        if (detalle) {
             detalle.classList.toggle('show');
         }
-        
-        function imprimirCompra(compraId) {
-            window.open(`/reportes/compras/imprimir/${compraId}/`, '_blank');
-        }
-        
-        {% if fecha_desde or fecha_hasta %}
-        document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
-        {% endif %}
+    }
+    
+    // ===== IMPRIMIR COMPRA =====
+    function imprimirCompra(compraId) {
+        window.open(`/reportes/compras/imprimir/${compraId}/`, '_blank');
+    }
+    
+    // ===== LIMPIAR BOTONES DE FECHA SI HAY FECHA PERSONALIZADA =====
+    {% if fecha_desde or fecha_hasta %}
+    document.querySelectorAll('.date-filter-btn').forEach(b => b.classList.remove('active'));
+    {% endif %}
 
-        // ========== BUSCADOR DE PRODUCTOS ==========
-        const productoSearch = document.getElementById('productoSearch');
-        const productoSelect = document.getElementById('productoSelect');
-        
-        if (productoSearch && productoSelect) {
-            productoSearch.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const options = productoSelect.getElementsByTagName('option');
-                
-                for (let option of options) {
-                    const productName = option.getAttribute('data-name') || option.text.toLowerCase();
-                    if (productName.includes(searchTerm) || option.value === '') {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                }
-            });
+    // ===== BUSCADOR DE PRODUCTOS =====
+    const productoSearch = document.getElementById('productoSearch');
+    const productoSelect = document.getElementById('productoSelect');
+    
+    if (productoSearch && productoSelect) {
+        productoSearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const options = productoSelect.getElementsByTagName('option');
             
-            productoSelect.addEventListener('change', function() {
-                productoSearch.value = '';
-            });
-        }
-        
-        // ========== BUSCADOR DE CATEGORÍAS ==========
-        const categoriaSearch = document.getElementById('categoriaSearch');
-        const categoriaSelect = document.getElementById('categoriaSelect');
-        
-        if (categoriaSearch && categoriaSelect) {
-            categoriaSearch.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const options = categoriaSelect.getElementsByTagName('option');
-                
-                for (let option of options) {
-                    const categoryName = option.getAttribute('data-name') || option.text.toLowerCase();
-                    if (categoryName.includes(searchTerm) || option.value === '') {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
+            for (let option of options) {
+                const productName = option.getAttribute('data-name') || option.text.toLowerCase();
+                if (productName.includes(searchTerm) || option.value === '') {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
                 }
-            });
-            
-            categoriaSelect.addEventListener('change', function() {
-                categoriaSearch.value = '';
-            });
-        }
-
-        // Función para exportar reporte con filtros actuales
-        function exportarReporte(tipo) {
-            const form = document.getElementById('filterForm');
-                
-            // Obtener valores del formulario
-            const filtroFecha = document.querySelector('.date-filter-btn.active')?.dataset.filter || '';
-            const fechaDesde = document.getElementById('fechaDesde').value;
-            const fechaHasta = document.getElementById('fechaHasta').value;
-                
-            // Construir parámetros desde cero con los nombres correctos
-            const params = new URLSearchParams();
-                
-            // === FECHA ===
-            if (fechaDesde && fechaHasta) {
-                // Fechas personalizadas tienen prioridad
-                params.set('fecha_desde', fechaDesde);
-                params.set('fecha_hasta', fechaHasta);
-                // No establecer filtro_fecha para evitar conflicto
-            } else if (filtroFecha) {
-                // Filtro preestablecido
-                params.set('filtro_fecha', filtroFecha);
             }
-            // Si no hay nada, no se envía parámetro de fecha = "Todos"
+        });
+        
+        productoSelect.addEventListener('change', function() {
+            productoSearch.value = '';
+        });
+    }
+    
+    // ===== BUSCADOR DE CATEGORÍAS =====
+    const categoriaSearch = document.getElementById('categoriaSearch');
+    const categoriaSelect = document.getElementById('categoriaSelect');
+    
+    if (categoriaSearch && categoriaSelect) {
+        categoriaSearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const options = categoriaSelect.getElementsByTagName('option');
             
-            // === RESTO DE FILTROS (se envían tal cual están en el form) ===
-            const producto = form.querySelector('[name="producto"]').value;
-            const categoria = form.querySelector('[name="categoria"]').value;
-            const proveedor = form.querySelector('[name="proveedor"]').value;
-            const estadoInventario = form.querySelector('[name="estado_inventario"]').value;
-            
-            if (producto) params.set('producto', producto);
-            if (categoria) params.set('categoria', categoria);
-            if (proveedor) params.set('proveedor', proveedor);
-            if (estadoInventario) params.set('estado_inventario', estadoInventario);
-            
-            // Redirigir a la vista de exportación con los parámetros correctos
-            window.location.href = `/reportes/${tipo}/exportar/?${params.toString()}`;
+            for (let option of options) {
+                const categoryName = option.getAttribute('data-name') || option.text.toLowerCase();
+                if (categoryName.includes(searchTerm) || option.value === '') {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        });
+        
+        categoriaSelect.addEventListener('change', function() {
+            categoriaSearch.value = '';
+        });
+    }
+
+    // ===== EXPORTAR REPORTE CON FILTROS =====
+    function exportarReporte(tipo) {
+        const form = document.getElementById('filterForm');
+        if (!form) return;
+        
+        const filtroFecha = document.querySelector('.date-filter-btn.active')?.dataset.filter || '';
+        const fechaDesde = document.getElementById('fechaDesde')?.value || '';
+        const fechaHasta = document.getElementById('fechaHasta')?.value || '';
+        
+        const params = new URLSearchParams();
+        
+        // Fechas personalizadas tienen prioridad sobre filtros preestablecidos
+        if (fechaDesde && fechaHasta) {
+            params.set('fecha_desde', fechaDesde);
+            params.set('fecha_hasta', fechaHasta);
+        } else if (filtroFecha) {
+            params.set('filtro_fecha', filtroFecha);
         }
-    </script>
-</body>
-</html>
+        
+        // Resto de filtros
+        const producto = form.querySelector('[name="producto"]')?.value;
+        const categoria = form.querySelector('[name="categoria"]')?.value;
+        const proveedor = form.querySelector('[name="proveedor"]')?.value;
+        const estadoInventario = form.querySelector('[name="estado_inventario"]')?.value;
+        
+        if (producto) params.set('producto', producto);
+        if (categoria) params.set('categoria', categoria);
+        if (proveedor) params.set('proveedor', proveedor);
+        if (estadoInventario) params.set('estado_inventario', estadoInventario);
+        
+        window.location.href = `/reportes/${tipo}/exportar/?${params.toString()}`;
+    }
+</script>
+{% endblock %}

@@ -1,398 +1,265 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Dashboard Admin</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% block title %}Dashboard Admin - Juan del Sur{% endblock %}
 
+{% block extra_css %}
 <style>
-body {
-  margin: 0;
-  background: #f1f1f1;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-}
-
-/* SIDEBAR REESTRUCTURADO Y MODERNO */
-.sidebar {
-  width: 260px;
-  height: 100vh;
-  background: #232323; /* Un gris oscuro ligeramente más profundo y premium */
-  color: #a3a3a3;
-  position: fixed;
-  padding: 24px 16px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar h5 {
-  color: #ffffff;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #3a3a3a;
-  font-weight: 600;
-  font-size: 1.15rem;
-}
-
-/* Etiquetas de categoría para ordenar el menú */
-.sidebar .menu-category {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #666666;
-  margin: 16px 0 6px 12px;
-  display: block;
-  font-weight: 700;
-}
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #cdcdcd;
-  text-decoration: none;
-  margin: 2px 0;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 0.92rem;
-  transition: all 0.2s ease;
-}
-
-.sidebar a i {
-  width: 20px;
-  font-size: 1.05rem;
-  text-align: center;
-  opacity: 0.8;
-}
-
-.sidebar a:hover {
-  background-color: #0d6efd;
-  color: #ffffff;
-}
-
-.sidebar a:hover i {
-  opacity: 1;
-}
-
-.sidebar a.active {
-  background-color: #0d6efd;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.sidebar a.active i {
-  opacity: 1;
-}
-
-/* Sección inferior fija para las opciones secundarias */
-.sidebar-footer {
-  margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid #3a3a3a;
-}
-
-.sidebar .logout-btn:hover {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-}
-
-/* MANTENIENDO LO DEMÁS EXACTAMENTE IGUAL */
-.content {
-  margin-left: 260px;
-  padding: 20px;
-}
-
-.top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.top-header h4 {
-  margin: 0;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  cursor: pointer;
-  padding: 8px 18px;
-  border-radius: 40px;
-  transition: 0.3s;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.user-info:hover {
-  background: #e9ecef;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  background: #0671B8;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #333;
-}
-
-.user-role {
-  font-size: 0.75rem;
-  color: #6c757d;
-}
-
-.dropdown-menu-custom {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  padding: 10px 0;
-  min-width: 200px;
-  z-index: 1000;
-  display: none;
-}
-
-.dropdown-menu-custom.show {
-  display: block;
-}
-
-.dropdown-menu-custom a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  color: #333;
-  text-decoration: none;
-  transition: 0.2s;
-}
-
-.dropdown-menu-custom a:hover {
-  background: #f8f9fa;
-  color: #0671B8;
-}
-
-.dropdown-menu-custom hr {
-  margin: 5px 0;
-  border-color: #eee;
-}
-
-.table th {
-  background-color: #f8f9fa;
-}
-
-.btn-sm {
-  margin: 0 2px;
-}
-
-.table-dark th {
-  background-color: #343a40;
-  color: white;
-}
+    /* Estilos específicos SOLO para Dashboard Admin */
+    
+    /* Header superior con perfil */
+    .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .top-header h4 {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    /* Información del usuario */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        padding: 8px 18px;
+        border-radius: 40px;
+        transition: 0.3s;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .user-info:hover {
+        background: #e9ecef;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: #0671B8;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .user-role {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Dropdown personalizado del perfil */
+    .dropdown-menu-custom {
+        position: absolute;
+        top: 80px;
+        right: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        padding: 10px 0;
+        min-width: 200px;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .dropdown-menu-custom.show {
+        display: block;
+    }
+    
+    .dropdown-menu-custom a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    
+    .dropdown-menu-custom a:hover {
+        background: #f8f9fa;
+        color: #0671B8;
+    }
+    
+    .dropdown-menu-custom hr {
+        margin: 5px 0;
+        border-color: #eee;
+    }
+    
+    /* Tabla de usuarios */
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    
+    .btn-sm {
+        margin: 0 2px;
+    }
+    
+    .table-dark th {
+        background-color: #343a40 !important;
+        color: white !important;
+    }
+    
+    /* Badge de roles personalizados */
+    .badge-admin { background-color: #dc3545; color: white; }
+    .badge-cajero { background-color: #17a2b8; color: white; }
+    
+    /* Alerta de bienvenida */
+    .alert-warning-custom {
+        border-left: 4px solid #ffc107;
+        background-color: #fff3cd;
+        border-radius: 8px;
+    }
+    
+    /* Responsive para header */
+    @media (max-width: 768px) {
+        .top-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .user-info { width: 100%; justify-content: space-between; }
+        .dropdown-menu-custom {
+            position: static;
+            box-shadow: none;
+            border: 1px solid #dee2e6;
+            margin-top: 10px;
+        }
+    }
 </style>
-</head>
+{% endblock %}
 
-<body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h5><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</h5>
-
-  <a href="{% url 'dashboard_admin' %}">
-    <i class="fas fa-home"></i> Inicio
-  </a>
-  
-  <a href="{% url 'dashboard_admin' %}" class="active">
-    <i class="fas fa-users"></i> Gestión de Usuarios
-  </a>
-  
-  <!-- Bloque de Módulos Core -->
-  <span class="menu-category">Estructura Comercial</span>
-  <a href="{% url 'productos:inventario' %}">
-    <i class="fas fa-box"></i> Productos
-  </a>
-  <a href="{% url 'categorias:lista' %}">
-    <i class="fas fa-tags"></i> Categorías
-  </a>
-  <a href="{% url 'proveedores:lista' %}">
-    <i class="fas fa-truck"></i> Proveedores
-  </a>
-
-  <!-- Bloque de Flujos -->
-  <span class="menu-category">Operaciones</span>
-  <a href="{% url 'compras:ver_compras' %}">
-    <i class="fas fa-shopping-cart"></i> Compras
-  </a>
-  <a href="{% url 'ventas:ver_ventas' %}">
-    <i class="fas fa-cash-register"></i> Ventas
-  </a>
-  <!-- Bloque de Almacén e Inventarios -->
-  <span class="menu-category">Inventario</span>
-  <a href="{% url 'inventario:lista' %}">
-    <i class="fas fa-warehouse"></i> Inventarios
-  </a>
-  <a href="{% url 'unidadmedida:lista' %}">
-    <i class="fas fa-ruler"></i> Unidades de Medida
-  </a>
-
-  <!-- Bloque Analítico -->
-  <span class="menu-category">Reportes y Datos</span>
-  <a href="{% url 'reportes:compras_report' %}">
-    <i class="fas fa-chart-bar"></i> Reportes Generales
-  </a>
-  <a href="{% url 'estadisticas:top_productos' %}">
-    <i class="fas fa-chart-bar"></i> Top Productos
-  </a>
-  <a href="{% url 'estadisticas:prediccion' %}">
-    <i class="fas fa-chart-line"></i> Predicción de Stock
-  </a>
-
-  <!-- Pie de Sidebar para acciones de sistema -->
-  <div class="sidebar-footer">
-    <a href="{% url 'ver_inactivos' %}">
-      <i class="fas fa-archive"></i> Ver inactivos
-    </a>
-    <a href="{% url 'logout' %}" class="logout-btn">
-      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-    </a>
-  </div>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-
-  <!-- HEADER: Título y Perfil en la misma línea -->
-  <div class="top-header">
-    <h4><i class="fas fa-users me-2"></i> Gestión de Usuarios</h4>
+{% block content %}
+<!-- HEADER: Título y Perfil en la misma línea -->
+<div class="top-header">
+    <h4 class="fw-bold mb-0">
+        <i class="fas fa-users me-2 text-primary"></i> Gestión de Usuarios
+    </h4>
     
     <div class="user-info" id="userMenuBtn">
-      <div class="user-avatar">
-        {{ usuario.nom_usuario|first|upper }}
-      </div>
-      <div>
-        <div class="user-name">{{ usuario.nom_usuario }}</div>
-        <div class="user-role">{{ usuario.rol.nom_rol }}</div>
-      </div>
-      <i class="fas fa-chevron-down"></i>
+        <div class="user-avatar">
+            {{ usuario.nom_usuario|first|upper }}
+        </div>
+        <div>
+            <div class="user-name">{{ usuario.nom_usuario }}</div>
+            <div class="user-role">{{ usuario.rol.nom_rol }}</div>
+        </div>
+        <i class="fas fa-chevron-down"></i>
     </div>
-  </div>
+</div>
 
-  <!-- Dropdown menu -->
-  <div class="dropdown-menu-custom" id="userDropdown">
+<!-- Dropdown menu del perfil -->
+<div class="dropdown-menu-custom" id="userDropdown">
     <a href="{% url 'perfil_admin' %}">
-      <i class="fas fa-user-circle"></i> Mi Perfil
+        <i class="fas fa-user-circle"></i> Mi Perfil
     </a>
     <a href="{% url 'perfil_admin' %}?cambiar_pass=true">
-      <i class="fas fa-key"></i> Cambiar Contraseña
+        <i class="fas fa-key"></i> Cambiar Contraseña
     </a>
     <hr>
     <a href="{% url 'logout' %}">
-      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
     </a>
-  </div>
+</div>
 
-  <!-- Alerta de primera vez -->
-  {% if primera_vez %}
-  <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-bottom: 20px;">
+<!-- Alerta de primera vez -->
+{% if primera_vez %}
+<div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="margin-bottom: 20px; border-radius: 8px;">
     <i class="fas fa-exclamation-triangle me-2"></i>
     <strong>¡Bienvenido!</strong> Por seguridad, te recomendamos cambiar tu contraseña.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endif %}
-
-  <!-- Botón Nuevo Usuario -->
-  <a href="{% url 'register' %}" class="btn btn-primary mb-3">
-    <i class="fas fa-plus"></i> Nuevo Usuario
-  </a>
-
-  <!-- Tabla de usuarios -->
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>Usuario</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Estado</th>
-          <th>Fecha creación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for u in usuarios %}
-        <tr>
-          <td>{{ u.id }}</td>
-          <td>{{ u.nom_usuario }} {{ u.ap1 }} {{ u.ap2 }}</td>
-          <td>{{ u.email }}</td>
-          <td>
-            {% if u.rol.nom_rol == 'administrador' %}
-              <span class="badge bg-danger">Administrador</span>
-            {% elif u.rol.nom_rol == 'cajero' %}
-              <span class="badge bg-info">Cajero</span>
-            {% else %}
-              {{ u.rol.nom_rol }}
-            {% endif %}
-          </td>
-          <td>
-            {% if u.estado %}
-              <span class="badge bg-success">Activo</span>
-            {% else %}
-              <span class="badge bg-secondary">Inactivo</span>
-            {% endif %}
-          </td>
-          <td>{{ u.fecha_creacion|date:"Y-m-d H:i" }}</td>
-          <td>
-            <a href="{% url 'modify' u.id %}" class="btn btn-sm btn-warning" title="Editar">
-              <i class="fas fa-edit"></i>
-            </a>
-            <a href="{% url 'eliminar_usuario' u.id %}" class="btn btn-sm btn-danger" title="Eliminar"
-               onclick="return confirm('¿Eliminar usuario?')">
-              <i class="fas fa-trash"></i>
-            </a>
-           </td>
-         </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
 </div>
+{% endif %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Botón Nuevo Usuario -->
+<a href="{% url 'register' %}" class="btn btn-primary mb-3 shadow-sm">
+    <i class="fas fa-plus me-1"></i> Nuevo Usuario
+</a>
 
+<!-- Tabla de usuarios -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 70px;">ID</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th style="width: 100px;">Estado</th>
+                <th style="width: 160px;">Fecha creación</th>
+                <th style="width: 120px; text-align: center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td class="text-secondary fw-semibold">{{ u.id }}</td>
+                <td class="text-dark fw-medium">{{ u.nom_usuario }} {{ u.ap1 }} {{ u.ap2 }}</td>
+                <td class="text-secondary">{{ u.email }}</td>
+                <td>
+                    {% if u.rol.nom_rol == 'administrador' %}
+                        <span class="badge bg-danger">Administrador</span>
+                    {% elif u.rol.nom_rol == 'cajero' %}
+                        <span class="badge bg-info text-dark">Cajero</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ u.rol.nom_rol }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.estado %}
+                        <span class="badge bg-success">Activo</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td class="text-secondary small">{{ u.fecha_creacion|date:"Y-m-d H:i" }}</td>
+                <td class="text-center">
+                    <a href="{% url 'modify' u.id %}" class="btn btn-sm btn-warning" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'eliminar_usuario' u.id %}" class="btn btn-sm btn-danger" title="Eliminar"
+                       onclick="return confirm('¿Eliminar usuario?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="fas fa-users me-2"></i> No hay usuarios registrados
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  // Dropdown del perfil
-  const userMenuBtn = document.getElementById('userMenuBtn');
-  const userDropdown = document.getElementById('userDropdown');
+    // ===== DROPDOWN DEL PERFIL DE USUARIO =====
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
 
-  if (userMenuBtn && userDropdown) {
-    userMenuBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      userDropdown.classList.toggle('show');
-    });
+    if (userMenuBtn && userDropdown) {
+        userMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
 
-    // Cerrar dropdown al hacer clic fuera
-    document.addEventListener('click', function() {
-      userDropdown.classList.remove('show');
-    });
-  }
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', function() {
+            userDropdown.classList.remove('show');
+        });
+    }
 </script>
-
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load menu_active %}
+
+<div class="sidebar">
+    <h5><i class="bi bi-speedometer2"></i> Juan del Sur</h5>
+    <div class="sidebar-menu">
+        <div class="menu-category">General</div>
+        <a href="{% if request.session.rol == 'administrador' %}{% url 'dashboard_admin' %}{% else %}{% url 'dashboard_cajero' %}{% endif %}" 
+           class="{% is_active 'dashboard_admin' %}{% is_active 'dashboard_cajero' %}">
+            <i class="bi bi-house-door"></i> <span>Inicio</span>
+        </a>
+        {% if request.session.rol == 'administrador' %}
+            <a href="{% url 'dashboard_admin' %}"><i class="bi bi-people"></i> <span>Gestión de Usuarios</span></a>
+        {% endif %}
+
+        <div class="menu-category">Almacén</div>
+        <a href="{% url 'productos:inventario' %}" class="{% is_active 'inventario' %}">
+            <i class="bi bi-box-seam"></i> <span>Productos</span>
+        </a>
+        <a href="{% url 'categorias:lista' %}" class="{% is_active 'lista' %}">
+            <i class="bi bi-tags"></i> <span>Categorías</span>
+        </a>
+        <a href="{% url 'proveedores:lista' %}">
+            <i class="bi bi-truck"></i> <span>Proveedores</span>
+        </a>
+
+        <div class="menu-category">Operaciones</div>
+        {% if request.session.rol == 'administrador' %}
+            <a href="{% url 'compras:ver_compras' %}">
+                <i class="bi bi-cart-check"></i> <span>Compras</span>
+            </a>
+        {% endif %}
+        <a href="{% url 'ventas:ver_ventas' %}">
+            <i class="bi bi-cart-check"></i> <span>Ventas</span>
+        </a>
+        <a href="{% url 'reportes:ventas_report' %}" class="{% is_active 'ventas_report' %}">
+            <i class="bi bi-file-earmark-bar-graph"></i> <span>Reportes</span>
+        </a>
+
+        {% if request.session.rol == 'administrador' %}
+        <div class="menu-category">Análisis de Stock</div>
+            <a href="{% url 'estadisticas:top_productos' %}">
+                <i class="bi bi-graph-up-arrow"></i> <span>Top Productos</span>
+            </a>
+            <a href="{% url 'estadisticas:prediccion' %}">
+                <i class="bi bi-graph-up"></i> <span>Predicción de Stock</span>
+            </a>
+            <div class="menu-category">Recuperar</div>
+            <a href="{% url 'proveedores:inactivos' %}">
+                <i class="bi bi-archive"></i> <span>Proveedores Eliminados</span>
+            </a>
+            <a href="{% url 'categorias:inactivas' %}">
+                <i class="bi bi-archive"></i> <span>Categorías Eliminadas</span>
+            </a>
+            <a href="{% url 'productos:lista_recuperar' %}">
+                <i class="bi bi-archive"></i> <span>Productos Eliminados</span>
+            </a>
+        {% endif %}
+    </div>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="bi bi-box-arrow-right"></i> <span>Cerrar sesión</span>
+        </a>
+    </div>
+</div>

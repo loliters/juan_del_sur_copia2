@@ -54,6 +54,8 @@ INSTALLED_APPS = [
 
     'unidadmedida',
     'presentacion',
+
+    'sistema'
 ]
 
 MIDDLEWARE = [
@@ -145,3 +147,4 @@ LOGIN_REDIRECT_URL = 'dashboard_cajero'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

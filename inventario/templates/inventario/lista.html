@@ -1,308 +1,167 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventario - Juan del Sur</title>
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% block title %}Inventario - Juan del Sur{% endblock %}
 
+{% block extra_css %}
 <style>
-
-body{
-    background:#2B2D33;
-    font-family:'Segoe UI',sans-serif;
-    margin:0;
-    padding:0;
-}
-
-.sidebar{
-    width:260px;
-    height:100vh;
-    background:#2f2f2f;
-    color:white;
-    position:fixed;
-    top:0;
-    left:0;
-    padding:20px;
-    overflow-y:auto;
-}
-
-.sidebar h5{
-    margin-bottom:20px;
-    padding-bottom:10px;
-    border-bottom:1px solid #555;
-}
-
-.sidebar a{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    color:white;
-    text-decoration:none;
-    margin:8px 0;
-    padding:10px 12px;
-    border-radius:8px;
-    transition:.3s;
-}
-
-.sidebar a i{
-    width:22px;
-}
-
-.sidebar a:hover{
-    background-color:#0d6efd;
-}
-
-.sidebar a.active{
-    background-color:#0d6efd;
-}
-
-.content{
-    margin-left:260px;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,.1);
-}
-
-.card-header{
-    background:#0671B8;
-    color:white;
-    border-radius:15px 15px 0 0;
-    padding:15px 20px;
-}
-
-.card-body{
-    background:white;
-    border-radius:0 0 15px 15px;
-}
-
-.table{
-    background:white;
-}
-
-.table th{
-    background:#f8f9fa;
-    color:#333;
-}
-
-.table td{
-    background:white;
-    vertical-align:middle;
-}
-
-.badge-stock{
-    font-size:.9rem;
-    padding:8px 12px;
-}
-
+    /* Estilos específicos SOLO para esta página de Inventario */
+    
+    /* Fondo oscuro único de esta vista */
+    body {
+        background: #2B2D33 !important;
+    }
+    
+    /* Ajuste del wrapper para esta página */
+    .content-wrapper {
+        margin-left: 260px;
+        padding: 20px;
+        background: #2B2D33;
+        min-height: 100vh;
+    }
+    
+    /* Tarjeta con header azul personalizado */
+    .card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,.1);
+        border: none;
+        margin-bottom: 0;
+    }
+    
+    .card-header {
+        background: #0671B8 !important;
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 15px 20px;
+        border-bottom: none;
+    }
+    
+    .card-body {
+        background: white;
+        border-radius: 0 0 15px 15px;
+        padding: 20px;
+    }
+    
+    /* Tabla estilizada */
+    .table {
+        background: white;
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+        background: white;
+        vertical-align: middle;
+        border-color: #dee2e6;
+    }
+    
+    /* Badges de stock personalizados */
+    .badge-stock {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .content-wrapper { margin-left: 0; padding: 15px; }
+    }
 </style>
-</head>
+{% endblock %}
 
-<body>
-
-<!-- SIDEBAR -->
-
-<div class="sidebar">
-
-    <h5>
-        <i class="fas fa-tachometer-alt me-2"></i>
-        Dashboard
-    </h5>
-
-    <a href="{% url 'dashboard_admin' %}">
-        <i class="fas fa-home"></i>
-        Inicio
-    </a>
-
-    <a href="{% url 'dashboard_admin' %}">
-        <i class="fas fa-users"></i>
-        Gestión de Usuarios
-    </a>
-
-    <a href="{% url 'productos:inventario' %}">
-        <i class="fas fa-box"></i>
-        Productos
-    </a>
-
-    <a href="{% url 'categorias:lista' %}">
-        <i class="fas fa-tags"></i>
-        Categorías
-    </a>
-
-    <a href="{% url 'proveedores:lista' %}">
-        <i class="fas fa-truck"></i>
-        Proveedores
-    </a>
-
-    <a href="{% url 'compras:ver_compras' %}">
-        <i class="fas fa-shopping-cart"></i>
-        Compras
-    </a>
-
-    <a href="{% url 'ventas:ver_ventas' %}">
-        <i class="fas fa-cash-register"></i>
-        Ventas
-    </a>
-
-    <a href="{% url 'reportes:compras_report' %}">
-        <i class="fas fa-chart-bar"></i>
-        Reportes
-    </a>
-
-    <hr>
-
-    <a href="{% url 'inventario:lista' %}" class="active">
-        <i class="fas fa-warehouse"></i>
-        Inventarios
-    </a>
-
-    <a href="{% url 'unidadmedida:lista' %}">
-        <i class="fas fa-ruler"></i>
-        Unidades de Medida
-    </a>
-
-    <hr>
-
-    <a href="{% url 'ver_inactivos' %}">
-        <i class="fas fa-archive"></i>
-        Ver inactivos
-    </a>
-
-    <hr>
-
-    <a href="{% url 'logout' %}">
-        <i class="fas fa-sign-out-alt"></i>
-        Cerrar sesión
-    </a>
-
-</div>
-
-<!-- CONTENIDO -->
-
-<div class="content">
+{% block content %}
+<!-- Nota: Usamos un contenedor custom porque esta página tiene fondo oscuro -->
+<div class="content-wrapper" style="background: #2B2D33;">
 
 <div class="card">
 
-<div class="card-header">
-    <h4 class="mb-0">
-        <i class="fas fa-warehouse me-2"></i>
-        Inventario General
-    </h4>
-</div>
+    <div class="card-header">
+        <h4 class="mb-0 fw-bold">
+            <i class="fas fa-warehouse me-2"></i>
+            Inventario General
+        </h4>
+    </div>
 
-<div class="card-body">
+    <div class="card-body">
 
-{% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        <!-- Mensajes de Django (ya incluidos en base.html, pero por seguridad) -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
 
-        {{ message }}
-
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert">
-        </button>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 120px;">Código</th>
+                        <th>Producto</th>
+                        <th style="width: 150px;">Presentación</th>
+                        <th style="width: 120px; text-align: center;">Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in inventarios %}
+                    <tr>
+                        <td class="text-secondary fw-semibold">
+                            {{ inv.producto.codProducto|default:"---" }}
+                        </td>
+                        <td class="text-dark fw-semibold">
+                            {{ inv.producto.nomProducto }}
+                        </td>
+                        <td class="text-secondary">
+                            {% if inv.producto.presentacion %}
+                                {{ inv.producto.presentacion.cantidad }}
+                                {{ inv.producto.presentacion.medida.abreviatura }}
+                            {% else %}
+                                <span class="text-muted">---</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if inv.stock_actual > 20 %}
+                                <span class="badge bg-success badge-stock">
+                                    {{ inv.stock_actual }}
+                                </span>
+                            {% elif inv.stock_actual > 5 %}
+                                <span class="badge bg-warning text-dark badge-stock">
+                                    {{ inv.stock_actual }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger badge-stock">
+                                    {{ inv.stock_actual }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="fas fa-box-open me-2"></i>
+                            No hay productos en el inventario
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     </div>
-    {% endfor %}
-{% endif %}
-
-<div class="table-responsive">
-
-<table class="table table-bordered table-striped">
-
-<thead>
-
-<tr>
-    <th>Código</th>
-    <th>Producto</th>
-    <th>Presentación</th>
-    <th>Stock</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for inv in inventarios %}
-
-<tr>
-
-<td>
-{{ inv.producto.codProducto|default:"---" }}
-</td>
-
-<td>
-{{ inv.producto.nomProducto }}
-</td>
-
-<td>
-{% if inv.producto.presentacion %}
-    {{ inv.producto.presentacion.cantidad }}
-    {{ inv.producto.presentacion.medida.abreviatura }}
-{% else %}
-    ---
-{% endif %}
-</td>
-
-<td>
-
-{% if inv.stock_actual > 20 %}
-
-<span class="badge bg-success badge-stock">
-    {{ inv.stock_actual }}
-</span>
-
-{% elif inv.stock_actual > 5 %}
-
-<span class="badge bg-warning text-dark badge-stock">
-    {{ inv.stock_actual }}
-</span>
-
-{% else %}
-
-<span class="badge bg-danger badge-stock">
-    {{ inv.stock_actual }}
-</span>
-
-{% endif %}
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-
-<td colspan="4" class="text-center">
-
-No hay productos en el inventario
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
 </div>
 </div>
-</div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+{% block extra_js %}
+<!-- No hay JS específico para esta página -->
+{% endblock %}

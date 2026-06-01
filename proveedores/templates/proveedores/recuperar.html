@@ -1,300 +1,116 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Recuperar Proveedores - Juan del Sur</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'sistema/base.html' %}
+{% load static %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% block title %}Recuperar Proveedores - Juan del Sur{% endblock %}
 
-    <style>
-        body { 
-            margin: 0; 
-            background: #f1f1f1; 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-        }
-
-        /* SIDEBAR ESTRUCTURADO Y PREMIUM OBLIGATORIO */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: #232323; 
-            color: #a3a3a3;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 24px 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
-
-        .sidebar h5 {
-            color: #ffffff;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #3a3a3a;
-            font-weight: 600;
-            font-size: 1.15rem;
-        }
-
-        .sidebar .menu-category {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #666666;
-            margin: 16px 0 6px 12px;
-            display: block;
-            font-weight: 700;
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #cdcdcd;
-            text-decoration: none;
-            margin: 2px 0;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar a i {
-            width: 20px;
-            font-size: 1.05rem;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .sidebar a:hover {
-            background-color: #0d6efd;
-            color: #ffffff;
-        }
-
-        .sidebar a:hover i {
-            opacity: 1;
-        }
-
-        .sidebar a.active {
-            background-color: #0d6efd;
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid #3a3a3a;
-        }
-
-        /* WRAPPER DE CONTENIDO */
-        .content-wrapper {
-            margin-left: 260px;
-            padding: 30px;
-        }
-
-        /* TARJETA BLANCA PRINCIPAL */
-        .main-card { 
-            background: white; 
-            border-radius: 12px; 
-            padding: 24px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            border: 1px solid #eef2f5;
-        }
-
-        /* BUSCADOR ESTILIZADO */
-        .search-container {
-            max-width: 380px;
-            width: 100%;
-        }
-
-        .search-input {
-            border-radius: 8px;
-            padding: 9px 14px;
-            border: 1px solid #ced4da;
-            font-size: 0.92rem;
-            transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
-        }
-
-        .search-icon-btn {
-            background: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-left: none;
-            border-radius: 0 8px 8px 0;
-            color: #6c757d;
-        }
-
-        /* TABLA MODERNA */
-        .table-responsive {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table-dark th {
-            background-color: #343a40 !important;
-            color: #ffffff !important;
-            font-weight: bold;
-            padding: 14px 16px;
-            border: none;
-            font-size: 0.95rem;
-        }
-
-        .table td {
-            padding: 14px 16px;
-            vertical-align: middle;
-            font-size: 0.95rem;
-            border-bottom: 1px solid #eee;
-        }
-
-        /* BOTÓN RECUPERAR PREMIUM */
-        .btn-recuperar-custom {
-            background-color: #198754;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.2s;
-        }
-        
-        .btn-recuperar-custom:hover {
-            background-color: #157347;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h5><i class="fas fa-tachometer-alt me-2 text-primary"></i> Dashboard</h5>
+{% block extra_css %}
+<style>
+    /* Estilos específicos SOLO para esta página */
     
-    <a href="#">
-        <i class="fas fa-home"></i> Inicio
-    </a>
-    <a href="{% url 'dashboard_admin' %}">
-        <i class="fas fa-users"></i> Gestión de Usuarios
-    </a>
-
-    <span class="menu-category">Estructura Comercial</span>
-    <a href="{% url 'productos:inventario' %}">
-        <i class="fas fa-box"></i> Productos
-    </a>
-    <a href="{% url 'categorias:lista' %}">
-        <i class="fas fa-tags"></i> Categorías
-    </a>
-    <a href="{% url 'proveedores:lista' %}">
-        <i class="fas fa-truck"></i> Proveedores
-    </a>
+    /* Botón Recuperar */
+    .btn-recuperar-custom {
+        background-color: #198754;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s;
+    }
+    .btn-recuperar-custom:hover {
+        background-color: #157347;
+        color: white;
+    }
     
-    <span class="menu-category">Operaciones</span>
-    <a href="{% url 'compras:ver_compras' %}">
-        <i class="fas fa-shopping-cart"></i> Compras
-    </a>
+    /* Buscador */
+    .search-container { max-width: 380px; width: 100%; }
+    .search-input {
+        border-radius: 8px;
+        padding: 9px 14px;
+        border: 1px solid #ced4da;
+        font-size: 0.92rem;
+    }
+    .search-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+    }
+    .search-icon-btn {
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        color: #6c757d;
+    }
+    
+    /* Filas de tabla */
+    #filaSinResultadosProv, #filaVaciaProv { font-style: italic; }
+</style>
+{% endblock %}
 
-    <span class="menu-category">Reportes y Datos</span>
-    <a href="{% url 'reportes:compras_report' %}">
-        <i class="fas fa-chart-bar"></i> Reportes Generales
-    </a>
-    <a href="{% url 'estadisticas:top_productos' %}">
-        <i class="fas fa-chart-bar"></i> Top Productos
-    </a>
-    <a href="{% url 'estadisticas:prediccion' %}">
-        <i class="fas fa-chart-line"></i> Predicción de Stock
-    </a>
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <h4 class="mb-0 fw-bold text-dark">
+        <i class="fas fa-trash-restore me-2 text-success"></i> Proveedores Eliminados
+    </h4>
 
-    <div class="sidebar-footer">
-        <a href="{% url 'proveedores:inactivos' %}" class="active">
-            <i class="fas fa-archive"></i> Recuperar
-        </a>
-        <a href="{% url 'logout' %}" style="transition: 0.2s;" onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.15)', this.style.color='#dc3545'" onmouseout="this.style.backgroundColor='transparent', this.style.color='#cdcdcd'">
-            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-        </a>
+    <div class="search-container input-group shadow-sm">
+        <input type="text" id="inputBuscarProvEliminado" class="form-control search-input" placeholder="Buscar proveedor eliminado...">
+        <span class="input-group-text search-icon-btn">
+            <i class="fas fa-search"></i>
+        </span>
     </div>
+
+    <a href="{% url 'proveedores:lista' %}" class="btn btn-secondary px-3 shadow-sm d-flex align-items-center justify-content-center" style="border-radius: 8px; font-weight: 600; font-size: 0.92rem;">
+        <i class="fas fa-arrow-left me-1"></i> Regresar
+    </a>
 </div>
 
-<div class="content-wrapper">
-    <div class="main-card">
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle" id="tablaProveedoresEliminados">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 90px;">ID</th>
+                <th>Nombre del Proveedor</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th style="text-align: center; width: 160px;">Acción</th>
+            </tr>
+        </thead>
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-            <h4 class="mb-0 fw-bold text-dark">
-                <i class="fas fa-trash-restore me-2 text-success"></i> Proveedores Eliminados
-            </h4>
-
-            <div class="search-container input-group shadow-sm">
-                <input type="text" id="inputBuscarProvEliminado" class="form-control search-input" placeholder="Buscar proveedor eliminado...">
-                <span class="input-group-text search-icon-btn">
-                    <i class="fas fa-search"></i>
-                </span>
-            </div>
-
-            <a href="{% url 'proveedores:lista' %}" class="btn btn-secondary px-3 shadow-sm d-flex align-items-center justify-content-center" style="border-radius: 8px; font-weight: 600; font-size: 0.92rem;">
-                <i class="fas fa-arrow-left me-1"></i> Regresar
-            </a>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle" id="tablaProveedoresEliminados">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 90px;">ID</th>
-                        <th>Nombre del Proveedor</th>
-                        <th>Dirección</th>
-                        <th>Teléfono</th>
-                        <th style="text-align: center; width: 160px;">Acción</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for prov in proveedores %}
-                    <tr>
-                        <td class="text-secondary fw-semibold">{{ prov.id }}</td>
-                        <td class="text-dark fw-semibold col-nombre-prov">{{ prov.nomProv }}</td>
-                        <td class="text-secondary">{{ prov.direccion|default:"—" }}</td>
-                        <td class="text-secondary">{{ prov.telefono|default:"—" }}</td>
-                        <td class="text-center">
-                            <a href="{% url 'proveedores:recuperar' prov.id %}" class="btn-recuperar-custom" 
-                               onclick="return confirm('¿Recuperar el proveedor «{{ prov.nomProv }}»?')">
-                                <i class="fas fa-undo-alt me-1"></i> Recuperar
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr id="filaVaciaProv">
-                        <td colspan="5" class="text-center py-4 text-secondary">
-                            <i class="fas fa-inbox me-2"></i> No hay proveedores eliminados
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    
-                    <tr id="filaSinResultadosProv" style="display: none;">
-                        <td colspan="5" class="text-center py-4 text-secondary">No se encontraron proveedores que coincidan con los criterios</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </div>
+        <tbody>
+            {% for prov in proveedores %}
+            <tr>
+                <td class="text-secondary fw-semibold">{{ prov.id }}</td>
+                <td class="text-dark fw-semibold col-nombre-prov">{{ prov.nomProv }}</td>
+                <td class="text-secondary">{{ prov.direccion|default:"—" }}</td>
+                <td class="text-secondary">{{ prov.telefono|default:"—" }}</td>
+                <td class="text-center">
+                    <a href="{% url 'proveedores:recuperar' prov.id %}" class="btn-recuperar-custom" 
+                       onclick="return confirm('¿Recuperar el proveedor «{{ prov.nomProv }}»?')">
+                        <i class="fas fa-undo-alt me-1"></i> Recuperar
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr id="filaVaciaProv">
+                <td colspan="5" class="text-center py-4 text-secondary">
+                    <i class="fas fa-inbox me-2"></i> No hay proveedores eliminados
+                </td>
+            </tr>
+            {% endfor %}
+            
+            <tr id="filaSinResultadosProv" style="display: none;">
+                <td colspan="5" class="text-center py-4 text-secondary">No se encontraron proveedores que coincidan con los criterios</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+{% block extra_js %}
 <script>
 document.getElementById('inputBuscarProvEliminado').addEventListener('keyup', function() {
     let filtro = this.value.toLowerCase().trim();
@@ -335,6 +151,4 @@ document.getElementById('inputBuscarProvEliminado').addEventListener('keyup', fu
     }
 });
 </script>
-
-</body>
-</html>
+{% endblock %}
