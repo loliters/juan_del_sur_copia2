@@ -1,0 +1,8 @@
+{# reportes/templates/reportes/_filtros_params.html #}
+{% if filtro_fecha %}&filtro_fecha={{ filtro_fecha }}{% endif %}
+{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}
+{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}
+{% if request.GET.producto %}&producto={{ request.GET.producto }}{% endif %}
+{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}
+{% if request.GET.proveedor %}&proveedor={{ request.GET.proveedor }}{% endif %}
+{% if request.GET.estado_inventario %}&estado_inventario={{ request.GET.estado_inventario }}{% endif %}
