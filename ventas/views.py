@@ -8,6 +8,8 @@ from inventario.models import Inventario
 from productos.models import Producto
 from django.db import models  # ← Agregar al inicio del archivo
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger #para paginador / que no sea tan lento
+
 # ========================
 # CRUD DE VENTAS (Administrador)
 # ========================
@@ -20,9 +22,21 @@ def ver_ventas(request):
     # Obtener todas las ventas con sus relaciones
     ventas = Venta.objects.select_related('cliente', 'metodo_pago').all().order_by('-fecha')
     
+    #CONFIGURACIÓN DEL PAGINADOR
+    paginator = Paginator(ventas, 20)  # 20 ventas por página (ajustable)
+    page_number = request.GET.get('page')
+    
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+
     # Para cada venta, calcular los detalles
     ventas_con_detalles = []
-    for venta in ventas:
+    for venta in page_obj: #page_obj en lugar de ventas
         detalles = DetalleVenta.objects.filter(venta=venta).select_related('inventario__producto')
         
         ventas_con_detalles.append({
@@ -32,6 +46,8 @@ def ver_ventas(request):
     
     return render(request, 'ventas/ver_ventas.html', {
         'ventas': ventas_con_detalles,
+        'page_obj': page_obj, #para cargar ciertos datos
+        'total_ventas': paginator.count, #total de ventas, sin esto transaccion aparece solo 20
         'es_cajero': request.session.get('rol') == 'cajero',
     })
 

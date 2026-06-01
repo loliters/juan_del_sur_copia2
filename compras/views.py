@@ -15,6 +15,8 @@ import urllib.parse
 from fpdf import FPDF
 import io
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
+
 
 # ========================
 # VER COMPRAS (Listado Principal)
@@ -24,10 +26,24 @@ def ver_compras(request):
     if request.session.get('usuario_id') is None:
         return redirect('login')
     
-    compras = Compra.objects.filter(estado=True).select_related('proveedor').all().order_by('-fecha')
+    # QuerySet optimizado de compras activas
+    compras_qs = Compra.objects.filter(estado=True).select_related('proveedor').all().order_by('-fecha')
     
+    # CONFIGURACIÓN DEL PAGINADOR
+    paginator = Paginator(compras_qs, 5)  # 20 compras por página (ajustable)
+    page_number = request.GET.get('page')
+    
+    # Manejo seguro de página
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    
+    # Procesar SOLO las compras de la página actual (mejora rendimiento)
     compras_con_detalles = []
-    for compra in compras:
+    for compra in page_obj:  # ← Iterar sobre page_obj, no sobre todas
         detalles = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
         detalles_con_subtotal = []
         for detalle in detalles:
@@ -45,8 +61,9 @@ def ver_compras(request):
     
     return render(request, 'compras/ver_compras.html', {
         'compras': compras_con_detalles,
+        'page_obj': page_obj,              # ← Para la navegación en el template
+        'total_compras': paginator.count,  # ← NUEVO: Total real en BD para el contador
     })
-
 
 # ========================
 # CREAR COMPRA (REABASTECIMIENTO - SUMA STOCK)

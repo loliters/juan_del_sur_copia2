@@ -85,6 +85,15 @@
     </a>
 </div>
 
+{% if compras %}
+<div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+    <span>
+        <i class="fas fa-list me-2"></i> 
+        <strong>Total de compras registradas:</strong> {{ total_compras }}
+    </span>
+</div>
+{% endif %}
+
 <!-- 📋 Listado de Compras -->
 {% for compra_data in compras %}
 <div class="card">
@@ -185,7 +194,66 @@
     </a>
 </div>
 {% endfor %}
+
+<!-- ================= PAGINACIÓN DE COMPRAS ================= -->
+{% if page_obj.has_other_pages %}
+<div class="mt-4 d-flex flex-column align-items-center gap-2">
+    
+    <!-- Navegación -->
+    <nav aria-label="Paginación de compras">
+        <ul class="pagination pagination-sm mb-0">
+            
+            <!-- Primera y Anterior -->
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Primera</span></li>
+                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+            
+            <!-- Números de página (ventana de 5 páginas) -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Siguiente y Última -->
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                <li class="page-item disabled"><span class="page-link">Última &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+    <!-- Info de rango actual -->
+    <small class="text-muted">
+        Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ total_compras }} compras
+    </small>
+    
+</div>
+{% endif %}
+<!-- =============== FIN PAGINACIÓN =============== -->
+
+
 {% endblock %}
+
 
 {% block extra_js %}
 <script>
