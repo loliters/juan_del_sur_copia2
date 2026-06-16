@@ -1,3 +1,4 @@
+# compras/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import models
@@ -17,23 +18,27 @@ import io
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 
+# ========================
+# FUNCIÓN AUXILIAR PARA OBTENER INVENTARIO
+# ========================
+def obtener_inventario(producto):
+    inventario, _ = Inventario.objects.get_or_create(
+        producto=producto,
+        defaults={'stock_actual': 0}
+    )
+    return inventario
 
 # ========================
-# VER COMPRAS (Listado Principal)
+# VER COMPRAS
 # ========================
 
 def ver_compras(request):
     if request.session.get('usuario_id') is None:
         return redirect('login')
     
-    # QuerySet optimizado de compras activas
     compras_qs = Compra.objects.filter(estado=True).select_related('proveedor').all().order_by('-fecha')
-    
-    # CONFIGURACIÓN DEL PAGINADOR
-    paginator = Paginator(compras_qs, 5)  # 20 compras por página (ajustable)
+    paginator = Paginator(compras_qs, 5)
     page_number = request.GET.get('page')
-    
-    # Manejo seguro de página
     try:
         page_obj = paginator.page(page_number)
     except PageNotAnInteger:
@@ -41,9 +46,8 @@ def ver_compras(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
     
-    # Procesar SOLO las compras de la página actual (mejora rendimiento)
     compras_con_detalles = []
-    for compra in page_obj:  # ← Iterar sobre page_obj, no sobre todas
+    for compra in page_obj:
         detalles = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
         detalles_con_subtotal = []
         for detalle in detalles:
@@ -61,12 +65,12 @@ def ver_compras(request):
     
     return render(request, 'compras/ver_compras.html', {
         'compras': compras_con_detalles,
-        'page_obj': page_obj,              # ← Para la navegación en el template
-        'total_compras': paginator.count,  # ← NUEVO: Total real en BD para el contador
+        'page_obj': page_obj,
+        'total_compras': paginator.count,
     })
 
 # ========================
-# CREAR COMPRA (REABASTECIMIENTO - SUMA STOCK)
+# CREAR COMPRA
 # ========================
 
 def crear_compra(request):
@@ -80,7 +84,6 @@ def crear_compra(request):
 
     if request.method == "POST":
         fecha_str = request.POST.get('fecha')
-
         try:
             fecha_compra = datetime.fromisoformat(fecha_str) if fecha_str else datetime.now()
         except:
@@ -93,31 +96,23 @@ def crear_compra(request):
             messages.error(request, 'Debe completar proveedor y productos')
             return render(request, 'compras/crear_compra.html', base_context)
 
-        productos_validos = [
-            p for p in productos_data
-            if p.strip() not in ['', 'null', 'undefined', '[]']
-        ]
-
+        productos_validos = [p for p in productos_data if p.strip() not in ['', 'null', 'undefined', '[]']]
         if not productos_validos:
             messages.error(request, 'Debe agregar productos válidos')
             return render(request, 'compras/crear_compra.html', base_context)
 
         try:
             proveedor = Proveedor.objects.get(id=proveedor_id)
-
             total = 0
             items = []
 
             for item_json in productos_validos:
                 if '%' in item_json:
                     item_json = urllib.parse.unquote(item_json)
-
                 item = json.loads(item_json)
-
                 producto = Producto.objects.get(codProducto=item['cod'])
                 cantidad = int(item.get('cantidad', 1))
                 precio = float(item.get('precio_compra', 0))
-
                 total += cantidad * precio
                 items.append((producto, cantidad))
 
@@ -129,15 +124,9 @@ def crear_compra(request):
             )
 
             for producto, cantidad in items:
-
-                inventario, _ = Inventario.objects.get_or_create(
-                    producto=producto,
-                    defaults={'stock_actual': 0}
-                )
-
+                inventario = obtener_inventario(producto)
                 inventario.stock_actual += cantidad
                 inventario.save()
-
                 DetalleCompra.objects.create(
                     compra=compra,
                     inventario=inventario,
@@ -152,9 +141,8 @@ def crear_compra(request):
 
     return render(request, 'compras/crear_compra.html', base_context)
 
-
 # ========================
-# EDITAR COMPRA (AJUSTE DE STOCK)
+# EDITAR COMPRA
 # ========================
 
 def editar_compra(request, id):
@@ -162,31 +150,36 @@ def editar_compra(request, id):
         return redirect('login')
 
     compra = get_object_or_404(Compra, id_compra=id)
-    detalles_actuales = DetalleCompra.objects.filter(compra=compra)
+    detalles_actuales = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
 
     if request.method == "POST":
+        proveedor_id = request.POST.get('proveedor_id')
+        if not proveedor_id:
+            messages.error(request, 'Seleccione un proveedor')
+            return redirect('compras:editar_compra', id=id)
 
-        proveedor = Proveedor.objects.get(id=request.POST.get('proveedor_id'))
+        proveedor = Proveedor.objects.get(id=proveedor_id)
         compra.proveedor = proveedor
 
         productos_data = request.POST.getlist('productos')
-
         nuevos = {}
         total = 0
 
         for p in productos_data:
             if '%' in p:
                 p = urllib.parse.unquote(p)
+            try:
+                item = json.loads(p)
+                cod = item['cod']
+                nuevos[cod] = {
+                    'cantidad': int(item['cantidad']),
+                    'precio': float(item['precio_compra'])
+                }
+            except (json.JSONDecodeError, KeyError, ValueError) as e:
+                messages.error(request, f'Error en los datos del producto: {e}')
+                return redirect('compras:editar_compra', id=id)
 
-            item = json.loads(p)
-            cod = item['cod']
-
-            nuevos[cod] = {
-                'cantidad': int(item['cantidad']),
-                'precio': float(item['precio_compra'])
-            }
-
-        # RESTAURAR STOCK ANTERIOR
+        # Restaurar stock anterior (restar lo que se había sumado)
         for d in detalles_actuales:
             inv = d.inventario
             inv.stock_actual -= d.cantidad
@@ -197,16 +190,17 @@ def editar_compra(request, id):
 
         # Agregar nuevos productos y sumar stock
         for cod, data in nuevos.items():
-            producto = Producto.objects.get(codProducto=cod)
+            try:
+                producto = Producto.objects.get(codProducto=cod)
+            except Producto.DoesNotExist:
+                messages.error(request, f'Producto con código {cod} no encontrado')
+                return redirect('compras:editar_compra', id=id)
 
             cantidad = data['cantidad']
-            total += cantidad * data['precio']
+            precio = data['precio']
+            total += cantidad * precio
 
-            inventario, _ = Inventario.objects.get_or_create(
-                producto=producto,
-                defaults={'stock_actual': 0}
-            )
-
+            inventario = obtener_inventario(producto)
             inventario.stock_actual += cantidad
             inventario.save()
 
@@ -219,18 +213,38 @@ def editar_compra(request, id):
         compra.total = total
         compra.save()
 
-        messages.success(request, "Compra actualizada correctamente")
+        messages.success(request, f"Compra #{compra.id_compra} actualizada correctamente")
         return redirect('compras:ver_compras')
 
-    return render(request, 'compras/editar_compra.html', {
-        'compra': compra,
-        'proveedores': Proveedor.objects.all(),
-        'productos_disponibles': Producto.objects.all()
-    })
+    # ========== GET: Mostrar formulario con datos actuales ==========
+    # Preparar lista de detalles para el template
+    detalles_data = []
+    for detalle in detalles_actuales:
+        producto = detalle.inventario.producto
+        precio = _obtener_precio_compra(detalle)  # usa la función auxiliar
+        subtotal = precio * detalle.cantidad
+        detalles_data.append({
+            'cod': producto.codProducto,
+            'nombre': producto.nomProducto,
+            'cantidad': detalle.cantidad,
+            'precio_compra': precio,
+            'subtotal': subtotal,
+        })
 
+    # Productos disponibles para agregar nuevos (puedes filtrar los que ya están)
+    productos_disponibles = Producto.objects.filter(estado__iexact='activo')
+
+    context = {
+        'compra': compra,
+        'proveedores': Proveedor.objects.filter(estado=True),
+        'productos_disponibles': productos_disponibles,
+        'detalles_data': detalles_data,          # <--- NUEVO: datos de los detalles actuales
+        'total_compra': compra.total,            # <--- opcional
+    }
+    return render(request, 'compras/editar_compra.html', context)
 
 # ========================
-# ELIMINAR COMPRA (DESHACER REABASTECIMIENTO)
+# ELIMINAR COMPRA (DESACTIVAR)
 # ========================
 
 def eliminar_compra(request, id):
@@ -238,28 +252,21 @@ def eliminar_compra(request, id):
         return redirect('login')
     
     compra = get_object_or_404(Compra, id_compra=id)
-    
     if request.method == "POST":
         try:
             detalles = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
-            
             for detalle in detalles:
                 inventario = detalle.inventario
                 inventario.stock_actual -= detalle.cantidad
                 inventario.save()
-            
             compra.estado = False
             compra.save()
-            
             messages.success(request, f'Compra #{id} eliminada y stock ajustado')
             return redirect('compras:ver_compras')
-            
         except Exception as e:
             messages.error(request, f'Error al desactivar compra: {str(e)}')
             return redirect('compras:ver_compras')
-    
     return render(request, 'compras/eliminar_compra.html', {'compra': compra})
-
 
 # ========================
 # COMPRAS DESACTIVADAS
@@ -280,7 +287,6 @@ def compras_eliminadas(request):
         compras_con_detalles.append({'compra': compra, 'detalles': detalles_con_subtotal})
     return render(request, 'compras/compras_eliminadas.html', {'compras': compras_con_detalles})
 
-
 # ========================
 # ACTIVAR COMPRA (REHACER REABASTECIMIENTO)
 # ========================
@@ -290,54 +296,26 @@ def activar_compra(request, id):
         return redirect('login')
     
     compra = get_object_or_404(Compra, id_compra=id)
-    
     try:
         detalles = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
-        
         for detalle in detalles:
             inventario = detalle.inventario
             inventario.stock_actual += detalle.cantidad
             inventario.save()
-        
         compra.estado = True
         compra.save()
-        
         messages.success(request, f'Compra #{id} activada y stock reabastecido')
         return redirect('compras:compras_desactivadas')
-        
     except Exception as e:
         messages.error(request, f'Error al activar compra: {str(e)}')
         return redirect('compras:compras_desactivadas')
 
-
 # ========================
-# RECUPERAR COMPRA 
+# RECUPERAR COMPRA (alias de activar)
 # ========================
 
 def recuperar_compra(request, id):
-    if request.session.get('usuario_id') is None:
-        return redirect('login')
-    
-    compra = get_object_or_404(Compra, id_compra=id)
-    
-    try:
-        detalles = DetalleCompra.objects.filter(compra=compra).select_related('inventario__producto')
-        
-        for detalle in detalles:
-            inventario = detalle.inventario
-            inventario.stock_actual += detalle.cantidad
-            inventario.save()
-        
-        compra.estado = True
-        compra.save()
-        
-        messages.success(request, f'Compra #{id} recuperada exitosamente')
-        return redirect('compras:compras_desactivadas')
-        
-    except Exception as e:
-        messages.error(request, f'Error al recuperar compra: {str(e)}')
-        return redirect('compras:compras_desactivadas')
-
+    return activar_compra(request, id)
 
 # ========================
 # FUNCIÓN AUXILIAR: Obtener precio de compra
@@ -351,14 +329,11 @@ def _obtener_precio_compra(detalle):
         return float(producto.precioVenta)
     return 0.0
 
-
 # ========================
-# CLASE PDF
+# CLASE PDF PARA COMPRAS
 # ========================
 
 class PDFCompraIndividual(FPDF):
-    """Clase PDF para orden de compra individual (formato formal)"""
-    
     def header(self):
         self.set_font('Helvetica', 'B', 16)
         self.cell(0, 10, 'JUAN DEL SUR', 0, 1, 'C')
@@ -392,34 +367,18 @@ class PDFCompraIndividual(FPDF):
         self.set_font('Helvetica', '', 9)
         self.cell(0, 5, str(value), 0, 1)
 
-
 # ========================
-# DETALLE DE COMPRA (UNIFICADO - VER, IMPRIMIR, PDF)
+# DETALLE DE COMPRA (UNIFICADO)
 # ========================
 
 def detalle_compra(request, id_compra):
-    """
-    Vista unificada para:
-    - Ver detalle normal (accion=ver o sin parámetro)
-    - Imprimir en HTML (accion=imprimir)
-    - Descargar PDF (accion=pdf)
-    """
-    compra = get_object_or_404(
-        Compra.objects.select_related('proveedor'), 
-        id_compra=id_compra
-    )
-    detalles = DetalleCompra.objects.select_related(
-        'inventario__producto'
-    ).filter(compra=compra)
-    
-    # Verificar qué acción se solicita
+    compra = get_object_or_404(Compra.objects.select_related('proveedor'), id_compra=id_compra)
+    detalles = DetalleCompra.objects.select_related('inventario__producto').filter(compra=compra)
     accion = request.GET.get('accion', 'ver')
     
-    # 📄 GENERAR PDF
     if accion == 'pdf':
         return _generar_pdf_compra(compra, detalles)
     
-    # 🖨️ VISTA PARA IMPRIMIR (HTML optimizado para impresión)
     if accion == 'imprimir':
         context = {
             'compra': compra,
@@ -430,126 +389,36 @@ def detalle_compra(request, id_compra):
         }
         return render(request, 'compras/detalle_compra_print.html', context)
     
-    # 👁️ VISTA NORMAL
     context = {
         'compra': compra,
         'detalles': detalles,
         'fecha_actual': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
     }
     return render(request, 'compras/detalle_compra.html', context)
-# ========================
-# IMPRIMIR COMPRA HTML
-# ========================
 
 def imprimir_compra_html(request, id_compra):
-    """Vista HTML para imprimir compra (formato formal)"""
-    compra = get_object_or_404(
-        Compra.objects.select_related('proveedor'), 
-        id_compra=id_compra
-    )
-    detalles = DetalleCompra.objects.select_related(
-        'inventario__producto'
-    ).filter(compra=compra)
-    
+    compra = get_object_or_404(Compra.objects.select_related('proveedor'), id_compra=id_compra)
+    detalles = DetalleCompra.objects.select_related('inventario__producto').filter(compra=compra)
     context = {
         'compra': compra,
         'detalles': detalles,
         'proveedor': compra.proveedor,
         'fecha_impresion': timezone.now()
     }
-    
     html_string = render_to_string('compras/compra_print.html', context)
     return HttpResponse(html_string)
 
-
-# ========================
-# GENERAR PDF COMPRA
-# ========================
-
 def generar_pdf_compra(request, id_compra):
-    """Generar PDF de compra individual para descargar"""
-    compra = get_object_or_404(
-        Compra.objects.select_related('proveedor'), 
-        id_compra=id_compra
-    )
-    detalles = DetalleCompra.objects.select_related(
-        'inventario__producto'
-    ).filter(compra=compra)
-    
-    buffer = io.BytesIO()
-    pdf = PDFCompraIndividual()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    
-    # Proveedor
-    proveedor = compra.proveedor
-    pdf.section_title('Información del Proveedor')
-    pdf.info_row('Nombre', proveedor.nomProv)
-    pdf.info_row('Dirección', proveedor.direccion)
-    pdf.info_row('Teléfono', proveedor.telefono)
-    pdf.info_row('Email', proveedor.email)
-    pdf.ln(3)
-    
-    # Compra
-    pdf.section_title('Información de la Compra')
-    pdf.info_row('Número de Compra', f"#{compra.id_compra}")
-    pdf.info_row('Fecha', compra.fecha.strftime("%d/%m/%Y %H:%M"))
-    pdf.info_row('Estado', 'Activa' if compra.estado else 'Inactiva')
-    pdf.ln(5)
-    
-    # Tabla de productos
-    pdf.set_font('Helvetica', 'B', 9)
-    pdf.set_fill_color(37, 99, 235)
-    pdf.set_text_color(255, 255, 255)
-    pdf.cell(25, 8, 'Código', 1, 0, 'C', 1)
-    pdf.cell(70, 8, 'Producto', 1, 0, 'L', 1)
-    pdf.cell(20, 8, 'Cant.', 1, 0, 'C', 1)
-    pdf.cell(30, 8, 'P. Unit.', 1, 0, 'R', 1)
-    pdf.cell(30, 8, 'Subtotal', 1, 1, 'R', 1)
-    pdf.set_text_color(0, 0, 0)
-    pdf.set_font('Helvetica', '', 9)
-    
-    for detalle in detalles:
-        producto = detalle.inventario.producto
-        subtotal = detalle.cantidad * producto.precioCompra
-        pdf.cell(25, 7, producto.codProducto or '', 1, 0, 'C')
-        pdf.cell(70, 7, producto.nomProducto[:35], 1, 0, 'L')
-        pdf.cell(20, 7, str(detalle.cantidad), 1, 0, 'C')
-        pdf.cell(30, 7, f"Bs {float(producto.precioCompra):.2f}", 1, 0, 'R')
-        pdf.cell(30, 7, f"Bs {float(subtotal):.2f}", 1, 1, 'R')
-    
-    # Total
-    pdf.ln(5)
-    pdf.set_font('Helvetica', 'B', 12)
-    pdf.cell(145, 10, 'TOTAL:', 0, 0, 'R')
-    pdf.set_text_color(37, 99, 235)
-    pdf.cell(40, 10, f"Bs {float(compra.total):.2f}", 0, 1, 'R')
-    pdf.set_text_color(0, 0, 0)
-    
-    # Firmas
-    pdf.ln(20)
-    pdf.set_font('Helvetica', '', 9)
-    pdf.cell(90, 10, '_________________________', 0, 0, 'C')
-    pdf.cell(90, 10, '_________________________', 0, 1, 'C')
-    pdf.cell(90, 5, 'Firma del Proveedor', 0, 0, 'C')
-    pdf.cell(90, 5, 'Resp. de Compras', 0, 1, 'C')
-    
-    pdf.output(buffer)
-    buffer.seek(0)
-    
-    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="compra_{id_compra}.pdf"'
-    return response
-
+    compra = get_object_or_404(Compra.objects.select_related('proveedor'), id_compra=id_compra)
+    detalles = DetalleCompra.objects.select_related('inventario__producto').filter(compra=compra)
+    return _generar_pdf_compra(compra, detalles)
 
 def _generar_pdf_compra(compra, detalles):
-    """Función auxiliar para generar PDF (no es vista independiente)"""
     buffer = io.BytesIO()
     pdf = PDFCompraIndividual()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Proveedor
     proveedor = compra.proveedor
     pdf.section_title('Información del Proveedor')
     pdf.info_row('Nombre', proveedor.nomProv)
@@ -558,14 +427,12 @@ def _generar_pdf_compra(compra, detalles):
     pdf.info_row('Email', proveedor.email)
     pdf.ln(3)
     
-    # Compra
     pdf.section_title('Información de la Compra')
     pdf.info_row('Número de Compra', f"#{compra.id_compra}")
     pdf.info_row('Fecha', compra.fecha.strftime("%d/%m/%Y %H:%M"))
     pdf.info_row('Estado', 'Activa' if compra.estado else 'Inactiva')
     pdf.ln(5)
     
-    # Tabla de productos
     pdf.set_font('Helvetica', 'B', 9)
     pdf.set_fill_color(37, 99, 235)
     pdf.set_text_color(255, 255, 255)
@@ -579,14 +446,13 @@ def _generar_pdf_compra(compra, detalles):
     
     for detalle in detalles:
         producto = detalle.inventario.producto
-        subtotal = detalle.cantidad * producto.precioCompra
+        subtotal = detalle.cantidad * (producto.precioCompra or 0)
         pdf.cell(25, 7, producto.codProducto or '', 1, 0, 'C')
         pdf.cell(70, 7, producto.nomProducto[:35], 1, 0, 'L')
         pdf.cell(20, 7, str(detalle.cantidad), 1, 0, 'C')
-        pdf.cell(30, 7, f"Bs {float(producto.precioCompra):.2f}", 1, 0, 'R')
+        pdf.cell(30, 7, f"Bs {float(producto.precioCompra or 0):.2f}", 1, 0, 'R')
         pdf.cell(30, 7, f"Bs {float(subtotal):.2f}", 1, 1, 'R')
     
-    # Total
     pdf.ln(5)
     pdf.set_font('Helvetica', 'B', 12)
     pdf.cell(145, 10, 'TOTAL:', 0, 0, 'R')
@@ -594,7 +460,6 @@ def _generar_pdf_compra(compra, detalles):
     pdf.cell(40, 10, f"Bs {float(compra.total):.2f}", 0, 1, 'R')
     pdf.set_text_color(0, 0, 0)
     
-    # Firmas
     pdf.ln(20)
     pdf.set_font('Helvetica', '', 9)
     pdf.cell(90, 10, '_________________________', 0, 0, 'C')
@@ -604,14 +469,12 @@ def _generar_pdf_compra(compra, detalles):
     
     pdf.output(buffer)
     buffer.seek(0)
-    
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="compra_{compra.id_compra}.pdf"'
     return response
 
-
 # ========================
-# AJAX - AGREGAR AL CARRITO DE COMPRA
+# AJAX - CARRITO DE COMPRA
 # ========================
 
 @require_http_methods(["POST"])
@@ -644,11 +507,6 @@ def agregar_al_carrito_compra_ajax(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-
-# ========================
-# AJAX - ACTUALIZAR CANTIDAD
-# ========================
-
 @require_http_methods(["POST"])
 def actualizar_cantidad_carrito_compra(request):
     if request.session.get('usuario_id') is None:
@@ -671,11 +529,6 @@ def actualizar_cantidad_carrito_compra(request):
     request.session['carrito_compra'] = carrito
     return JsonResponse({'success': True, 'item_subtotal': item_encontrado['subtotal'], 'cart_total': carrito['total'], 'cart_items_count': len(carrito['items'])})
 
-
-# ========================
-# AJAX - ELIMINAR DEL CARRITO
-# ========================
-
 @require_http_methods(["POST"])
 def eliminar_del_carrito_compra_ajax(request):
     if request.session.get('usuario_id') is None:
@@ -686,11 +539,6 @@ def eliminar_del_carrito_compra_ajax(request):
     carrito['total'] = sum(item.get('subtotal', 0) for item in carrito['items'])
     request.session['carrito_compra'] = carrito
     return JsonResponse({'success': True, 'cart_total': carrito['total'], 'cart_items_count': len(carrito['items'])})
-
-
-# ========================
-# AJAX - BUSCAR PRODUCTOS
-# ========================
 
 def buscar_productos_compra_ajax(request):
     query = request.GET.get('q', '').strip()
@@ -710,7 +558,7 @@ def buscar_productos_compra_ajax(request):
                 'codProducto': str(p.codProducto) if p.codProducto else '',
                 'nomProducto': p.nomProducto if p.nomProducto else '',
                 'precioCompra': float(precio_compra) if precio_compra else 0.0,
-                'stockActual': int(p.stockActual) if p.stockActual else 0
+                'stockActual': int(obtener_inventario(p).stock_actual)  # Usamos inventario
             })
         return JsonResponse({'success': True, 'productos': data})
     except Exception as e:
