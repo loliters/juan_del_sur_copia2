@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-  /* (estilos sin cambios) */
+  /* (estilos sin cambios - igual que antes) */
   * {
     box-sizing: border-box;
     margin: 0;
@@ -652,9 +652,12 @@
     
     <div class="products-list">
       {% if productos %}
-        <!-- CAMBIO: ahora iteramos sobre 'productos' en lugar de 'inventarios' -->
         {% for producto in productos %}
-        <div class="product-item" data-producto-id="{{ producto.id }}" data-product-name="{{ producto.nomProducto }}" data-product-price="{{ producto.precioVenta }}" data-product-stock="{{ producto.stock_actual }}">
+        <div class="product-item" 
+             data-producto-id="{{ producto.id }}" 
+             data-product-name="{{ producto.nomProducto }}" 
+             data-product-price="{{ producto.precioVenta }}" 
+             data-product-stock="{{ producto.stock_actual }}">
           <div class="product-info">
             <div class="product-name">{{ producto.nomProducto }}</div>
             <div class="product-price">Bs {{ producto.precioVenta|floatformat:2 }}</div>
@@ -873,7 +876,7 @@
     });
   }
   
-  // Edición inline de cantidad (ahora usa producto_id)
+  // Edición inline de cantidad (usa producto_id)
   function editarCantidadInline(productoId, cantidadActual) {
     const qtySpan = document.getElementById(`qty-${productoId}`);
     
@@ -938,7 +941,7 @@
     });
   }
   
-  // Doble clic para agregar productos (ahora usa producto_id)
+  // Doble clic para agregar productos (usa producto_id)
   document.querySelectorAll('.product-item').forEach(item => {
     item.addEventListener('dblclick', function() {
       const productoId = this.dataset.productoId;
@@ -966,7 +969,7 @@
     });
   });
   
-  // Actualizar cantidad con botones (ahora usa producto_id)
+  // Actualizar cantidad con botones (usa producto_id)
   function actualizarCantidad(productoId, operacion) {
     const qtySpan = document.getElementById(`qty-${productoId}`);
     let currentQty = parseInt(qtySpan.innerText);
@@ -998,7 +1001,7 @@
     });
   }
   
-  // Eliminar item (ahora usa producto_id)
+  // Eliminar item (usa producto_id)
   function eliminarItem(productoId) {
     fetch("/ventas/eliminar-del-carrito/", {
       method: 'POST',

@@ -27,4 +27,8 @@ urlpatterns = [
     path('agregar-al-carrito/', views.agregar_al_carrito_ajax, name='agregar_al_carrito'),
     path('actualizar-cantidad/', views.actualizar_cantidad_carrito, name='actualizar_cantidad_carrito'),
     path('eliminar-del-carrito/', views.eliminar_del_carrito_ajax, name='eliminar_del_carrito'),
+
+    path('agregar-al-carrito/', views.agregar_al_carrito_ajax, name='agregar_al_carrito'),
+    path('actualizar-cantidad/', views.actualizar_cantidad_carrito, name='actualizar_cantidad_carrito'),
+    path('eliminar-del-carrito/', views.eliminar_del_carrito_ajax, name='eliminar_del_carrito'),
 ]

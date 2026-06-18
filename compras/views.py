@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import models
+from django.db.models import OuterRef, Subquery
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.template.loader import render_to_string
@@ -432,26 +433,44 @@ def eliminar_del_carrito_compra_ajax(request):
     })
 
 
+# ========================
+# BUSCAR PRODUCTOS (CORREGIDO PARA EVITAR DUPLICADOS)
+# ========================
 def buscar_productos_compra_ajax(request):
     query = request.GET.get('q', '').strip()
     if not query:
         return JsonResponse({'success': False, 'productos': []})
+
     try:
-        inventarios = _inventarios_activos().filter(
-            models.Q(producto__codProducto__icontains=query) |
-            models.Q(producto__nomProducto__icontains=query)
+        # Subquery para obtener el último inventario activo de cada producto
+        ultimo_inventario = Inventario.objects.filter(
+            producto=OuterRef('pk'),
+            estado=True
+        ).order_by('-id')  # El más reciente (mayor ID)
+
+        productos = Producto.objects.filter(
+            estado__iexact='activo'
+        ).annotate(
+            stock_actual=Subquery(ultimo_inventario.values('stock_actual')[:1]),
+            ultimo_precio_compra=Subquery(ultimo_inventario.values('precioCompra')[:1])
+        ).filter(
+            stock_actual__isnull=False  # Solo productos con inventario activo
+        ).filter(
+            models.Q(codProducto__icontains=query) |
+            models.Q(nomProducto__icontains=query)
         )[:10]
+
         data = []
-        for inv in inventarios:
-            p = inv.producto
-            precio_compra = p.precioCompra if p.precioCompra else (p.precioVenta or 0)
+        for p in productos:
+            precio_compra = p.ultimo_precio_compra if p.ultimo_precio_compra else (p.precioVenta or 0)
             data.append({
                 'producto_id': p.id,
                 'codProducto': p.codProducto,
                 'nomProducto': p.nomProducto,
                 'precioCompra': float(precio_compra),
-                'stockActual': inv.stock_actual,
+                'stockActual': p.stock_actual,
             })
+
         return JsonResponse({'success': True, 'productos': data})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})

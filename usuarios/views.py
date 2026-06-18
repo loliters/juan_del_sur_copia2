@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from .models import Usuario, Rol
 from productos.models import Producto
+from django.db.models import OuterRef, Subquery
 
 from django.contrib.auth.hashers import make_password
 
@@ -253,22 +254,26 @@ def generar_email_preview(request):
 # =========================
 # DASHBOARD CAJERO (MODIFICADO)
 # =========================
+# usuarios/views.py (fragmento modificado)
 def dashboard_cajero(request):
     if request.session.get('usuario_id') is None:
         return redirect('login')
 
     query = request.GET.get('q', '')
-    productos = Producto.objects.filter(
-        estado='activo'
-        ).select_related(
-            'categoria',
-            'presentacion'
-        )
+
+    # Subquery para obtener el último inventario activo de cada producto
+    ultimo_inventario = Inventario.objects.filter(
+        producto=OuterRef('pk'),
+        estado=True
+    ).order_by('-id')  # Tomamos el de mayor ID (más reciente)
+
+    productos = Producto.objects.filter(estado='activo').annotate(
+        stock_actual=Subquery(ultimo_inventario.values('stock_actual')[:1]),
+        inventario_id=Subquery(ultimo_inventario.values('id')[:1])
+    ).filter(stock_actual__isnull=False)  # Solo productos con inventario
 
     if query:
-            productos = productos.filter(
-            nomProducto__icontains=query
-    )
+        productos = productos.filter(nomProducto__icontains=query)
 
     carrito = request.session.get('carrito', {'items': [], 'total': 0, 'subtotal': 0})
 
@@ -289,7 +294,6 @@ def dashboard_cajero(request):
         'cliente_venta': cliente,
         'clientes_disponibles': clientes_disponibles,
     })
-
 
 # =========================
 # AGREGAR AL CARRITO

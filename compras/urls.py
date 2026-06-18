@@ -24,4 +24,6 @@ urlpatterns = [
     path('ajax/actualizar-cantidad/', views.actualizar_cantidad_carrito_compra, name='actualizar_cantidad_ajax'),
     path('ajax/eliminar-carrito/', views.eliminar_del_carrito_compra_ajax, name='eliminar_carrito_ajax'),
     path('ajax/buscar-productos/', views.buscar_productos_compra_ajax, name='buscar_productos_ajax'),
+
+    path('buscar-productos/', views.buscar_productos_compra_ajax, name='buscar_productos_ajax'),
 ]
