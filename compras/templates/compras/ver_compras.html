@@ -134,7 +134,7 @@
             <tbody>
                 {% for item in compra_data.detalles %}
                 <tr>
-                    <td>{{ item.detalle.inventario.producto.nomProducto }}</td>
+                    <td>{{ item.detalle.producto.nomProducto }}</td>
                     <td>{{ item.detalle.cantidad }}</td>
                     <td>Bs {{ item.precio_unitario|floatformat:2 }}</td>
                     <td class="text-end">Bs {{ item.subtotal|floatformat:2 }}</td>

@@ -10,11 +10,11 @@ class DetalleVentaInline(admin.TabularInline):
 class VentaAdmin(admin.ModelAdmin):
     list_display = ('id_venta', 'fecha', 'cliente', 'metodo_pago', 'total')
     list_filter = ('fecha', 'metodo_pago')
-    search_fields = ('cliente__nombre', 'cliente__carnet')
+    search_fields = ('cliente__nombre',)  
     readonly_fields = ('fecha', 'total')
     inlines = [DetalleVentaInline]
 
 @admin.register(DetalleVenta)
 class DetalleVentaAdmin(admin.ModelAdmin):
-    list_display = ('id_detalle', 'venta', 'inventario', 'cantidad', 'subtotal')
-    search_fields = ('venta__id_venta', 'inventario__producto__nomProducto')
+    list_display = ('id_detalle', 'venta', 'producto', 'cantidad', 'subtotal')
+    search_fields = ('venta__id_venta', 'producto__nomProducto')  # <-- CORRECCIÓN

@@ -75,10 +75,10 @@
             <tbody>
                 {% for detalle in detalles %}
                 <tr>
-                    <td>{{ detalle.inventario.producto.codProducto }}</td>
-                    <td>{{ detalle.inventario.producto.nomProducto }}</td>
+                    <td>{{ detalle.producto.codProducto }}</td>
+                    <td>{{ detalle.producto.nomProducto }}</td>
                     <td style="text-align: center;">{{ detalle.cantidad }}</td>
-                    <td style="text-align: right;">Bs {{ detalle.inventario.producto.precioVenta|floatformat:2 }}</td>
+                    <td style="text-align: right;">Bs {{ detalle.producto.precioVenta|floatformat:2 }}</td>
                     <td style="text-align: right;">Bs {{ detalle.subtotal|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}

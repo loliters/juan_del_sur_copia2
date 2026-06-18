@@ -88,7 +88,6 @@ def inventario(request):
     productos = Producto.objects.filter(
         estado='activo'
     ).select_related(
-        'inventario',
         'presentacion',
         'presentacion__medida',
         'categoria'
@@ -434,7 +433,6 @@ def lista_recuperar(request):
     productos = Producto.objects.filter(
         estado='inactivo'
     ).select_related(
-        'inventario',
         'presentacion',
         'presentacion__medida'
     )

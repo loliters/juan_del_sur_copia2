@@ -6,13 +6,14 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import Usuario, Rol
+from productos.models import Producto
 
 from django.contrib.auth.hashers import make_password
 
 import re
 
 # Importar modelos de otras apps
-from productos.models import Producto
+from inventario.models import Inventario
 from ventas.models import Venta, DetalleVenta
 from metodopago.models import MetodoPago
 from clientes.models import Cliente
@@ -255,20 +256,22 @@ def generar_email_preview(request):
 def dashboard_cajero(request):
     if request.session.get('usuario_id') is None:
         return redirect('login')
-    
+
     query = request.GET.get('q', '')
-    productos = Producto.objects.filter(estado='activo')
+    productos = Producto.objects.filter(
+        estado='activo'
+        ).select_related(
+            'categoria',
+            'presentacion'
+        )
+
     if query:
-        productos = productos.filter(nomProducto__icontains=query)
-    
-    # Asegurar que el carrito tenga el formato correcto con 'cod'
+            productos = productos.filter(
+            nomProducto__icontains=query
+    )
+
     carrito = request.session.get('carrito', {'items': [], 'total': 0, 'subtotal': 0})
-    
-    # Convertir items antiguos que puedan tener 'id' a tener 'cod'
-    for item in carrito.get('items', []):
-        if 'id' in item and 'cod' not in item:
-            item['cod'] = item['id']
-    
+
     cliente_id = request.session.get('cliente_venta')
     cliente = None
     if cliente_id:
@@ -276,9 +279,9 @@ def dashboard_cajero(request):
             cliente = Cliente.objects.get(id_cliente=cliente_id)
         except Cliente.DoesNotExist:
             request.session['cliente_venta'] = None
-    
+
     clientes_disponibles = Cliente.objects.filter(estado=True).order_by('nombre')
-    
+
     return render(request, 'usuarios/dashboard_cajero.html', {
         'productos': productos,
         'query': query,
@@ -297,51 +300,56 @@ def dashboard_cajero(request):
 def agregar_al_carrito(request):
     if request.session.get('usuario_id') is None:
         return redirect('login')
-    
+
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
+        inventario_id = request.POST.get('inventario_id')
         cantidad = int(request.POST.get('cantidad', 1))
-        
+
         try:
-            producto = Producto.objects.get(codProducto=producto_id, estado='activo')  # Usar codProducto
-            
-            if producto.stockActual < cantidad:
+            inventario = Inventario.objects.select_related('producto').get(
+                id=inventario_id,
+                estado=True,
+                producto__estado='activo',
+            )
+            producto = inventario.producto
+
+            if inventario.stock_actual < cantidad:
                 messages.error(request, f'Stock insuficiente para {producto.nomProducto}')
                 return redirect('dashboard_cajero')
-            
+
             carrito = request.session.get('carrito', {'items': [], 'subtotal': 0, 'total': 0})
-            
+
             encontrado = False
             for item in carrito['items']:
-                if item.get('cod') == producto_id or item.get('id') == producto_id:
+                if item.get('inventario_id') == inventario.id:
                     nueva_cantidad = item['cantidad'] + cantidad
-                    if nueva_cantidad > producto.stockActual:
+                    if nueva_cantidad > inventario.stock_actual:
                         messages.error(request, f'No hay suficiente stock de {producto.nomProducto}')
                         return redirect('dashboard_cajero')
                     item['cantidad'] = nueva_cantidad
                     item['subtotal'] = item['cantidad'] * float(item['precio'])
                     encontrado = True
                     break
-            
+
             if not encontrado:
                 carrito['items'].append({
+                    'inventario_id': inventario.id,
                     'cod': producto.codProducto,
-                    'id': producto.id,
                     'nombre': producto.nomProducto,
                     'precio': float(producto.precioVenta),
                     'cantidad': cantidad,
                     'subtotal': cantidad * float(producto.precioVenta)
                 })
-            
+
             carrito['subtotal'] = sum(item['subtotal'] for item in carrito['items'])
             carrito['total'] = carrito['subtotal']
-            
+
             request.session['carrito'] = carrito
             messages.success(request, f'Agregado {producto.nomProducto} al carrito')
-            
-        except Producto.DoesNotExist:
-            messages.error(request, 'Producto no encontrado')
-    
+
+        except Inventario.DoesNotExist:
+            messages.error(request, 'Inventario no encontrado')
+
     return redirect('dashboard_cajero')
 
 
@@ -363,51 +371,41 @@ def registro_venta(request):
         cliente_id = request.session.get('cliente_venta')
         
         try:
-            # Verificar stock nuevamente
             for item in carrito['items']:
-                producto = Producto.objects.get(id=item['id'])
-                if producto.stockActual < item['cantidad']:
-                    messages.error(request, f'Stock insuficiente para {producto.nomProducto}')
+                inventario = Inventario.objects.select_related('producto').get(
+                    id=item['inventario_id'],
+                    estado=True,
+                )
+                if inventario.stock_actual < item['cantidad']:
+                    messages.error(request, f'Stock insuficiente para {inventario.producto.nomProducto}')
                     return redirect('dashboard_cajero')
-            
-            # Obtener o crear método de pago
+
             metodo, _ = MetodoPago.objects.get_or_create(tipoPago=metodo_pago)
-            
-            # Obtener cliente
+
             cliente = None
             if cliente_id:
                 cliente = Cliente.objects.filter(id_cliente=cliente_id, estado=True).first()
             if not cliente:
                 messages.error(request, '⚠️ Debes seleccionar un cliente antes de confirmar la venta')
                 return redirect('dashboard_cajero')
-            
-            # Crear venta
+
             venta = Venta.objects.create(
                 total=carrito['total'],
                 cliente=cliente,
                 metodo_pago=metodo
             )
-            
-            # Crear detalles y descontar stock
+
             for item in carrito['items']:
-                producto = Producto.objects.get(id=item['id'])
-                producto.stockActual -= item['cantidad']
-                producto.save()
-                
-                # Buscar o crear inventario
-                inventario, _ = Inventario.objects.get_or_create(
-                    producto=producto,
-                    defaults={'stock_actual': producto.stockActual, 'tipoUnidad': 'unidad'}
-                )
-                inventario.stock_actual = producto.stockActual
+                inventario = Inventario.objects.get(id=item['inventario_id'])
+                inventario.stock_actual -= item['cantidad']
+                inventario.accion = 'venta'
                 inventario.save()
-                
-                # Crear detalle - SIN precio_unitario
+
                 DetalleVenta.objects.create(
                     venta=venta,
                     inventario=inventario,
                     cantidad=item['cantidad'],
-                    subtotal=item['subtotal']  # subtotal = cantidad * precio
+                    subtotal=item['subtotal']
                 )
             
             # Limpiar carrito y cliente

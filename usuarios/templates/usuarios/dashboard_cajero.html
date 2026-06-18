@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
+  /* (estilos sin cambios) */
   * {
     box-sizing: border-box;
     margin: 0;
@@ -628,7 +629,6 @@
   </div>
   
   <div class="logout-dropdown" id="logoutDropdown">
-    <!-- Nuevo enlace para cambiar contraseña -->
     <a href="#" onclick="event.preventDefault(); abrirModalPassword();">
       <i class="fas fa-key me-2"></i> Cambiar Contraseña
     </a>
@@ -652,12 +652,13 @@
     
     <div class="products-list">
       {% if productos %}
-        {% for p in productos %}
-        <div class="product-item" data-product-id="{{ p.codProducto }}" data-product-name="{{ p.nomProducto }}" data-product-price="{{ p.precioVenta }}" data-product-stock="{{ p.stockActual }}">
+        <!-- CAMBIO: ahora iteramos sobre 'productos' en lugar de 'inventarios' -->
+        {% for producto in productos %}
+        <div class="product-item" data-producto-id="{{ producto.id }}" data-product-name="{{ producto.nomProducto }}" data-product-price="{{ producto.precioVenta }}" data-product-stock="{{ producto.stock_actual }}">
           <div class="product-info">
-            <div class="product-name">{{ p.nomProducto }}</div>
-            <div class="product-price">Bs {{ p.precioVenta|floatformat:2 }}</div>
-            <div class="product-stock"><i class="fas fa-boxes me-1"></i>Stock: {{ p.stockActual }} unidades</div>
+            <div class="product-name">{{ producto.nomProducto }}</div>
+            <div class="product-price">Bs {{ producto.precioVenta|floatformat:2 }}</div>
+            <div class="product-stock"><i class="fas fa-boxes me-1"></i>Stock: {{ producto.stock_actual }} unidades</div>
           </div>
           <i class="fas fa-hand-pointer" style="color: #0671B8; opacity: 0.5; font-size: 1.2rem;"></i>
         </div>
@@ -693,19 +694,19 @@
     <div class="cart-items">
       {% if carrito and carrito.items %}
         {% for item in carrito.items %}
-        <div class="cart-item" data-item-code="{{ item.cod }}">
+        <div class="cart-item" data-producto-id="{{ item.producto_id }}">
           <div class="cart-item-info">
             <div class="cart-item-name">{{ item.nombre }}</div>
             <div class="cart-item-actions">
-              <button class="qty-btn" onclick="actualizarCantidad('{{ item.cod }}', 'dec')">-</button>
-              <span class="qty-display" id="qty-{{ item.cod }}" onclick="editarCantidadInline('{{ item.cod }}', {{ item.cantidad }})">{{ item.cantidad }}</span>
-              <button class="qty-btn" onclick="actualizarCantidad('{{ item.cod }}', 'inc')">+</button>
-              <button class="btn-eliminar" onclick="eliminarItem('{{ item.cod }}')">
+              <button class="qty-btn" onclick="actualizarCantidad('{{ item.producto_id }}', 'dec')">-</button>
+              <span class="qty-display" id="qty-{{ item.producto_id }}" onclick="editarCantidadInline('{{ item.producto_id }}', {{ item.cantidad }})">{{ item.cantidad }}</span>
+              <button class="qty-btn" onclick="actualizarCantidad('{{ item.producto_id }}', 'inc')">+</button>
+              <button class="btn-eliminar" onclick="eliminarItem('{{ item.producto_id }}')">
                 <i class="fas fa-trash"></i> Eliminar
               </button>
             </div>
           </div>
-          <div class="cart-item-price" id="price-{{ item.cod }}">
+          <div class="cart-item-price" id="price-{{ item.producto_id }}">
             Bs {{ item.subtotal|floatformat:2 }}
           </div>
         </div>
@@ -813,9 +814,7 @@
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL PARA CAMBIAR CONTRASEÑA (CAJERO)    -->
-<!-- ========================================== -->
+<!-- Modal para Cambiar Contraseña -->
 <div class="modal-overlay" id="passwordModal">
   <div class="modal-content-custom">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -845,8 +844,6 @@
     </form>
   </div>
 </div>
-<!-- FIN MODAL -->
-<!-- ========================================== -->
 
 <script>
   // Función para obtener CSRF token
@@ -876,9 +873,9 @@
     });
   }
   
-  // Edición inline de cantidad
-  function editarCantidadInline(productoCodigo, cantidadActual) {
-    const qtySpan = document.getElementById(`qty-${productoCodigo}`);
+  // Edición inline de cantidad (ahora usa producto_id)
+  function editarCantidadInline(productoId, cantidadActual) {
+    const qtySpan = document.getElementById(`qty-${productoId}`);
     
     const input = document.createElement('input');
     input.type = 'number';
@@ -911,7 +908,7 @@
           'X-CSRFToken': getCookie('csrftoken') 
         },
         body: new URLSearchParams({ 
-          'producto_cod': productoCodigo, 
+          'producto_id': productoId, 
           'cantidad': nuevaCantidad 
         })
       })
@@ -919,7 +916,7 @@
       .then(data => {
         if (data.success) {
           qtySpan.innerText = nuevaCantidad;
-          const priceSpan = document.getElementById(`price-${productoCodigo}`);
+          const priceSpan = document.getElementById(`price-${productoId}`);
           priceSpan.innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
           document.getElementById('cart-subtotal').innerText = `Bs ${parseFloat(data.cart_subtotal).toFixed(2)}`;
           document.getElementById('cart-total').innerText = `Bs ${parseFloat(data.cart_total).toFixed(2)}`;
@@ -941,10 +938,10 @@
     });
   }
   
-  // Doble clic para agregar productos
+  // Doble clic para agregar productos (ahora usa producto_id)
   document.querySelectorAll('.product-item').forEach(item => {
     item.addEventListener('dblclick', function() {
-      const productId = this.dataset.productId;
+      const productoId = this.dataset.productoId;
       const productName = this.dataset.productName;
       const productStock = parseInt(this.dataset.productStock);
       
@@ -956,7 +953,7 @@
       fetch("/ventas/agregar-al-carrito/", {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-        body: new URLSearchParams({ 'producto_id': productId, 'cantidad': 1 })
+        body: new URLSearchParams({ 'producto_id': productoId, 'cantidad': 1 })
       })
       .then(response => response.json())
       .then(data => {
@@ -969,9 +966,9 @@
     });
   });
   
-  // Actualizar cantidad con botones
-  function actualizarCantidad(productoCodigo, operacion) {
-    const qtySpan = document.getElementById(`qty-${productoCodigo}`);
+  // Actualizar cantidad con botones (ahora usa producto_id)
+  function actualizarCantidad(productoId, operacion) {
+    const qtySpan = document.getElementById(`qty-${productoId}`);
     let currentQty = parseInt(qtySpan.innerText);
     let nuevaCantidad = operacion === 'inc' ? currentQty + 1 : currentQty - 1;
     
@@ -979,20 +976,20 @@
       Swal.fire({
         title: '¿Eliminar producto?', text: 'La cantidad sería 0. ¿Deseas eliminar?', icon: 'question',
         showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar'
-      }).then(result => { if (result.isConfirmed) eliminarItem(productoCodigo); });
+      }).then(result => { if (result.isConfirmed) eliminarItem(productoId); });
       return;
     }
     
     fetch("/ventas/actualizar-cantidad/", {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-      body: new URLSearchParams({ 'producto_cod': productoCodigo, 'cantidad': nuevaCantidad })
+      body: new URLSearchParams({ 'producto_id': productoId, 'cantidad': nuevaCantidad })
     })
     .then(response => response.json())
     .then(data => {
       if (data.success) {
         qtySpan.innerText = nuevaCantidad;
-        document.getElementById(`price-${productoCodigo}`).innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
+        document.getElementById(`price-${productoId}`).innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
         document.getElementById('cart-subtotal').innerText = `Bs ${parseFloat(data.cart_subtotal).toFixed(2)}`;
         document.getElementById('cart-total').innerText = `Bs ${parseFloat(data.cart_total).toFixed(2)}`;
       } else {
@@ -1001,12 +998,12 @@
     });
   }
   
-  // Eliminar item
-  function eliminarItem(productoCodigo) {
+  // Eliminar item (ahora usa producto_id)
+  function eliminarItem(productoId) {
     fetch("/ventas/eliminar-del-carrito/", {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-      body: new URLSearchParams({ 'producto_cod': productoCodigo })
+      body: new URLSearchParams({ 'producto_id': productoId })
     })
     .then(response => response.json())
     .then(data => {
@@ -1023,14 +1020,8 @@
   function cerrarModalClientes() { document.getElementById('clientesModal').classList.remove('active'); }
   function abrirModalPago() { document.getElementById('paymentModal').classList.add('active'); }
   function cerrarModalPago() { document.getElementById('paymentModal').classList.remove('active'); }
-  
-  // Funciones para el modal de cambio de contraseña
-  function abrirModalPassword() {
-    document.getElementById('passwordModal').classList.add('active');
-  }
-  function cerrarModalPassword() {
-    document.getElementById('passwordModal').classList.remove('active');
-  }
+  function abrirModalPassword() { document.getElementById('passwordModal').classList.add('active'); }
+  function cerrarModalPassword() { document.getElementById('passwordModal').classList.remove('active'); }
   
   // Logout dropdown
   function toggleLogout() { document.getElementById('logoutDropdown').classList.toggle('show'); }

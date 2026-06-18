@@ -213,7 +213,7 @@
                                 <tbody>
                                     {% for detalle in item.detalles %}
                                     <tr>
-                                        <td class="text-secondary">{{ detalle.inventario.producto.nomProducto }}</td>
+                                        <td class="text-secondary">{{ detalle.producto.nomProducto }}</td>
                                         <td class="text-center fw-bold">{{ detalle.cantidad }}</td>
                                         <td class="text-end text-dark">Bs {{ detalle.subtotal|floatformat:2 }}</td>
                                     </tr>

@@ -1,24 +1,18 @@
 from django.db import models
 from proveedores.models import Proveedor
-from productos.models import Producto
-from inventario.models import Inventario
+from productos.models import Producto  # Asegúrate de que la app se llame 'productos'
 
 
-# Create your models here.
 class Compra(models.Model):
-    """
-    Representa la cabecera de la compra.
-    Relación 1:N con Proveedor (Un proveedor tiene muchas compras).
-    """
-    id_compra = models.AutoField(primary_key=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha = models.DateTimeField() 
-    estado = models.BooleanField(default=False)
-    # Relación 1:N 
+    id_compra = models.AutoField(primary_key=True, db_column='IdCompre')
+    total = models.DecimalField(max_digits=10, decimal_places=2, db_column='Total')
+    fecha = models.DateTimeField(db_column='Fecha')
+    estado = models.BooleanField(default=True, db_column='Estado')
     proveedor = models.ForeignKey(
-        Proveedor, 
-        on_delete=models.CASCADE, 
-        related_name='compras_realizadas'
+        Proveedor,
+        on_delete=models.CASCADE,
+        related_name='compras_realizadas',
+        db_column='IdProv'
     )
 
     def __str__(self):
@@ -27,29 +21,27 @@ class Compra(models.Model):
     class Meta:
         verbose_name = "Compra"
         verbose_name_plural = "Compras"
+        db_table = 'COMPRA'
 
 
 class DetalleCompra(models.Model):
-    """
-    Esta es la tabla intermedia (Entidad Asociativa) que resuelve la relación N:M
-    entre Compras e Inventarios.
-    """
-    id_detalle_compra = models.AutoField(primary_key=True)
-    cantidad = models.IntegerField() # O DecimalField si manejas decimales
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    id_detalle_compra = models.AutoField(primary_key=True, db_column='IdDetalleCompra')
+    cantidad = models.IntegerField(db_column='Cantidad')
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, db_column='Subtotal', editable=False)
 
-    # Relación con la tabla Compra
     compra = models.ForeignKey(
-        Compra, 
-        on_delete=models.CASCADE, 
-        related_name='detalles'
+        Compra,
+        on_delete=models.CASCADE,
+        related_name='detalles',
+        db_column='IdCompra'
     )
 
-    # Relación con la tabla Inventario
-    inventario = models.ForeignKey(
-        Inventario, 
+    # FK a Producto
+    producto = models.ForeignKey(
+        Producto,
         on_delete=models.CASCADE,
-        related_name='detalles_compra'
+        related_name='detalles_compra',
+        db_column='IdProducto'
     )
 
     def __str__(self):
@@ -57,13 +49,13 @@ class DetalleCompra(models.Model):
 
     def save(self, *args, **kwargs):
         """Calcula automáticamente el subtotal antes de guardar"""
-        if self.inventario and self.inventario.producto:
-            # Subtotal = cantidad × precio de compra del producto
-            self.subtotal = self.cantidad * self.inventario.producto.precioCompra
+        if self.producto and self.producto.precioCompra:
+            self.subtotal = self.cantidad * self.producto.precioCompra
         else:
             self.subtotal = 0
         super().save(*args, **kwargs)
-        
+
     class Meta:
         verbose_name = "Detalle de Compra"
         verbose_name_plural = "Detalles de Compras"
+        db_table = 'DETALLE_COMPRA'

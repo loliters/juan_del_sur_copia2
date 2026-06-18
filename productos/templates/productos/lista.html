@@ -7,6 +7,16 @@
 <style>
     .badge-status-activo { background-color: #198754; color: white; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
     .badge-status-inactivo { background-color: #6c757d; color: white; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+    .badge-solo-lectura {
+        background-color: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        display: inline-block;
+        border: 1px solid #ced4da;
+    }
     .btn-action-edit { background-color: #ffc107; color: #212529; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; transition: 0.2s; }
     .btn-action-edit:hover { background-color: #e0a800; }
     .btn-action-delete { background-color: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; transition: 0.2s; }
@@ -16,6 +26,23 @@
     .search-input:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12); }
     .search-icon-btn { background: #f8f9fa; border: 1px solid #ced4da; border-left: none; border-radius: 0 8px 8px 0; color: #6c757d; }
     #filaSinResultados, #filaVacia { font-style: italic; }
+    .btn-nuevo {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 18px;
+        font-weight: 600;
+        font-size: 0.92rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    .btn-nuevo:hover {
+        background-color: #0b5ed7;
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -32,7 +59,7 @@
         </span>
     </div>
 
-    {% if request.session.rol != 'Cajero' %}
+    {% if request.session.rol == 'administrador' %}
         <a href="{% url 'productos:registrar' %}" class="btn btn-nuevo px-3 shadow-sm d-flex align-items-center justify-content-center">
             <i class="fas fa-plus me-1"></i> Nuevo Producto
         </a>
@@ -51,7 +78,7 @@
                 <th>Stock</th>
                 <th>Presentación</th>
                 <th>Estado</th>
-                {% if request.session.rol != 'Cajero' %}
+                {% if request.session.rol == 'administrador' %}
                     <th style="text-align: center; width: 120px;">Acciones</th>
                 {% endif %}
             </tr>
@@ -83,7 +110,7 @@
                         <span class="badge-status-inactivo">Inactivo</span>
                     {% endif %}
                 </td>
-                {% if request.session.rol != 'Cajero' %}
+                {% if request.session.rol == 'administrador' %}
                 <td>
                     <div class="d-flex justify-content-center gap-2">
                         <a href="{% url 'productos:editar' p.id %}" class="btn-action-edit" title="Editar">
@@ -95,15 +122,21 @@
                         </a>
                     </div>
                 </td>
+                {% else %}
+                <td>
+                    <span class="badge-solo-lectura">
+                        <i class="fas fa-eye me-1"></i> Solo lectura
+                    </span>
+                </td>
                 {% endif %}
             </tr>
             {% empty %}
             <tr id="filaVacia">
-                <td colspan="9" class="text-center py-4 text-secondary">No hay productos registrados</td>
+                <td colspan="{% if request.session.rol == 'administrador' %}9{% else %}8{% endif %}" class="text-center py-4 text-secondary">No hay productos registrados</td>
             </tr>
             {% endfor %}
             <tr id="filaSinResultados" style="display: none;">
-                <td colspan="9" class="text-center py-4 text-secondary">No se encontraron productos</td>
+                <td colspan="{% if request.session.rol == 'administrador' %}9{% else %}8{% endif %}" class="text-center py-4 text-secondary">No se encontraron productos</td>
             </tr>
         </tbody>
     </table>
@@ -115,7 +148,8 @@
 document.getElementById('inputBuscar').addEventListener('keyup', function() {
     let filtro = this.value.toLowerCase().trim();
     let tabla = document.getElementById('tablaProductos');
-    let filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    let tbody = tabla.getElementsByTagName('tbody')[0];
+    let filas = tbody.getElementsByTagName('tr');
     let resultadosEncontrados = false;
     let tieneProductosOriginales = false;
 

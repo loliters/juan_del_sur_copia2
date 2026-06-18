@@ -38,9 +38,9 @@ class ComprasTests(TestCase):
         self.cat = Categoria.objects.create(nomCategoria="Alimentos", estado=True)
         self.prod = Producto.objects.create(
             codProducto="P001", nomProducto="Harina", categoria=self.cat,
-            precioCompra=20.00, precioVenta=30.00, estado='activo', tipoUnidad="Bolsa"
+            precioCompra=20.00, precioVenta=30.00, estado='activo',
         )
-        self.inv = Inventario.objects.create(producto=self.prod, stock_actual=10, tipoUnidad="Bolsa")
+        self.inv = Inventario.objects.create(producto=self.prod, stock_actual=10, estado=True)
         self.compra = Compra.objects.create(
             total=200.00, fecha=timezone.now(), proveedor=self.prov, estado=True
         )
@@ -144,8 +144,9 @@ class ComprasTests(TestCase):
             'fecha': timezone.now().isoformat(),
             'productos': [
                 json.dumps({
-                    'cod': 'P001', 
-                    'cantidad': 5, 
+                    'inventario_id': self.inv.id,
+                    'cod': 'P001',
+                    'cantidad': 5,
                     'precio_compra': 20.00
                 })
             ]
@@ -196,8 +197,9 @@ class ComprasTests(TestCase):
             'fecha': self.compra.fecha.isoformat(),
             'productos': [
                 json.dumps({
-                    'cod': 'P001', 
-                    'cantidad': 8,  # ← Nueva cantidad
+                    'inventario_id': self.inv.id,
+                    'cod': 'P001',
+                    'cantidad': 8,
                     'precio_compra': 20.00
                 })
             ]

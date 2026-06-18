@@ -85,9 +85,9 @@
                 <tbody>
                     {% for detalle in detalles %}
                     <tr>
-                        <td>{{ detalle.inventario.producto.nomProducto }}</td>
+                        <td>{{ detalle.producto.nomProducto }}</td>
                         <td>{{ detalle.cantidad }}</td>
-                        <td>Bs {{ detalle.inventario.producto.precioVenta|floatformat:2 }}</td>
+                        <td>Bs {{ detalle.producto.precioVenta|floatformat:2 }}</td>
                         <td class="text-right">Bs {{ detalle.subtotal|floatformat:2 }}</td>
                     </tr>
                     {% empty %}
@@ -116,12 +116,10 @@
     <!-- Scripts para impresión/guardado -->
     <script>
         function imprimirVenta(idVenta) {
-            // Abre en nueva pestaña el formato formal para imprimir
             window.open(`/ventas/imprimir/${idVenta}/`, '_blank');
         }
         
         function guardarVenta(idVenta) {
-            // Descarga directamente el PDF
             window.location.href = `/ventas/pdf/${idVenta}/`;
         }
     </script>

@@ -83,7 +83,8 @@ class Producto(models.Model):
         from inventario.models import Inventario
 
         inv, created = Inventario.objects.get_or_create(
-            producto=self
+            producto=self,
+            defaults={'stock_actual': value, 'estado': True},
         )
 
         inv.stock_actual = value
