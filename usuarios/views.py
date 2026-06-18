@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from .models import Usuario, Rol
 
+from django.contrib.auth.hashers import make_password
+
 import re
 
 # Importar modelos de otras apps
@@ -752,3 +754,29 @@ def perfil_cajero(request):
         'usuario': usuario,
         'es_primera_vez': es_primera_vez,
     })
+
+#resetear contraseña
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Validar que las contraseñas coincidan
+        if new_password != confirm_password:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return render(request, 'usuarios/reset_password.html')
+
+        try:
+            usuario = Usuario.objects.get(email=email)
+        except Usuario.DoesNotExist:
+            messages.error(request, 'No existe un usuario con ese correo electrónico.')
+            return render(request, 'usuarios/reset_password.html')
+
+        # Actualizar contraseña de forma segura
+        Usuario.password = make_password(new_password)
+        Usuario.save()
+        messages.success(request, 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.')
+        return redirect('login')
+
+    return render(request, 'usuarios/reset_password.html')

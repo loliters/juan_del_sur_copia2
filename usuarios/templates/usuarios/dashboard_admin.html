@@ -135,8 +135,53 @@
             margin-top: 10px;
         }
     }
+
+    /* Estilos para el modal de cambio de contraseña */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .modal-footer {
+        border-top: none;
+        padding-top: 0;
+    }
+    .modal-title i {
+        color: #0671B8;
+    }
+    .btn-custom-primary {
+        background-color: #0671B8;
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 40px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-custom-primary:hover {
+        background-color: #055a9a;
+        color: white;
+    }
+    .btn-custom-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        border-radius: 40px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .btn-custom-secondary:hover {
+        background-color: #5a6268;
+        color: white;
+    }
 </style>
 {% endblock %}
+
 
 {% block content %}
 <!-- HEADER: Título y Perfil en la misma línea -->
@@ -145,24 +190,25 @@
         <i class="fas fa-users me-2 text-primary"></i> Gestión de Usuarios
     </h4>
     
-    <div class="user-info" id="userMenuBtn">
-        <div class="user-avatar">
-            {{ usuario.nom_usuario|first|upper }}
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Botón Cambiar Contraseña ELIMINADO -->
+
+        <div class="user-info" id="userMenuBtn">
+            <div class="user-avatar">
+                {{ usuario.nom_usuario|first|upper }}
+            </div>
+            <div>
+                <div class="user-name">{{ usuario.nom_usuario }}</div>
+                <div class="user-role">{{ usuario.rol.nom_rol }}</div>
+            </div>
+            <i class="fas fa-chevron-down"></i>
         </div>
-        <div>
-            <div class="user-name">{{ usuario.nom_usuario }}</div>
-            <div class="user-role">{{ usuario.rol.nom_rol }}</div>
-        </div>
-        <i class="fas fa-chevron-down"></i>
     </div>
 </div>
 
 <!-- Dropdown menu del perfil -->
 <div class="dropdown-menu-custom" id="userDropdown">
-    <a href="{% url 'perfil_admin' %}">
-        <i class="fas fa-user-circle"></i> Mi Perfil
-    </a>
-    <a href="{% url 'perfil_admin' %}?cambiar_pass=true">
+    <a href="#" data-bs-toggle="modal" data-bs-target="#cambiarPasswordModal">
         <i class="fas fa-key"></i> Cambiar Contraseña
     </a>
     <hr>
@@ -242,6 +288,75 @@
         </tbody>
     </table>
 </div>
+
+<!-- ========================================== -->
+<!-- MODAL PARA CAMBIAR CONTRASEÑA              -->
+<!-- ========================================== -->
+<div class="modal fade" id="cambiarPasswordModal" tabindex="-1" aria-labelledby="cambiarPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cambiarPasswordModalLabel">
+                    <i class="fas fa-key me-2"></i> Cambiar Contraseña
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'perfil_admin' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Campo: Contraseña actual -->
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label fw-semibold">Contraseña actual</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required placeholder="Ingrese su contraseña actual">
+                        </div>
+                    </div>
+
+                    <!-- Campo: Nueva contraseña -->
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label fw-semibold">Nueva contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <input type="password" class="form-control" id="new_password" name="new_password" required placeholder="Mínimo 4 caracteres">
+                        </div>
+                    </div>
+
+                    <!-- Campo: Confirmar contraseña -->
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label fw-semibold">Confirmar nueva contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required placeholder="Repita la nueva contraseña">
+                        </div>
+                    </div>
+
+                    <!-- Mostrar mensajes de error/success si existen en el modal -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mt-2" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-custom-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-custom-primary">
+                        <i class="fas fa-save me-1"></i> Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- FIN MODAL -->
+<!-- ========================================== -->
+
+
+
+
 {% endblock %}
 
 {% block extra_js %}
@@ -261,5 +376,20 @@
             userDropdown.classList.remove('show');
         });
     }
+
+    // ===== CERRAR MODAL SI HAY MENSAJES DE ÉXITO =====
+    // Si el cambio de contraseña fue exitoso, cerramos el modal y recargamos la página para ver los mensajes
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('.alert-success');
+        if (messages.length > 0) {
+            // Si hay mensajes de éxito, cerrar el modal después de 2 segundos
+            setTimeout(function() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('cambiarPasswordModal'));
+                if (modal) modal.hide();
+                // Opcional: recargar la página para actualizar el estado del usuario
+                // location.reload();
+            }, 2000);
+        }
+    });
 </script>
 {% endblock %}

@@ -34,5 +34,8 @@ urlpatterns = [
     path('perfil-admin/', views.perfil_admin, name='perfil_admin'),
   
     path('perfil-cajero/', views.perfil_cajero, name='perfil_cajero'),
+
+    #resetear
+    path('reset-password/', views.reset_password, name='reset_password'),
     
 ]

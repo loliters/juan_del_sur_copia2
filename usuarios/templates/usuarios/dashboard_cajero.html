@@ -342,7 +342,6 @@
     background: #c82333;
   }
   
-  /* NUEVO: Contenedor de totales con flexbox para alinear */
   .cart-totals-wrapper {
     display: flex;
     justify-content: space-between;
@@ -544,6 +543,34 @@
     padding-top: 10px;
   }
   
+  /* Estilos para el modal de cambio de contraseña */
+  .modal-content-custom {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    color: #000;
+  }
+  .modal-content-custom .form-control {
+    border-radius: 10px;
+    padding: 10px 15px;
+  }
+  .modal-content-custom .btn-primary {
+    background: #0671B8;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-weight: 600;
+  }
+  .modal-content-custom .btn-primary:hover {
+    background: #055A9A;
+  }
+  .modal-content-custom .btn-secondary {
+    border-radius: 40px;
+    padding: 10px 20px;
+  }
+  
   @media (max-width: 968px) {
     .main-container { flex-direction: column; height: auto; }
     .productos-section, .cart-section { height: auto; min-height: 400px; }
@@ -552,8 +579,6 @@
     .main-container { padding-top: 20px; }
     .nav-buttons { flex-wrap: wrap; justify-content: center; }
     .user-info { margin-top: 10px; }
-    
-    /* Responsive para totales */
     .cart-totals-wrapper {
       flex-direction: column;
       align-items: stretch;
@@ -603,6 +628,10 @@
   </div>
   
   <div class="logout-dropdown" id="logoutDropdown">
+    <!-- Nuevo enlace para cambiar contraseña -->
+    <a href="#" onclick="event.preventDefault(); abrirModalPassword();">
+      <i class="fas fa-key me-2"></i> Cambiar Contraseña
+    </a>
     <a href="{% url 'logout' %}">
       <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
     </a>
@@ -689,7 +718,6 @@
       {% endif %}
     </div>
     
-    <!-- NUEVO: Contenedor para totales y botón de confirmar pago en la misma línea -->
     <div class="cart-totals-wrapper">
       <div class="totals-info">
         <div class="total-row">
@@ -749,15 +777,6 @@
         <div class="text-center py-4">No hay clientes registrados</div>
       {% endif %}
     </div>
-    
-    <!-- <hr>
-    <form method="POST" action="{% url 'ventas:seleccionar_cliente' %}">
-      {% csrf_token %}
-      <input type="hidden" name="cliente_id" value="">
-      <button type="submit" class="btn btn-secondary w-100">
-        <i class="fas fa-receipt me-1"></i> Continuar sin cliente
-      </button>
-    </form> -->
   </div>
 </div>
 
@@ -793,6 +812,41 @@
     </button>
   </div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODAL PARA CAMBIAR CONTRASEÑA (CAJERO)    -->
+<!-- ========================================== -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal-content-custom">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5><i class="fas fa-key me-2"></i> Cambiar Contraseña</h5>
+      <button class="btn-close" onclick="cerrarModalPassword()" style="background: none; border: none; font-size: 24px;">&times;</button>
+    </div>
+    <form method="POST" action="{% url 'perfil_cajero' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="current_password" class="form-label fw-semibold">Contraseña actual</label>
+        <input type="password" class="form-control" id="current_password" name="current_password" required placeholder="Ingrese su contraseña actual">
+      </div>
+      <div class="mb-3">
+        <label for="new_password" class="form-label fw-semibold">Nueva contraseña</label>
+        <input type="password" class="form-control" id="new_password" name="new_password" required placeholder="Mínimo 4 caracteres">
+      </div>
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label fw-semibold">Confirmar nueva contraseña</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required placeholder="Repita la nueva contraseña">
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" onclick="cerrarModalPassword()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save me-1"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- FIN MODAL -->
+<!-- ========================================== -->
 
 <script>
   // Función para obtener CSRF token
@@ -970,6 +1024,14 @@
   function abrirModalPago() { document.getElementById('paymentModal').classList.add('active'); }
   function cerrarModalPago() { document.getElementById('paymentModal').classList.remove('active'); }
   
+  // Funciones para el modal de cambio de contraseña
+  function abrirModalPassword() {
+    document.getElementById('passwordModal').classList.add('active');
+  }
+  function cerrarModalPassword() {
+    document.getElementById('passwordModal').classList.remove('active');
+  }
+  
   // Logout dropdown
   function toggleLogout() { document.getElementById('logoutDropdown').classList.toggle('show'); }
   
@@ -978,7 +1040,7 @@
   });
   
   document.addEventListener('keydown', function(e) { 
-    if (e.key === 'Escape') { cerrarModalClientes(); cerrarModalPago(); } 
+    if (e.key === 'Escape') { cerrarModalClientes(); cerrarModalPago(); cerrarModalPassword(); } 
   });
   
   // Búsqueda en modal de clientes
