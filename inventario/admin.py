@@ -8,11 +8,14 @@ class InventarioAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'producto',
+        'stock_actual',
+        'accion',
+        'estado',
         'tipo_unidad',
-        'stock_actual'
     )
 
     list_filter = (
+        'estado',
         'tipo_unidad',
     )
 

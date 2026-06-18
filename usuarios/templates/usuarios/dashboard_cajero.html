@@ -622,13 +622,13 @@
     </div>
     
     <div class="products-list">
-      {% if productos %}
-        {% for p in productos %}
-        <div class="product-item" data-product-id="{{ p.codProducto }}" data-product-name="{{ p.nomProducto }}" data-product-price="{{ p.precioVenta }}" data-product-stock="{{ p.stockActual }}">
+      {% if inventarios %}
+        {% for inv in inventarios %}
+        <div class="product-item" data-inventario-id="{{ inv.id }}" data-product-name="{{ inv.producto.nomProducto }}" data-product-price="{{ inv.producto.precioVenta }}" data-product-stock="{{ inv.stock_actual }}">
           <div class="product-info">
-            <div class="product-name">{{ p.nomProducto }}</div>
-            <div class="product-price">Bs {{ p.precioVenta|floatformat:2 }}</div>
-            <div class="product-stock"><i class="fas fa-boxes me-1"></i>Stock: {{ p.stockActual }} unidades</div>
+            <div class="product-name">{{ inv.producto.nomProducto }}</div>
+            <div class="product-price">Bs {{ inv.producto.precioVenta|floatformat:2 }}</div>
+            <div class="product-stock"><i class="fas fa-boxes me-1"></i>Stock: {{ inv.stock_actual }} unidades</div>
           </div>
           <i class="fas fa-hand-pointer" style="color: #0671B8; opacity: 0.5; font-size: 1.2rem;"></i>
         </div>
@@ -664,19 +664,19 @@
     <div class="cart-items">
       {% if carrito and carrito.items %}
         {% for item in carrito.items %}
-        <div class="cart-item" data-item-code="{{ item.cod }}">
+        <div class="cart-item" data-inventario-id="{{ item.inventario_id }}">
           <div class="cart-item-info">
             <div class="cart-item-name">{{ item.nombre }}</div>
             <div class="cart-item-actions">
-              <button class="qty-btn" onclick="actualizarCantidad('{{ item.cod }}', 'dec')">-</button>
-              <span class="qty-display" id="qty-{{ item.cod }}" onclick="editarCantidadInline('{{ item.cod }}', {{ item.cantidad }})">{{ item.cantidad }}</span>
-              <button class="qty-btn" onclick="actualizarCantidad('{{ item.cod }}', 'inc')">+</button>
-              <button class="btn-eliminar" onclick="eliminarItem('{{ item.cod }}')">
+              <button class="qty-btn" onclick="actualizarCantidad('{{ item.inventario_id }}', 'dec')">-</button>
+              <span class="qty-display" id="qty-{{ item.inventario_id }}" onclick="editarCantidadInline('{{ item.inventario_id }}', {{ item.cantidad }})">{{ item.cantidad }}</span>
+              <button class="qty-btn" onclick="actualizarCantidad('{{ item.inventario_id }}', 'inc')">+</button>
+              <button class="btn-eliminar" onclick="eliminarItem('{{ item.inventario_id }}')">
                 <i class="fas fa-trash"></i> Eliminar
               </button>
             </div>
           </div>
-          <div class="cart-item-price" id="price-{{ item.cod }}">
+          <div class="cart-item-price" id="price-{{ item.inventario_id }}">
             Bs {{ item.subtotal|floatformat:2 }}
           </div>
         </div>
@@ -823,8 +823,8 @@
   }
   
   // Edición inline de cantidad
-  function editarCantidadInline(productoCodigo, cantidadActual) {
-    const qtySpan = document.getElementById(`qty-${productoCodigo}`);
+  function editarCantidadInline(inventarioId, cantidadActual) {
+    const qtySpan = document.getElementById(`qty-${inventarioId}`);
     
     const input = document.createElement('input');
     input.type = 'number';
@@ -857,7 +857,7 @@
           'X-CSRFToken': getCookie('csrftoken') 
         },
         body: new URLSearchParams({ 
-          'producto_cod': productoCodigo, 
+          'inventario_id': inventarioId, 
           'cantidad': nuevaCantidad 
         })
       })
@@ -865,7 +865,7 @@
       .then(data => {
         if (data.success) {
           qtySpan.innerText = nuevaCantidad;
-          const priceSpan = document.getElementById(`price-${productoCodigo}`);
+          const priceSpan = document.getElementById(`price-${inventarioId}`);
           priceSpan.innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
           document.getElementById('cart-subtotal').innerText = `Bs ${parseFloat(data.cart_subtotal).toFixed(2)}`;
           document.getElementById('cart-total').innerText = `Bs ${parseFloat(data.cart_total).toFixed(2)}`;
@@ -890,7 +890,7 @@
   // Doble clic para agregar productos
   document.querySelectorAll('.product-item').forEach(item => {
     item.addEventListener('dblclick', function() {
-      const productId = this.dataset.productId;
+      const inventarioId = this.dataset.inventarioId;
       const productName = this.dataset.productName;
       const productStock = parseInt(this.dataset.productStock);
       
@@ -902,7 +902,7 @@
       fetch("/ventas/agregar-al-carrito/", {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-        body: new URLSearchParams({ 'producto_id': productId, 'cantidad': 1 })
+        body: new URLSearchParams({ 'inventario_id': inventarioId, 'cantidad': 1 })
       })
       .then(response => response.json())
       .then(data => {
@@ -916,8 +916,8 @@
   });
   
   // Actualizar cantidad con botones
-  function actualizarCantidad(productoCodigo, operacion) {
-    const qtySpan = document.getElementById(`qty-${productoCodigo}`);
+  function actualizarCantidad(inventarioId, operacion) {
+    const qtySpan = document.getElementById(`qty-${inventarioId}`);
     let currentQty = parseInt(qtySpan.innerText);
     let nuevaCantidad = operacion === 'inc' ? currentQty + 1 : currentQty - 1;
     
@@ -925,20 +925,20 @@
       Swal.fire({
         title: '¿Eliminar producto?', text: 'La cantidad sería 0. ¿Deseas eliminar?', icon: 'question',
         showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar'
-      }).then(result => { if (result.isConfirmed) eliminarItem(productoCodigo); });
+      }).then(result => { if (result.isConfirmed) eliminarItem(inventarioId); });
       return;
     }
     
     fetch("/ventas/actualizar-cantidad/", {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-      body: new URLSearchParams({ 'producto_cod': productoCodigo, 'cantidad': nuevaCantidad })
+      body: new URLSearchParams({ 'inventario_id': inventarioId, 'cantidad': nuevaCantidad })
     })
     .then(response => response.json())
     .then(data => {
       if (data.success) {
         qtySpan.innerText = nuevaCantidad;
-        document.getElementById(`price-${productoCodigo}`).innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
+        document.getElementById(`price-${inventarioId}`).innerText = `Bs ${parseFloat(data.item_subtotal).toFixed(2)}`;
         document.getElementById('cart-subtotal').innerText = `Bs ${parseFloat(data.cart_subtotal).toFixed(2)}`;
         document.getElementById('cart-total').innerText = `Bs ${parseFloat(data.cart_total).toFixed(2)}`;
       } else {
@@ -948,11 +948,11 @@
   }
   
   // Eliminar item
-  function eliminarItem(productoCodigo) {
+  function eliminarItem(inventarioId) {
     fetch("/ventas/eliminar-del-carrito/", {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCookie('csrftoken') },
-      body: new URLSearchParams({ 'producto_cod': productoCodigo })
+      body: new URLSearchParams({ 'inventario_id': inventarioId })
     })
     .then(response => response.json())
     .then(data => {

@@ -549,9 +549,9 @@
                     <label class="form-label"><i class="bi bi-cart me-2"></i>Productos en la venta</label>
                     <div id="productos-container">
                         {% for detalle in detalles %}
-                        <div class="producto-item" data-producto-id="{{ detalle.inventario.producto.codProducto }}">
+                        <div class="producto-item" data-producto-id="{{ detalle.producto_id }}">
                             <div class="producto-info">
-                                <div class="producto-nombre">{{ detalle.inventario.producto.nomProducto }}</div>
+                                <div class="producto-nombre">{{ detalle.producto.nomProducto }}</div>
                                 <div class="producto-precio">Bs {{ detalle.precio_unitario|floatformat:2 }} c/u</div>
                             </div>
                             <div class="producto-acciones">
@@ -562,7 +562,7 @@
                                     <i class="fas fa-trash-alt me-2"></i>Eliminar
                                 </button>
                             </div>
-                            <input type="hidden" name="productos[]" class="producto-input" value='{"cod":"{{ detalle.inventario.producto.codProducto }}", "cantidad":{{ detalle.cantidad }}, "precio":"{{ detalle.precio_unitario|floatformat:2 }}" }'>
+                            <input type="hidden" name="productos" class="producto-input" value='{"producto_id":{{ detalle.producto_id }}, "cod":"{{ detalle.producto.codProducto }}", "cantidad":{{ detalle.cantidad }}, "precio":"{{ detalle.precio_unitario|floatformat:2 }}" }'>
                         </div>
                         {% endfor %}
                     </div>
@@ -597,13 +597,13 @@
         </div>
         <input type="text" id="buscarProductoModal" class="buscar-producto-modal" placeholder="🔍 Buscar por nombre de producto...">
         <div id="listaProductosModal">
-            {% for producto in productos_disponibles %}
-            <div class="producto-card" data-cod="{{ producto.codProducto }}" data-nombre="{{ producto.nomProducto }}" data-precio="{{ producto.precioVenta|floatformat:2 }}" data-stock="{{ producto.stockActual }}" onclick="seleccionarProducto(this)">
+            {% for inv in inventarios_disponibles %}
+            <div class="producto-card" data-producto-id="{{ inv.producto.id }}" data-cod="{{ inv.producto.codProducto }}" data-nombre="{{ inv.producto.nomProducto }}" data-precio="{{ inv.producto.precioVenta|floatformat:2 }}" data-stock="{{ inv.stock_actual }}" onclick="seleccionarProducto(this)">
                 <div>
-                    <div class="producto-card-nombre">{{ producto.nomProducto }}</div>
-                    <div class="producto-card-stock"><i class="fas fa-boxes me-1"></i> Stock: {{ producto.stockActual }}</div>
+                    <div class="producto-card-nombre">{{ inv.producto.nomProducto }}</div>
+                    <div class="producto-card-stock"><i class="fas fa-boxes me-1"></i> Stock: {{ inv.stock_actual }}</div>
                 </div>
-                <div class="producto-card-precio">Bs {{ producto.precioVenta|floatformat:2 }}</div>
+                <div class="producto-card-precio">Bs {{ inv.producto.precioVenta|floatformat:2 }}</div>
             </div>
             {% endfor %}
         </div>
@@ -679,12 +679,13 @@
     }
     
     function seleccionarProducto(el) {
+        const productoId = el.getAttribute('data-producto-id');
         const cod = el.getAttribute('data-cod');
         const nombre = el.getAttribute('data-nombre');
         const precio = parseFloat(el.getAttribute('data-precio'));
         const stock = parseInt(el.getAttribute('data-stock'));
         
-        if (document.querySelector(`.producto-item[data-producto-id="${cod}"]`)) {
+        if (document.querySelector(`.producto-item[data-producto-id="${productoId}"]`)) {
             Swal.fire({ title: 'Producto ya existe', text: 'Este producto ya está en la venta.', icon: 'warning', timer: 2000, showConfirmButton: false });
             cerrarModalProductos();
             return;
@@ -698,7 +699,7 @@
         const container = document.getElementById('productos-container');
         const nuevoItem = document.createElement('div');
         nuevoItem.className = 'producto-item';
-        nuevoItem.setAttribute('data-producto-id', cod);
+        nuevoItem.setAttribute('data-producto-id', productoId);
         nuevoItem.innerHTML = `
             <div class="producto-info">
                 <div class="producto-nombre">${nombre}</div>
@@ -710,7 +711,7 @@
                 <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, 1)">+</button>
                 <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(this)"><i class="fas fa-trash-alt me-2"></i>Eliminar</button>
             </div>
-            <input type="hidden" name="productos[]" class="producto-input" value='{"cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
+            <input type="hidden" name="productos" class="producto-input" value='{"producto_id":${productoId}, "cod":"${cod}", "cantidad":1, "precio":"${precio}"}'>
         `;
         container.appendChild(nuevoItem);
         recalcularTotal();

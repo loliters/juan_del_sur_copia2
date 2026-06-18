@@ -51,14 +51,13 @@ def crear_producto():
         precioVenta=100.00,
         precioCompra=50.00,
         stockMinimo=5,
-        tipoUnidad='unidad',
         estado='activo'
     )
-    
+
     Inventario.objects.create(
         producto=producto,
         stock_actual=10,
-        tipoUnidad='unidad'
+        estado=True,
     )
     
     return producto
@@ -76,7 +75,7 @@ def crear_inventario(crear_producto):
     """Crea inventario asociado al producto"""
     inventario, created = Inventario.objects.get_or_create(
         producto=crear_producto,
-        defaults={'stock_actual': 10, 'tipoUnidad': 'unidad'}
+        defaults={'stock_actual': 10, 'estado': True}
     )
     return inventario
 
@@ -115,13 +114,13 @@ def session_con_cajero(client):
 
 
 @pytest.fixture
-def carrito_en_sesion(client, session_con_cajero, crear_producto, crear_cliente):
+def carrito_en_sesion(client, session_con_cajero, crear_producto, crear_cliente, crear_inventario):
     """Crea un carrito en sesión"""
     carrito = {
         'items': [
             {
+                'inventario_id': crear_inventario.id,
                 'cod': crear_producto.codProducto,
-                'id': crear_producto.id,
                 'nombre': crear_producto.nomProducto,
                 'precio': float(crear_producto.precioVenta),
                 'cantidad': 2,
